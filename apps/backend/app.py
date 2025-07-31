@@ -14,7 +14,8 @@ if os.path.exists(FIREBASE_CRED_PATH):
     firebase_admin.initialize_app(cred)
 else:
     print(
-        f"Warning: Firebase credentials file '{FIREBASE_CRED_PATH}' not found. "
+        f"Warning: Firebase credentials file "
+        f"'{FIREBASE_CRED_PATH}' not found. "
         "Firebase not initialized."
     )
 
