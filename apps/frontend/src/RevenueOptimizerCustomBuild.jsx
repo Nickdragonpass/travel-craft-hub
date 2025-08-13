@@ -17,7 +17,7 @@ function RevenueOptimizerCustomBuild({
       timingAmount: '24hrs',
       timingSequence: 'After',
       offerSelection: ['Seat Upgrade', 'Airport Lounge'],
-      progress: 3, // Step 3 of 4
+      progress: 3, // Step 3 of 7
       lastModified: '2024-01-15T10:30:00Z',
       status: 'Draft'
     },
@@ -30,7 +30,7 @@ function RevenueOptimizerCustomBuild({
       timingAmount: '2 days',
       timingSequence: 'After',
       offerSelection: ['Airport Transfer', 'Event Ticket'],
-      progress: 2, // Step 2 of 4
+      progress: 2, // Step 2 of 7
       lastModified: '2024-01-14T16:45:00Z',
       status: 'Draft'
     }
@@ -110,23 +110,14 @@ function RevenueOptimizerCustomBuild({
 
   const renderDraftButton = () => (
     <div className="draft-button-container">
-      <button className="draft-button">
-        Draft Functions [{inProgressFunctions.length}]
+      <button className="build-btn primary" onClick={handleStartBuilding}>
+        <span className="btn-icon">⚙️</span>
+        Start New Function
       </button>
     </div>
   );
 
-  const renderEmptyState = () => (
-    <div className="empty-state">
-      <div className="empty-icon">🎯</div>
-      <h4>No Custom Functions Yet</h4>
-      <p>Start building your first custom revenue function to unlock advanced targeting and logic</p>
-      <button className="build-btn primary" onClick={handleStartBuilding}>
-        <span className="btn-icon">⚙️</span>
-        Create Your First Function
-      </button>
-    </div>
-  );
+
 
   const renderLandingPage = () => (
     <div className="custom-builder-content">
@@ -142,31 +133,84 @@ function RevenueOptimizerCustomBuild({
         </div>
       </div>
 
-      <div className="new-function-section">
-        <button className="build-btn primary large" onClick={handleStartBuilding}>
-          <span className="btn-icon">⚙️</span>
-          Start New Function
-        </button>
-      </div>
+      {inProgressFunctions.length > 0 && (
+        <div className="draft-functions-section">
+          <div className="section-header">
+            <h4 className="draft-functions-title">Draft Functions ({inProgressFunctions.length})</h4>
+            <p>Continue building your revenue functions</p>
+          </div>
+          
+          <div className="draft-functions-grid">
+            {inProgressFunctions.map(func => (
+              <div key={func.id} className="draft-function-card">
+                <div className="draft-function-header">
+                  <div className="draft-function-info">
+                    <h5>{func.title}</h5>
+                    <p>{func.description}</p>
+                    <div className="draft-function-meta">
+                      <span className="category-badge">{func.type}</span>
+                      <span className="status-badge warning">Draft</span>
+                      <span className="progress-text">Step {func.progress} of 7</span>
+                    </div>
+                  </div>
+                  <div className="draft-function-actions">
+                    <button 
+                      className="function-btn primary"
+                      onClick={() => handleContinueBuilding(func)}
+                    >
+                      Continue Building
+                    </button>
+                    <button 
+                      className="function-btn secondary"
+                      onClick={() => handleDeleteFunction(func.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="draft-function-details">
+                  <div className="draft-function-triggers">
+                    <span className="section-label">Trigger:</span>
+                    <span className="booking-type-tag">
+                      {getBookingTypeIcon(func.trigger)} {func.trigger}
+                    </span>
+                  </div>
+                  <div className="draft-function-timing">
+                    <span className="section-label">Timing:</span>
+                    <span className="timing-text">{func.timingAmount} {func.timingSequence}</span>
+                  </div>
+                  <div className="draft-function-offers">
+                    <span className="section-label">Offers:</span>
+                    {func.offerSelection.map(offer => (
+                      <span key={offer} className="booking-type-tag target">
+                        {getBookingTypeIcon(offer)} {offer}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="draft-function-footer">
+                  <span className="last-modified">Last modified: {formatLastModified(func.lastModified)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <div className="builder-features">
-        <div className="feature-item">
-          <span className="feature-icon">🎯</span>
-          <span>Advanced Triggers</span>
+      {inProgressFunctions.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-icon">🎯</div>
+          <h4>No Custom Functions Yet</h4>
+          <p>Start building your first custom revenue function to unlock advanced targeting and logic</p>
+          <button className="build-btn primary" onClick={handleStartBuilding}>
+            <span className="btn-icon">⚙️</span>
+            Create Your First Function
+          </button>
         </div>
-        <div className="feature-item">
-          <span className="feature-icon">⚡</span>
-          <span>Custom Logic</span>
-        </div>
-        <div className="feature-item">
-          <span className="feature-icon">📊</span>
-          <span>Conditional Rules</span>
-        </div>
-        <div className="feature-item">
-          <span className="feature-icon">🎨</span>
-          <span>Flexible Offers</span>
-        </div>
-      </div>
+      )}
+
     </div>
   );
 

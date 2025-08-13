@@ -20,7 +20,7 @@ function Step1BasicInfo({
   isPredefinedTag
 }) {
   // Available options
-  const functionTypes = ['Select', 'Upsell', 'Cross-sell'];
+  const functionTypes = ['Upsell', 'Cross-sell'];
   const objectives = [
     // Revenue & Commercial Objectives
     { id: 'revenue_uplift', name: 'Revenue uplift', description: 'Drive incremental revenue through offers', category: 'Revenue & Commercial' },
@@ -66,7 +66,7 @@ function Step1BasicInfo({
       <h4>Basic Information & Objective</h4>
       
       <div className="form-group">
-        <label>Function Name *</label>
+        <label className="required">Function Name</label>
         <input
           type="text"
           value={customFunction.title}
@@ -77,7 +77,7 @@ function Step1BasicInfo({
       </div>
 
       <div className="form-group">
-        <label>Description *</label>
+        <label>Description</label>
         <textarea
           value={customFunction.description}
           onChange={(e) => handleInputChange('description', e.target.value)}
@@ -87,23 +87,22 @@ function Step1BasicInfo({
         />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label>Function Type</label>
-          <select
-            value={customFunction.functionType}
-            onChange={(e) => handleInputChange('functionType', e.target.value)}
-            className="form-input"
-          >
-            {functionTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
+      <div className="form-group">
+        <label className="required">Function Type</label>
+        <select
+          value={customFunction.functionType}
+          onChange={(e) => handleInputChange('functionType', e.target.value)}
+          className="form-input"
+        >
+          <option value="">Select function type...</option>
+          {functionTypes.map(type => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
       </div>
 
       <div className="form-group">
-        <label>Objectives *</label>
+        <label className="required">Objectives</label>
         <p className="help-text">Select one or more objectives that this function will help achieve</p>
         
         <div className="objectives-container">
@@ -161,7 +160,7 @@ function Step1BasicInfo({
 
       <div className="form-row">
         <div className="form-group">
-          <label>Priority *</label>
+          <label className="required">Priority</label>
           <select
             value={customFunction.priority}
             onChange={(e) => handleInputChange('priority', e.target.value)}

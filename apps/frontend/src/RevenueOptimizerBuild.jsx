@@ -90,6 +90,7 @@ function RevenueOptimizerBuild({
           <div className="template-library">
             <div className="template-controls">
               <div className="template-search">
+                <label className="filter-label">Search</label>
                 <input 
                   type="text" 
                   placeholder="Search templates..." 

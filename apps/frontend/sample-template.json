@@ -1,0 +1,12 @@
+{
+  "name": "Sample Cross-Sell Email Template",
+  "description": "A sample email template for cross-selling hotel bookings after flight purchases",
+  "type": "email",
+  "revenueType": "cross-sell",
+  "subject": "Complete your perfect trip with our handpicked hotels",
+  "content": "Hi {{customer_name}},\n\nWe noticed you recently booked a flight to {{destination}}. Why not complete your perfect trip with our carefully selected hotels?\n\nOur exclusive offers include:\n• 15% off luxury hotels\n• Free breakfast included\n• Flexible cancellation\n• 24/7 concierge service\n\nBook now and save up to £200 on your accommodation!\n\nBest regards,\nThe Travel Team",
+  "status": "draft",
+  "triggers": ["flight_booking", "new_customer"],
+  "targeting": ["business_travelers", "leisure_travelers"],
+  "offers": ["hotel_discount", "free_breakfast", "concierge_service"]
+} 

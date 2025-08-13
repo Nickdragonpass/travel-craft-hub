@@ -11,10 +11,24 @@ function Step6Comms({
 
   return (
     <div className="builder-step">
-      <h4>Communication Setup</h4>
+      <div className="step-header">
+        <h4>Communication Setup</h4>
+        <button
+          type="button"
+          className="ai-magic-button"
+          onClick={() => {
+            // AI magic functionality would go here
+            console.log('AI magic activated!');
+          }}
+          title="Let AI create/update comms dynamically"
+        >
+          <span className="ai-magic-icon">✨</span>
+          <span className="ai-magic-text">AI Magic</span>
+        </button>
+      </div>
       
       <div className="form-group">
-        <label>Communication Channels *</label>
+        <label className="required">Communication Channels</label>
         <div className="channels-grid">
           {channels.map(channel => (
             <label key={channel} className="checkbox-label">
@@ -67,13 +81,145 @@ function Step6Comms({
               <option value="seat_upgrade">Seat Upgrade Promotion</option>
             </select>
           ) : (
-            <textarea
-              value={customFunction.messageTemplate.content}
-              onChange={(e) => handleNestedInputChange('messageTemplate', 'content', e.target.value)}
-              className="form-input"
-              rows="4"
-              placeholder="Enter your message template..."
-            />
+            <div className="new-template-fields">
+              {/* Email Template Fields */}
+              {customFunction.channels.includes('Email') && (
+                <>
+                  <div className="input-group">
+                    <label className="required">Email Subject Line</label>
+                    <input
+                      type="text"
+                      value={customFunction.messageTemplate.emailSubject || ''}
+                      onChange={(e) => handleNestedInputChange('messageTemplate', 'emailSubject', e.target.value)}
+                      className="form-input"
+                      placeholder="Enter email subject line..."
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="required">Email Body</label>
+                    <textarea
+                      value={customFunction.messageTemplate.emailBody || ''}
+                      onChange={(e) => handleNestedInputChange('messageTemplate', 'emailBody', e.target.value)}
+                      className="form-input"
+                      rows="6"
+                      placeholder="Enter email body content..."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* SMS Template Fields */}
+              {customFunction.channels.includes('SMS') && (
+                <div className="input-group">
+                  <label className="required">SMS Message</label>
+                  <textarea
+                    value={customFunction.messageTemplate.smsMessage || ''}
+                    onChange={(e) => handleNestedInputChange('messageTemplate', 'smsMessage', e.target.value)}
+                    className="form-input"
+                    rows="3"
+                    placeholder="Enter SMS message (max 160 characters)..."
+                    maxLength="160"
+                  />
+                  <div className="char-count">
+                    {customFunction.messageTemplate.smsMessage?.length || 0}/160 characters
+                  </div>
+                </div>
+              )}
+
+              {/* WhatsApp Template Fields */}
+              {customFunction.channels.includes('WhatsApp') && (
+                <div className="input-group">
+                  <label className="required">WhatsApp Message</label>
+                  <textarea
+                    value={customFunction.messageTemplate.whatsappMessage || ''}
+                    onChange={(e) => handleNestedInputChange('messageTemplate', 'whatsappMessage', e.target.value)}
+                    className="form-input"
+                    rows="4"
+                    placeholder="Enter WhatsApp message..."
+                  />
+                </div>
+              )}
+
+              {/* App Push Template Fields */}
+              {customFunction.channels.includes('App Push') && (
+                <>
+                  <div className="input-group">
+                    <label className="required">Push Notification Title</label>
+                    <input
+                      type="text"
+                      value={customFunction.messageTemplate.pushTitle || ''}
+                      onChange={(e) => handleNestedInputChange('messageTemplate', 'pushTitle', e.target.value)}
+                      className="form-input"
+                      placeholder="Enter push notification title..."
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="required">Push Notification Body</label>
+                    <textarea
+                      value={customFunction.messageTemplate.pushBody || ''}
+                      onChange={(e) => handleNestedInputChange('messageTemplate', 'pushBody', e.target.value)}
+                      className="form-input"
+                      rows="3"
+                      placeholder="Enter push notification body..."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* In-app Banner Template Fields */}
+              {customFunction.channels.includes('In-app Banner') && (
+                <>
+                  <div className="input-group">
+                    <label className="required">Banner Title</label>
+                    <input
+                      type="text"
+                      value={customFunction.messageTemplate.bannerTitle || ''}
+                      onChange={(e) => handleNestedInputChange('messageTemplate', 'bannerTitle', e.target.value)}
+                      className="form-input"
+                      placeholder="Enter banner title..."
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="required">Banner Description</label>
+                    <textarea
+                      value={customFunction.messageTemplate.bannerDescription || ''}
+                      onChange={(e) => handleNestedInputChange('messageTemplate', 'bannerDescription', e.target.value)}
+                      className="form-input"
+                      rows="3"
+                      placeholder="Enter banner description..."
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Concierge Template Fields */}
+              {customFunction.channels.includes('Concierge') && (
+                <div className="input-group">
+                  <label className="required">Concierge Script</label>
+                  <textarea
+                    value={customFunction.messageTemplate.conciergeScript || ''}
+                    onChange={(e) => handleNestedInputChange('messageTemplate', 'conciergeScript', e.target.value)}
+                    className="form-input"
+                    rows="6"
+                    placeholder="Enter concierge conversation script..."
+                  />
+                </div>
+              )}
+
+              {/* Generic Template Field (fallback) */}
+              {customFunction.channels.length === 0 && (
+                <div className="input-group">
+                  <label className="required">Message Content</label>
+                  <textarea
+                    value={customFunction.messageTemplate.content || ''}
+                    onChange={(e) => handleNestedInputChange('messageTemplate', 'content', e.target.value)}
+                    className="form-input"
+                    rows="4"
+                    placeholder="Enter your message template..."
+                  />
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -106,16 +252,7 @@ function Step6Comms({
         </div>
       </div>
 
-      <div className="form-group">
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={customFunction.messageTemplate.aiCopywriting}
-            onChange={(e) => handleNestedInputChange('messageTemplate', 'aiCopywriting', e.target.checked)}
-          />
-          <span>Let AI create/update comms dynamically</span>
-        </label>
-      </div>
+
     </div>
   );
 }

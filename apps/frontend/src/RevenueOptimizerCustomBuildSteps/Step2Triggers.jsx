@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 function Step2Triggers({ 
   customFunction, 
   handleInputChange, 
-  handleArrayToggle 
+  handleArrayToggle,
+  addTriggerCondition,
+  removeTriggerCondition,
+  updateTriggerCondition
 }) {
-  const [triggerConditions, setTriggerConditions] = useState([
-    { id: 1, triggerEvent: '', operator: 'And', isActive: true }
-  ]);
 
   // Comprehensive trigger events organized by category
   const triggerEvents = [
@@ -80,24 +80,77 @@ function Step2Triggers({
     { id: 'indestination_dining_campaign', name: 'In-destination dining campaign', description: 'Trigger location-based food experiences', category: '🍽 Airport Dining' }
   ];
 
-  const triggerFrequencies = ['One-time', 'Repeating', 'Cooldown'];
-  const eventSources = ['Booking event', 'Concierge event', 'External API event', 'CRM data', 'Travel signal'];
+  const triggerFrequencies = [
+    { value: 'one_time_per_user', label: 'One-time per user', description: 'Trigger fires once for each user, ever' },
+    { value: 'once_per_trip_session', label: 'Once per trip / session', description: 'Triggers once for a given travel instance (e.g. per flight booked)' },
+    { value: 'repeatable', label: 'Repeatable', description: 'Can trigger multiple times per user if conditions match' },
+    { value: 'cooldown_based', label: 'Cooldown-based', description: 'Triggers again only after a cooldown window expires' }
+  ];
+
+  const productCategories = [
+    { id: 'flight', name: 'Flight', description: 'Complete flight booking' },
+    { id: 'flight_seat', name: 'Flight Seat', description: 'Premium seat selection' },
+    { id: 'flight_baggage', name: 'Flight Baggage', description: 'Checked or carry-on baggage' },
+    { id: 'flight_upgrade', name: 'Flight Upgrade', description: 'Cabin class upgrade' },
+    { id: 'hotel_upgrade', name: 'Hotel Upgrade', description: 'Room or hotel upgrade' },
+    { id: 'ticket', name: 'Ticket', description: 'Activity or event tickets' },
+    { id: 'esim', name: 'eSIM', description: 'International data connectivity' },
+    { id: 'airport_transfer', name: 'Airport Transfer', description: 'Ground transportation' },
+    { id: 'airport_fast_track', name: 'Airport Fast Track', description: 'Security fast track service' },
+    { id: 'airport_dining', name: 'Airport Dining', description: 'Airport restaurant vouchers' },
+    { id: 'health_wellness', name: 'Health & Wellness', description: 'Travel insurance, health services' }
+  ];
+
+  const timingOptions = [
+    {
+      category: '🕐 Relative to Booking Time',
+      options: [
+        { id: 'immediately', name: 'Immediately after trigger fires', description: 'Offer presented right away' },
+        { id: 'hours_after', name: 'X hours after trigger fires', description: 'Delayed offer with custom hours', hasInput: true, inputType: 'hours' },
+        { id: 'days_after', name: 'X days after trigger fires', description: 'Delayed offer with custom days', hasInput: true, inputType: 'days' }
+      ]
+    },
+    {
+      category: '📅 Relative to Travel Dates',
+      options: [
+        { id: 'day_of_departure', name: 'Day of flight departure', description: 'Offer on departure day' },
+        { id: 'day_before_departure', name: 'Day before flight departure', description: 'Offer day before departure' },
+        { id: 'day_of_checkin', name: 'Day of hotel check-in', description: 'Offer on check-in day' },
+        { id: 'day_before_checkin', name: 'Day before hotel check-in', description: 'Offer day before check-in' },
+        { id: 'day_of_event', name: 'Day of activity/ticket/event', description: 'Offer on event day' },
+        { id: 'day_before_event', name: 'Day before activity/ticket/event', description: 'Offer day before event' },
+        { id: 'days_before_trip_start', name: 'X days before trip starts', description: 'Trip = earliest booked product', hasInput: true, inputType: 'days' },
+        { id: 'days_before_trip_end', name: 'X days before trip ends', description: 'Trip = latest booked product', hasInput: true, inputType: 'days' }
+      ]
+    },
+    {
+      category: '✈️ Relative to Flight Time',
+      options: [
+        { id: 'hours_before_departure', name: 'X hours before flight departure', description: 'Pre-flight offer', hasInput: true, inputType: 'hours' },
+        { id: 'after_landing', name: 'After flight lands', description: 'For return journey perks or re-engagement' }
+      ]
+    },
+    {
+      category: '🏨 Relative to Hotel Stay',
+      options: [
+        { id: 'hours_before_checkin', name: 'X hours before hotel check-in', description: 'Pre-check-in offer', hasInput: true, inputType: 'hours' },
+        { id: 'hours_before_checkout', name: 'X hours before hotel check-out', description: 'e.g. upsell transfer home', hasInput: true, inputType: 'hours' }
+      ]
+    }
+  ];
+
+  const eventSources = ['Mobile app', 'Website', 'API', 'Digital Concierge'];
 
   const addCondition = () => {
-    const newId = Math.max(...triggerConditions.map(c => c.id)) + 1;
-    setTriggerConditions([...triggerConditions, { id: newId, triggerEvent: '', operator: 'And', isActive: true }]);
+    addTriggerCondition();
   };
 
   const removeCondition = (id) => {
-    if (triggerConditions.length > 1) {
-      setTriggerConditions(triggerConditions.filter(c => c.id !== id));
-    }
+    removeTriggerCondition(id);
   };
 
   const updateCondition = (id, field, value) => {
-    setTriggerConditions(triggerConditions.map(c => 
-      c.id === id ? { ...c, [field]: value } : c
-    ));
+    updateTriggerCondition(id, field, value);
   };
 
   const getTriggerEventById = (id) => {
@@ -114,92 +167,161 @@ function Step2Triggers({
     <div className="builder-step">
       <h4>Trigger Definition</h4>
       
+      {/* Trigger Conditions Section */}
       <div className="form-group">
-        <label>Trigger Conditions *</label>
-        <p className="help-text">Build complex conditions using trigger events from flights, hotels, activities, and more</p>
+        <label className="required">Trigger Conditions</label>
+        <p className="help-text">Define the conditions that will trigger this revenue optimization function</p>
         
         <div className="conditions-builder">
-          {triggerConditions.map((condition, index) => (
-            <div key={condition.id} className="condition-row">
-              {index > 0 && (
-                <div className="condition-operator">
+          <div className="condition-section">
+            <div className="condition-label">When</div>
+            {customFunction.triggerConditions.map((condition, index) => (
+              <div key={condition.id} className="condition-row">
+                {index > 0 && (
+                  <div className="condition-operator">
+                    <select
+                      value={condition.operator}
+                      onChange={(e) => updateCondition(condition.id, 'operator', e.target.value)}
+                      className="form-input operator-select"
+                    >
+                      <option value="And">And</option>
+                      <option value="Or">Or</option>
+                    </select>
+                  </div>
+                )}
+                
+                <div className="condition-selector">
                   <select
-                    value={condition.operator}
-                    onChange={(e) => updateCondition(condition.id, 'operator', e.target.value)}
-                    className="form-input operator-select"
+                    value={condition.triggerEvent}
+                    onChange={(e) => updateCondition(condition.id, 'triggerEvent', e.target.value)}
+                    className="form-input trigger-select"
                   >
-                    <option value="And">And</option>
-                    <option value="Or">Or</option>
+                    <option value="">Select a trigger event...</option>
+                    {triggerEvents.map(event => (
+                      <option key={event.id} value={event.id} className="trigger-option">
+                        {event.name} - {event.description}
+                      </option>
+                    ))}
                   </select>
                 </div>
-              )}
-              
-              <div className="condition-selector">
-                <select
-                  value={condition.triggerEvent}
-                  onChange={(e) => updateCondition(condition.id, 'triggerEvent', e.target.value)}
-                  className="form-input trigger-select"
-                >
-                  <option value="">Select a trigger event...</option>
-                  {triggerEvents.map(event => (
-                    <option key={event.id} value={event.id} className="trigger-option">
-                      {event.name} - {event.description}
+                
+                {customFunction.triggerConditions.length > 1 && (
+                  <button 
+                    type="button"
+                    className="btn-icon remove-condition"
+                    onClick={() => removeCondition(condition.id)}
+                    title="Remove condition"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            
+            <button 
+              type="button"
+              className="btn add-condition-btn"
+              onClick={addCondition}
+            >
+              + Add Condition
+            </button>
+          </div>
+
+          <div className="condition-section">
+            <div className="condition-label required">Then Offer</div>
+            <div className="checkbox-grid">
+              {productCategories.map(category => (
+                <label key={category.id} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={customFunction.offerCategories?.includes(category.id) || false}
+                    onChange={() => handleArrayToggle('offerCategories', category.id)}
+                  />
+                  <span>{category.name} - {category.description}</span>
+                </label>
+              ))}
+            </div>
+            <p className="help-text-small">You will be able to specify the offer details in the Offer section (Step 4).</p>
+          </div>
+
+          <div className="condition-section">
+            <div className="condition-label required">When to Send Offer</div>
+            <select
+              value={customFunction.timingOption || ''}
+              onChange={(e) => handleInputChange('timingOption', e.target.value)}
+              className="form-input"
+            >
+              <option value="">Select when to send the offer...</option>
+              {timingOptions.map((category, categoryIndex) => (
+                <optgroup key={categoryIndex} label={category.category}>
+                  {category.options.map(option => (
+                    <option key={option.id} value={option.id}>
+                      {option.name} - {option.description}
                     </option>
                   ))}
-                </select>
-              </div>
+                </optgroup>
+              ))}
+            </select>
+            
+            {(() => {
+              const selectedOption = timingOptions
+                .flatMap(cat => cat.options)
+                .find(opt => opt.id === customFunction.timingOption);
               
-              {triggerConditions.length > 1 && (
-                <button 
-                  type="button"
-                  className="btn-icon remove-condition"
-                  onClick={() => removeCondition(condition.id)}
-                  title="Remove condition"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
-          
-          <button 
-            type="button"
-            className="btn add-condition-btn"
-            onClick={addCondition}
-          >
-            + Add Condition
-          </button>
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label>Trigger Frequency</label>
-          <select
-            value={customFunction.triggerFrequency}
-            onChange={(e) => handleInputChange('triggerFrequency', e.target.value)}
-            className="form-input"
-          >
-            {triggerFrequencies.map(freq => (
-              <option key={freq} value={freq}>{freq}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Cooldown Period (if applicable)</label>
-          <input
-            type="number"
-            className="form-input"
-            placeholder="7"
-            disabled={customFunction.triggerFrequency !== 'Cooldown'}
-          />
-          <span className="input-suffix">days</span>
+              if (selectedOption?.hasInput) {
+                return (
+                  <div className="timing-input">
+                    <input
+                      type="number"
+                      className="form-input no-arrows"
+                      placeholder={selectedOption.inputType === 'hours' ? '24' : '7'}
+                      value={customFunction.timingValue || ''}
+                      onChange={(e) => handleInputChange('timingValue', e.target.value)}
+                    />
+                    <span className="input-suffix">{selectedOption.inputType}</span>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
         </div>
       </div>
 
       <div className="form-group">
-        <label>Event Sources</label>
+        <label className="required">Trigger Frequency</label>
+        <select
+          value={customFunction.triggerFrequency}
+          onChange={(e) => handleInputChange('triggerFrequency', e.target.value)}
+          className="form-input"
+        >
+          <option value="">Select trigger frequency...</option>
+          {triggerFrequencies.map(freq => (
+            <option key={freq.value} value={freq.value}>
+              {freq.label} - {freq.description}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {customFunction.triggerFrequency === 'cooldown_based' && (
+        <div className="form-group">
+          <label>Cooldown Period</label>
+          <div className="input-with-suffix">
+            <input
+              type="number"
+              className="form-input no-arrows"
+              placeholder="7"
+              value={customFunction.cooldownPeriod || ''}
+              onChange={(e) => handleInputChange('cooldownPeriod', e.target.value)}
+            />
+            <span className="input-suffix-inline">days</span>
+          </div>
+        </div>
+      )}
+
+      <div className="form-group">
+        <label>Event Interfaces</label>
         <div className="checkbox-grid">
           {eventSources.map(source => (
             <label key={source} className="checkbox-label">

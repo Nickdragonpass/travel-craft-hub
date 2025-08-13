@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import revenueFunctionService from './firebase/revenueFunctionService.js';
 import Step1BasicInfo from './RevenueOptimizerCustomBuildSteps/Step1BasicInfo';
 import Step2Triggers from './RevenueOptimizerCustomBuildSteps/Step2Triggers';
 import Step3Targeting from './RevenueOptimizerCustomBuildSteps/Step3Targeting';
-import Step4Timing from './RevenueOptimizerCustomBuildSteps/Step4Timing';
 import Step5Offers from './RevenueOptimizerCustomBuildSteps/Step5Offers';
 import Step6Comms from './RevenueOptimizerCustomBuildSteps/Step6Comms';
 import Step7Review from './RevenueOptimizerCustomBuildSteps/Step7Review';
@@ -18,7 +18,7 @@ function RevenueOptimizerCustomBuildNew({
     // Basic Info
     title: '',
     description: '',
-    functionType: 'Select',
+    functionType: '',
     objectives: [],
             priority: 'Medium',
     tags: [],
@@ -26,9 +26,13 @@ function RevenueOptimizerCustomBuildNew({
     
     // Trigger Definition
     triggerEvents: [],
-    triggerConditions: [],
-    triggerFrequency: 'One-time',
-    eventSources: ['Booking event'],
+    triggerConditions: [{ id: 1, triggerEvent: '', operator: 'And', isActive: true }],
+    triggerFrequency: '',
+    eventSources: ['Mobile app', 'Website', 'API'],
+    offerCategories: [],
+    timingOption: '',
+    timingValue: '',
+    cooldownPeriod: '',
     
     // Persona & Targeting
     personaGroups: [],
@@ -44,19 +48,7 @@ function RevenueOptimizerCustomBuildNew({
       maxTriggersPerProgram: 1000
     },
     
-    // Timing Logic
-    timingLogic: {
-      timeWindows: {
-        enabled: false,
-        startTime: '08:00',
-        endTime: '20:00',
-        timezone: 'local'
-      },
-      bufferPeriod: {
-        enabled: false,
-        hours: 2
-      }
-    },
+
     
     // Offer/Action Definition
     offerSelection: [],
@@ -70,7 +62,7 @@ function RevenueOptimizerCustomBuildNew({
     },
     
     // Communication Setup
-    channels: ['Concierge'],
+    channels: [],
     messageTemplate: {
       type: 'saved', // 'saved' or 'new'
       templateId: null,
@@ -102,10 +94,11 @@ function RevenueOptimizerCustomBuildNew({
   const [collapsedCategories, setCollapsedCategories] = useState({});
   const [tagInput, setTagInput] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  const totalSteps = 7;
+  const [validationErrors, setValidationErrors] = useState([]);
+  const totalSteps = 6;
 
   // Available options
-  const functionTypes = ['Select', 'Upsell', 'Cross-sell'];
+  const functionTypes = ['Upsell', 'Cross-sell'];
   const objectives = [
     // Revenue & Commercial Objectives
     { id: 'revenue_uplift', name: 'Revenue uplift', description: 'Drive incremental revenue through offers', category: 'Revenue & Commercial' },
@@ -145,13 +138,6 @@ function RevenueOptimizerCustomBuildNew({
     { id: 'corporate_adoption', name: 'Corporate adoption', description: 'Drive SMEs into corporate travel module via incentive', category: 'Strategic & Long-Term Value' }
   ];
   const priorities = ['Low', 'Medium', 'High'];
-  const triggerEvents = [
-    'Flight Booking', 'Flight Departure', 'Flight Day', 'Hotel Booking', 
-    'Hotel Check-in', 'Car Rental', 'Activity Booking', 'Package Purchase',
-    'Lounge Visit', 'Transfer Booking', 'eSIM Activation'
-  ];
-  const triggerFrequencies = ['One-time', 'Repeating', 'Cooldown'];
-  const eventSources = ['Booking event', 'Concierge event', 'External API event', 'CRM data', 'Travel signal'];
   const availableOffers = [
     'Hotel', 'Flight', 'Airport Lounge', 'Fast Track', 'Airport Transfer', 
     'eSIM', 'Seat Upgrade', 'Event Ticket', 'Spa Treatment', 'Dining', 'Wellness'
@@ -162,18 +148,20 @@ function RevenueOptimizerCustomBuildNew({
 
   // Initialize form when editing or when page opens
   useEffect(() => {
-    if (editingFunction) {
+    if (editingFunction && editingFunction.id) {
+      // This is editing an existing function
       setCustomFunction({
         ...customFunction,
         ...editingFunction
       });
       setCurrentStep(editingFunction.progress || 1);
     } else {
+      // This is a new function (either from template or completely new)
       setCustomFunction({
         // Basic Info
         title: '',
         description: '',
-        functionType: 'Select',
+        functionType: '',
         objectives: [],
         priority: 'Medium',
         tags: [],
@@ -181,9 +169,13 @@ function RevenueOptimizerCustomBuildNew({
         
         // Trigger Definition
         triggerEvents: [],
-        triggerConditions: [],
-        triggerFrequency: 'One-time',
-        eventSources: ['Booking event'],
+        triggerConditions: [{ id: 1, triggerEvent: '', operator: 'And', isActive: true }],
+        triggerFrequency: '',
+        eventSources: ['Mobile app', 'Website', 'API'],
+        offerCategories: [],
+        timingOption: '',
+        timingValue: '',
+        cooldownPeriod: '',
         
         // Persona & Targeting
         personaGroups: [],
@@ -199,19 +191,7 @@ function RevenueOptimizerCustomBuildNew({
           maxTriggersPerProgram: 1000
         },
         
-        // Timing Logic
-        timingLogic: {
-          timeWindows: {
-            enabled: false,
-            startTime: '08:00',
-            endTime: '20:00',
-            timezone: 'local'
-          },
-          bufferPeriod: {
-            enabled: false,
-            hours: 2
-          }
-        },
+
         
         // Offer/Action Definition
         offerSelection: [],
@@ -225,7 +205,7 @@ function RevenueOptimizerCustomBuildNew({
         },
         
         // Communication Setup
-        channels: ['Concierge'],
+        channels: [],
         messageTemplate: {
           type: 'saved',
           templateId: null,
@@ -251,6 +231,7 @@ function RevenueOptimizerCustomBuildNew({
         }
       });
       setCurrentStep(1);
+      setValidationErrors([]);
     }
   }, [editingFunction, isOpen]);
 
@@ -259,7 +240,21 @@ function RevenueOptimizerCustomBuildNew({
       ...prev,
       [field]: value
     }));
+    
+    // Clear validation errors when user starts typing
+    if (validationErrors.length > 0) {
+      console.log('Clearing validation errors on input change');
+      setValidationErrors([]);
+    }
   };
+
+  // Clear validation errors on every render to prevent cached errors
+  useEffect(() => {
+    if (validationErrors.length > 0) {
+      console.log('Clearing cached validation errors on render');
+      setValidationErrors([]);
+    }
+  });
 
   const handleNestedInputChange = (parentField, childField, value) => {
     setCustomFunction(prev => ({
@@ -269,18 +264,81 @@ function RevenueOptimizerCustomBuildNew({
         [childField]: value
       }
     }));
+    
+    // Clear validation errors when user starts typing
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
   };
 
   const handleArrayToggle = (field, value) => {
+    setCustomFunction(prev => {
+      // Handle nested object properties (e.g., 'exclusions.personas')
+      if (field.includes('.')) {
+        const [parentField, childField] = field.split('.');
+        const parentObject = prev[parentField] || {};
+        const childArray = parentObject[childField] || [];
+        
+        return {
+          ...prev,
+          [parentField]: {
+            ...parentObject,
+            [childField]: childArray.includes(value)
+              ? childArray.filter(item => item !== value)
+              : [...childArray, value]
+          }
+        };
+      }
+      
+      // Handle simple array fields
+      const currentArray = prev[field] || [];
+      return {
+        ...prev,
+        [field]: currentArray.includes(value)
+          ? currentArray.filter(item => item !== value)
+          : [...currentArray, value]
+      };
+    });
+    
+    // Clear validation errors when user interacts with array toggles
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
+  };
+
+  // Trigger condition handlers
+  const addTriggerCondition = () => {
+    console.log('addTriggerCondition called, current triggerConditions:', customFunction.triggerConditions);
+    const newId = customFunction.triggerConditions.length > 0 
+      ? Math.max(...customFunction.triggerConditions.map(c => c.id)) + 1 
+      : 1;
+    console.log('newId calculated:', newId);
     setCustomFunction(prev => ({
       ...prev,
-      [field]: prev[field].includes(value)
-        ? prev[field].filter(item => item !== value)
-        : [...prev[field], value]
+      triggerConditions: [...prev.triggerConditions, { id: newId, triggerEvent: '', operator: 'And', isActive: true }]
+    }));
+  };
+
+  const removeTriggerCondition = (id) => {
+    if (customFunction.triggerConditions.length > 1) {
+      setCustomFunction(prev => ({
+        ...prev,
+        triggerConditions: prev.triggerConditions.filter(c => c.id !== id)
+      }));
+    }
+  };
+
+  const updateTriggerCondition = (id, field, value) => {
+    setCustomFunction(prev => ({
+      ...prev,
+      triggerConditions: prev.triggerConditions.map(c => 
+        c.id === id ? { ...c, [field]: value } : c
+      )
     }));
   };
 
   const handleSaveDraft = async () => {
+    console.log('handleSaveDraft called - setting isSaving to true');
     setIsSaving(true);
     setSaveStatus('Saving draft...');
     
@@ -289,22 +347,35 @@ function RevenueOptimizerCustomBuildNew({
         ...customFunction,
         progress: currentStep,
         lastModified: new Date().toISOString(),
-        status: 'Draft'
+        status: 'draft'
       };
 
-      if (editingFunction) {
-        functionToSave.id = editingFunction.id;
+      let functionId;
+      
+      if (editingFunction && editingFunction.id) {
+        // Update existing function
+        await revenueFunctionService.updateRevenueFunction(editingFunction.id, functionToSave, 'draft');
+        functionId = editingFunction.id;
+      } else {
+        // Save new function (either from template or completely new)
+        functionId = await revenueFunctionService.saveRevenueFunction(functionToSave, 'draft');
       }
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update the function with the ID
+      setCustomFunction(prev => ({
+        ...prev,
+        id: functionId
+      }));
       
       onSave(functionToSave);
       setSaveStatus('Draft saved successfully!');
       
       setTimeout(() => setSaveStatus(''), 3000);
     } catch (error) {
-      setSaveStatus('Error saving draft');
+      console.error('Error saving draft:', error);
+      setSaveStatus(`Error saving draft: ${error.message}`);
+      // Show error in console for debugging
+      console.error('Full error details:', error);
     } finally {
       setIsSaving(false);
     }
@@ -319,20 +390,33 @@ function RevenueOptimizerCustomBuildNew({
         ...customFunction,
         progress: totalSteps,
         lastModified: new Date().toISOString(),
-        status: 'Active'
+        status: 'completed'
       };
 
-      if (editingFunction) {
-        functionToSave.id = editingFunction.id;
+      let functionId;
+      
+      if (editingFunction && editingFunction.id) {
+        // Update existing function
+        await revenueFunctionService.updateRevenueFunction(editingFunction.id, functionToSave, 'completed');
+        functionId = editingFunction.id;
+      } else {
+        // Save new function
+        functionId = await revenueFunctionService.saveRevenueFunction(functionToSave, 'completed');
       }
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update the function with the ID
+      setCustomFunction(prev => ({
+        ...prev,
+        id: functionId
+      }));
       
       onSave(functionToSave);
       onClose();
     } catch (error) {
-      setSaveStatus('Error saving function');
+      console.error('Error saving function:', error);
+      setSaveStatus(`Error saving function: ${error.message}`);
+      // Show error in console for debugging
+      console.error('Full error details:', error);
     } finally {
       setIsSaving(false);
     }
@@ -342,7 +426,117 @@ function RevenueOptimizerCustomBuildNew({
     onClose();
   };
 
+  // Validation functions for each step
+  const validateStep1 = () => {
+    const errors = [];
+    
+    if (!customFunction.title || customFunction.title.trim() === '') {
+      errors.push('Function title is required');
+    }
+    
+    if (!customFunction.functionType || customFunction.functionType === '') {
+      errors.push('Function type is required');
+    }
+    
+    if (!customFunction.objectives || customFunction.objectives.length === 0) {
+      errors.push('At least one objective is required');
+    }
+    
+    return errors;
+  };
+
+  const validateStep2 = () => {
+    const errors = [];
+    
+    // Check if at least one trigger condition has a trigger event selected
+    if (!customFunction.triggerConditions || 
+        customFunction.triggerConditions.length === 0 ||
+        customFunction.triggerConditions.every(condition => !condition.triggerEvent || condition.triggerEvent === '')) {
+      errors.push('At least one trigger condition is required');
+    }
+    
+    if (!customFunction.offerCategories || customFunction.offerCategories.length === 0) {
+      errors.push('At least one offer category is required');
+    }
+    
+    if (!customFunction.timingOption || customFunction.timingOption === '') {
+      errors.push('Timing option is required');
+    }
+    
+    if (customFunction.timingOption && customFunction.timingOption !== 'immediately' && 
+        customFunction.timingOption !== 'day_of_departure' && 
+        (!customFunction.timingValue || customFunction.timingValue === '')) {
+      errors.push('Timing value is required for the selected timing option');
+    }
+    
+    if (!customFunction.triggerFrequency || customFunction.triggerFrequency === '') {
+      errors.push('Trigger frequency is required');
+    }
+    
+    if (customFunction.triggerFrequency === 'cooldown_based' && 
+        (!customFunction.cooldownPeriod || customFunction.cooldownPeriod === '')) {
+      errors.push('Cooldown period is required for cooldown-based frequency');
+    }
+    
+    return errors;
+  };
+
+  const validateStep3 = () => {
+    // Step 3 (Targeting) is optional - no validation required
+    return [];
+  };
+
+  const validateStep4 = () => {
+    // Step 4 (Offers) is optional - no validation required
+    return [];
+  };
+
+  const validateStep5 = () => {
+    const errors = [];
+    
+    if (!customFunction.channels || customFunction.channels.length === 0) {
+      errors.push('At least one communication channel is required');
+    }
+    
+    return errors;
+  };
+
+  const validateStep6 = () => {
+    // Step 6 (Review) is optional - no validation required
+    return [];
+  };
+
+  const validateCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return validateStep1();
+      case 2:
+        return validateStep2();
+      case 3:
+        return validateStep3();
+      case 4:
+        return validateStep4();
+      case 5:
+        return validateStep5();
+      case 6:
+        return validateStep6();
+      default:
+        return [];
+    }
+  };
+
   const handleNextStep = () => {
+    const errors = validateCurrentStep();
+    
+    if (errors.length > 0) {
+      // Set validation errors to display in UI
+      setValidationErrors(errors);
+      return;
+    }
+    
+    // Clear validation errors when proceeding
+    setValidationErrors([]);
+    
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
@@ -454,8 +648,8 @@ function RevenueOptimizerCustomBuildNew({
 
   const renderStepIndicator = () => (
     <div className="step-indicator">
-      {[1, 2, 3, 4, 5, 6, 7].map(step => {
-        const stepLabels = ['Basic Info', 'Triggers', 'Targeting', 'Timing', 'Offers', 'Comms', 'Review'];
+      {[1, 2, 3, 4, 5, 6].map(step => {
+        const stepLabels = ['Basic Info', 'Triggers', 'Targeting', 'Offers', 'Comms', 'Review'];
         const isActive = step === currentStep;
         const isCompleted = step < currentStep;
         const isClickable = step <= currentStep;
@@ -493,7 +687,7 @@ function RevenueOptimizerCustomBuildNew({
           onClick={handleSaveDraft}
           disabled={isSaving}
         >
-          {isSaving ? 'Saving...' : 'Save Draft'}
+          {isSaving ? 'Saving...' : 'Save for Later'}
         </button>
         
         <button 
@@ -675,93 +869,7 @@ function RevenueOptimizerCustomBuildNew({
     </div>
   );
 
-  const renderStep2 = () => (
-    <div className="builder-step">
-      <h4>Trigger Definition</h4>
-      
-      <div className="form-group">
-        <label>Trigger Event *</label>
-        <select
-          value={customFunction.triggerEvent}
-          onChange={(e) => handleInputChange('triggerEvent', e.target.value)}
-          className="form-input"
-        >
-          {triggerEvents.map(event => (
-            <option key={event} value={event}>{event}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label>Trigger Conditions</label>
-        <div className="conditions-builder">
-          <div className="condition-row">
-            <select className="form-input">
-              <option value="no_bag">Flight booked without a bag</option>
-              <option value="international_long_layover">Flight is international AND &gt;5h layover</option>
-              <option value="no_reward_used">No reward used on booking</option>
-              <option value="high_value">Booking value &gt; £500</option>
-              <option value="business_traveler">Business traveler</option>
-            </select>
-            <select className="form-input">
-              <option value="AND">AND</option>
-              <option value="OR">OR</option>
-            </select>
-            <select className="form-input">
-              <option value="no_bag">Flight booked without a bag</option>
-              <option value="international_long_layover">Flight is international AND &gt;5h layover</option>
-              <option value="no_reward_used">No reward used on booking</option>
-              <option value="high_value">Booking value &gt; £500</option>
-              <option value="business_traveler">Business traveler</option>
-            </select>
-            <button className="btn-icon">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label>Trigger Frequency</label>
-          <select
-            value={customFunction.triggerFrequency}
-            onChange={(e) => handleInputChange('triggerFrequency', e.target.value)}
-            className="form-input"
-          >
-            {triggerFrequencies.map(freq => (
-              <option key={freq} value={freq}>{freq}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Cooldown Period (if applicable)</label>
-          <input
-            type="number"
-            className="form-input"
-            placeholder="7"
-            disabled={customFunction.triggerFrequency !== 'Cooldown'}
-          />
-          <span className="input-suffix">days</span>
-        </div>
-      </div>
-
-      <div className="form-group">
-        <label>Event Sources</label>
-        <div className="checkbox-grid">
-          {eventSources.map(source => (
-            <label key={source} className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={customFunction.eventSources.includes(source)}
-                onChange={() => handleArrayToggle('eventSources', source)}
-              />
-              <span>{source}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  // renderStep2 is now handled by Step2Triggers component
 
   const renderStep3 = () => (
     <div className="builder-step">
@@ -1232,6 +1340,9 @@ function RevenueOptimizerCustomBuildNew({
             customFunction={customFunction}
             handleInputChange={handleInputChange}
             handleArrayToggle={handleArrayToggle}
+            addTriggerCondition={addTriggerCondition}
+            removeTriggerCondition={removeTriggerCondition}
+            updateTriggerCondition={updateTriggerCondition}
           />
         );
       case 3:
@@ -1245,21 +1356,15 @@ function RevenueOptimizerCustomBuildNew({
         );
       case 4:
         return (
-          <Step4Timing
-            customFunction={customFunction}
-            handleNestedInputChange={handleNestedInputChange}
-          />
-        );
-      case 5:
-        return (
           <Step5Offers
             customFunction={customFunction}
             handleArrayToggle={handleArrayToggle}
             handleNestedInputChange={handleNestedInputChange}
+            handleInputChange={handleInputChange}
             getBookingTypeIcon={getBookingTypeIcon}
           />
         );
-      case 6:
+      case 5:
         return (
           <Step6Comms
             customFunction={customFunction}
@@ -1267,7 +1372,7 @@ function RevenueOptimizerCustomBuildNew({
             handleNestedInputChange={handleNestedInputChange}
           />
         );
-      case 7:
+      case 6:
         return (
           <Step7Review
             customFunction={customFunction}
@@ -1312,6 +1417,19 @@ function RevenueOptimizerCustomBuildNew({
         {renderStepIndicator()}
         
         <div className="builder-content">
+          {validationErrors.length > 0 && (
+            <div className="validation-errors">
+              <div className="validation-header">
+                <span className="validation-icon">⚠️</span>
+                <span className="validation-title">Please fix the following errors:</span>
+              </div>
+              <ul className="validation-list">
+                {validationErrors.map((error, index) => (
+                  <li key={index} className="validation-error">{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {renderCurrentStep()}
         </div>
         
@@ -1362,4 +1480,5 @@ function RevenueOptimizerCustomBuildNew({
   );
 }
 
-export default RevenueOptimizerCustomBuildNew; 
+export default RevenueOptimizerCustomBuildNew;
+

@@ -4,6 +4,7 @@ import Dashboard from './Dashboard';
 import Analytics from './Analytics';
 import BookingManagement from './BookingManagement';
 import RevenueOptimizer from './RevenueOptimizer';
+import RewardOrchestrator from './RewardOrchestrator';
 import Integrations from './Integrations';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -133,6 +134,7 @@ function App() {
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/booking-management" element={<BookingManagement />} />
           <Route path="/admin/revenue-optimizer" element={<RevenueOptimizer />} />
+        <Route path="/admin/rewards" element={<RewardOrchestrator />} />
           <Route path="/admin/integrations" element={<Integrations />} />
         </Route>
       </Routes>

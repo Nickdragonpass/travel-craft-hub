@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import revenueFunctionService from './firebase/revenueFunctionService.js';
 import './App.css';
-import RevenueOptimizerOverview from './RevenueOptimizerOverview';
 import RevenueOptimizerBuild from './RevenueOptimizerBuild';
 import RevenueOptimizerComms from './RevenueOptimizerComms';
 import RevenueOptimizerPerformance from './RevenueOptimizerPerformance';
+import RevenueOptimizerCustomBuildNew from './RevenueOptimizerCustomBuildNew';
 
 function RevenueOptimizer() {
-  const [activeTab, setActiveTab] = useState('overview');
+  console.log('RevenueOptimizer component rendering...');
+  
+  // Simplified state - remove Firebase for now
+  const [activeTab, setActiveTab] = useState('build');
   const [buildSubTab, setBuildSubTab] = useState('templates');
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [showFunctionBuilder, setShowFunctionBuilder] = useState(false);
@@ -19,9 +23,47 @@ function RevenueOptimizer() {
   const [toastMessage, setToastMessage] = useState('');
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState(null);
+  const [showCustomBuildModal, setShowCustomBuildModal] = useState(false);
+  const [templateForCustomBuild, setTemplateForCustomBuild] = useState(null);
 
-  // Mock data for revenue functions
-  const revenueFunctions = [
+  // Use fallback data only for now
+  const [revenueFunctions, setRevenueFunctions] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Load data from Firebase on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        console.log('Loading data from Firebase...');
+        
+        // Load revenue functions
+        const functions = await revenueFunctionService.getAllRevenueFunctions();
+        console.log('Loaded revenue functions:', functions);
+        setRevenueFunctions(functions);
+        
+        // Load templates
+        const allTemplates = await revenueFunctionService.getAllTemplates();
+        console.log('Loaded templates:', allTemplates);
+        setTemplates(allTemplates);
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error loading data from Firebase:', err);
+        setError(err.message);
+        setLoading(false);
+        // Don't let Firebase errors crash the component
+        console.log('Using fallback data due to Firebase error');
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Fallback data structure for when Firebase is not available
+  const fallbackRevenueFunctions = [
     {
       id: 'func-1',
       name: 'Flight to Hotel Cross-Sell',
@@ -32,15 +74,16 @@ function RevenueOptimizer() {
       timing: '3 days after flight booking',
       status: 'Active',
       performance: {
-        impressions: 1247,
-        clicks: 312,
-        conversions: 89,
-        revenue: '£40,050',
+        impressions: 12470,
+        clicks: 3120,
+        conversions: 890,
+        revenue: '£267,000',
         conversionRate: '7.1%'
       },
       comms: [
-        { id: 'comm-1', name: 'Email Campaign A', status: 'Active', performance: { opens: '23%', clicks: '8.2%' } },
-        { id: 'comm-2', name: 'In-App Notification', status: 'Active', performance: { impressions: 892, clicks: '12.4%' } }
+        { id: 'comm-1', name: 'Post-Booking Email Campaign', status: 'Active', performance: { opens: '23%', clicks: '8.2%', impressions: 8900, deliveries: '98%' } },
+        { id: 'comm-2', name: 'In-App Hotel Suggestions', status: 'Active', performance: { impressions: 3570, clicks: '12.4%', conversions: 445 } },
+        { id: 'comm-3', name: 'SMS Hotel Reminder', status: 'Active', performance: { deliveries: '96%', clicks: '15.1%', opens: '18%' } }
       ]
     },
     {
@@ -53,15 +96,16 @@ function RevenueOptimizer() {
       timing: '24 hours before departure',
       status: 'Active',
       performance: {
-        impressions: 892,
-        clicks: 267,
-        conversions: 58,
-        revenue: '£6,960',
+        impressions: 8920,
+        clicks: 2670,
+        conversions: 580,
+        revenue: '£69,600',
         conversionRate: '6.5%'
       },
       comms: [
-        { id: 'comm-3', name: 'SMS Bundle Offer', status: 'Active', performance: { deliveries: '98%', clicks: '15.1%' } },
-        { id: 'comm-4', name: 'Website Banner', status: 'Paused', performance: { impressions: 445, clicks: '3.2%' } }
+        { id: 'comm-4', name: 'Pre-Departure SMS Bundle', status: 'Active', performance: { deliveries: '98%', clicks: '15.1%', opens: '22%' } },
+        { id: 'comm-5', name: 'Website Bundle Banner', status: 'Active', performance: { impressions: 4450, clicks: '3.2%', conversions: 142 } },
+        { id: 'comm-6', name: 'Push Notification Bundle', status: 'Active', performance: { impressions: 2230, clicks: '8.7%', opens: '31%' } }
       ]
     },
     {
@@ -72,20 +116,92 @@ function RevenueOptimizer() {
       bookingTypes: ['Flight', 'Hotel'],
       targetTypes: ['Airport Lounge', 'Fast Track', 'eSIM'],
       timing: 'Immediate after booking',
-      status: 'Draft',
+      status: 'Active',
       performance: {
-        impressions: 0,
-        clicks: 0,
-        conversions: 0,
-        revenue: '£0',
-        conversionRate: '0%'
+        impressions: 5670,
+        clicks: 1700,
+        conversions: 340,
+        revenue: '£51,000',
+        conversionRate: '6.0%'
       },
-      comms: []
+      comms: [
+        { id: 'comm-7', name: 'Premium Services Email', status: 'Active', performance: { opens: '28%', clicks: '9.8%', impressions: 3400, deliveries: '99%' } },
+        { id: 'comm-8', name: 'In-App Premium Offers', status: 'Active', performance: { impressions: 2270, clicks: '11.2%', conversions: 254 } }
+      ]
+    },
+    {
+      id: 'func-4',
+      name: 'Pre-Departure Seat Upgrade',
+      description: '3 days before flight departure, offer seat bookability with discount',
+      category: 'Upsell',
+      bookingTypes: ['Flight'],
+      targetTypes: ['Seat Upgrade'],
+      timing: '3 days before departure',
+      status: 'Active',
+      performance: {
+        impressions: 18900,
+        clicks: 5670,
+        conversions: 945,
+        revenue: '£141,750',
+        conversionRate: '5.0%'
+      },
+      comms: [
+        { 
+          id: 'comm-9', 
+          name: 'South America Email Campaign (Spanish)', 
+          status: 'Active', 
+          performance: { 
+            opens: '31%', 
+            clicks: '12.4%', 
+            impressions: 6300, 
+            deliveries: '97%',
+            conversions: 378,
+            revenue: '£56,700'
+          } 
+        },
+        { 
+          id: 'comm-10', 
+          name: 'South America Email Campaign (Portuguese)', 
+          status: 'Active', 
+          performance: { 
+            opens: '29%', 
+            clicks: '11.8%', 
+            impressions: 4200, 
+            deliveries: '96%',
+            conversions: 252,
+            revenue: '£37,800'
+          } 
+        },
+        { 
+          id: 'comm-11', 
+          name: 'Digital Concierge Seat Offer (A/B Test A)', 
+          status: 'Active', 
+          performance: { 
+            impressions: 4200, 
+            clicks: '18.2%', 
+            opens: '45%',
+            conversions: 189,
+            revenue: '£28,350'
+          } 
+        },
+        { 
+          id: 'comm-12', 
+          name: 'Digital Concierge Seat Offer (A/B Test B)', 
+          status: 'Active', 
+          performance: { 
+            impressions: 4200, 
+            clicks: '16.8%', 
+            opens: '42%',
+            conversions: 126,
+            revenue: '£18,900'
+          } 
+        }
+      ]
     }
   ];
 
-  // Comprehensive template library
-  const templateLibrary = [
+  // Fallback template library (when Firebase is not available)
+  const fallbackTemplateLibrary = [
     {
       id: 'template-1',
       title: 'Post-Flight Hotel Cross-Sell',
@@ -239,6 +355,137 @@ function RevenueOptimizer() {
     }
   ];
 
+  // Transform Firebase data to expected format
+  const transformRevenueFunctions = (firebaseFunctions) => {
+    return firebaseFunctions.map(func => {
+      try {
+        console.log('Transforming function:', func);
+        
+        // Handle both custom build format and legacy format
+        const isCustomBuildFormat = func.functionType && func.triggerConditions;
+        
+        if (isCustomBuildFormat) {
+          // Custom build format - convert to expected format
+          return {
+            id: func.id || 'unknown',
+            name: func.title || 'Untitled Function',
+            description: func.description || '',
+            category: func.functionType || 'General',
+            bookingTypes: Array.isArray(func.triggerEvents) ? func.triggerEvents : [],
+            targetTypes: Array.isArray(func.offerCategories) ? func.offerCategories : [],
+            timing: func.timingOption === 'immediately' ? 'Immediate after booking' : 
+                    func.timingOption === 'day_of_departure' ? 'Day of flight departure' :
+                    `${func.timingValue || '3'} ${func.timingOption === 'delayed' ? 'hours' : 'days'} before trip`,
+            status: func.status === 'completed' ? 'Active' : func.status === 'draft' ? 'Draft' : 'Active',
+            performance: func.performance || {
+              impressions: 0,
+              clicks: 0,
+              conversions: 0,
+              revenue: '£0',
+              conversionRate: '0%'
+            },
+            comms: Array.isArray(func.comms) ? func.comms : []
+          };
+        } else {
+          // Legacy format - use as is
+          return {
+            id: func.id || 'unknown',
+            name: func.title || func.name || 'Untitled Function',
+            description: func.description || '',
+            category: func.functionType || func.category || 'General',
+            bookingTypes: Array.isArray(func.offerCategories) ? func.offerCategories : 
+                         Array.isArray(func.bookingTypes) ? func.bookingTypes : [],
+            targetTypes: Array.isArray(func.offerSelection) ? func.offerSelection : 
+                        Array.isArray(func.targetTypes) ? func.targetTypes : [],
+            timing: func.timingOption === 'immediately' ? 'Immediate after booking' : 
+                    `${func.timingValue || '3'} ${func.timingOption === 'delayed' ? 'hours after booking' : 'before departure'}`,
+            status: func.status === 'completed' ? 'Active' : func.status === 'draft' ? 'Draft' : 'Active',
+            performance: func.performance || {
+              impressions: 0,
+              clicks: 0,
+              conversions: 0,
+              revenue: '£0',
+              conversionRate: '0%'
+            },
+            comms: Array.isArray(func.comms) ? func.comms : []
+          };
+        }
+      } catch (error) {
+        console.error('Error transforming function:', func, error);
+        // Return a safe fallback object
+        return {
+          id: func?.id || 'error',
+          name: func?.title || func?.name || 'Error Loading Function',
+          description: func?.description || 'Error loading function data',
+          category: 'Error',
+          bookingTypes: [],
+          targetTypes: [],
+          timing: 'Unknown',
+          status: 'Error',
+          performance: {
+            impressions: 0,
+            clicks: 0,
+            conversions: 0,
+            revenue: '£0',
+            conversionRate: '0%'
+          },
+          comms: []
+        };
+      }
+    });
+  };
+
+  const transformTemplates = (firebaseTemplates) => {
+    return firebaseTemplates.map(template => {
+      try {
+        return {
+          id: template.id || 'unknown',
+          title: template.title || 'Untitled Template',
+          description: template.description || '',
+          type: template.type || 'General',
+          status: template.status || 'Not Active',
+          trigger: template.trigger || '',
+          timing: template.timing || '',
+          offerSelection: Array.isArray(template.offerSelection) ? template.offerSelection : [],
+          performance: template.performance || {},
+          conditions: template.conditions || ''
+        };
+      } catch (error) {
+        console.error('Error transforming template:', template, error);
+        return {
+          id: template?.id || 'error',
+          title: template?.title || 'Error Loading Template',
+          description: template?.description || 'Error loading template data',
+          type: 'Error',
+          status: 'Error',
+          trigger: '',
+          timing: '',
+          offerSelection: [],
+          performance: {},
+          conditions: ''
+        };
+      }
+    });
+  };
+
+  // Use Firebase data or fallback with better error handling
+  let displayRevenueFunctions = fallbackRevenueFunctions;
+  let displayTemplateLibrary = fallbackTemplateLibrary;
+  
+  try {
+    if (revenueFunctions.length > 0) {
+      displayRevenueFunctions = transformRevenueFunctions(revenueFunctions);
+    }
+    if (templates.length > 0) {
+      displayTemplateLibrary = transformTemplates(templates);
+    }
+  } catch (error) {
+    console.error('Error transforming data:', error);
+    // Use fallback data if transformation fails
+    displayRevenueFunctions = fallbackRevenueFunctions;
+    displayTemplateLibrary = fallbackTemplateLibrary;
+  }
+
   const getBookingTypeIcon = (type) => {
     switch(type.toLowerCase()) {
       case 'flight': return '✈️';
@@ -266,8 +513,186 @@ function RevenueOptimizer() {
   };
 
   const handleActivateTemplate = (template) => {
-    setSelectedTemplateForEdit(template);
-    setShowTemplateModal(true);
+    setTemplateForCustomBuild(template);
+    setShowCustomBuildModal(true);
+  };
+
+  // Convert template data to custom build format
+  const convertTemplateToCustomBuild = (template) => {
+    // Map template fields to custom build fields
+    const customBuildData = {
+      // Basic Info
+      title: template.title,
+      description: template.description,
+      functionType: template.type,
+      objectives: [], // Will be populated based on template type
+      priority: 'Medium',
+      tags: [],
+      status: 'Draft',
+      
+      // Trigger Definition
+      triggerEvents: [],
+      triggerConditions: [],
+      triggerFrequency: 'once_per_trip_session',
+      eventSources: ['Mobile app', 'Website', 'API'],
+      offerCategories: template.offerSelection.map(offer => {
+        // Map template offer names to custom build category IDs
+        const offerMapping = {
+          'Hotel': 'hotel_upgrade',
+          'Flight': 'flight',
+          'Airport Lounge': 'airport_lounge',
+          'Fast Track': 'airport_fast_track',
+          'Airport Transfer': 'airport_transfer',
+          'eSIM': 'esim',
+          'Seat Upgrade': 'flight_seat',
+          'Event Ticket': 'ticket',
+          'Spa Treatment': 'health_wellness'
+        };
+        return offerMapping[offer] || 'flight';
+      }),
+      timingOption: 'days_after',
+      timingValue: '3',
+      cooldownPeriod: '',
+      
+      // Persona & Targeting
+      personaGroups: [],
+      exclusions: {
+        personas: [],
+        loyaltyTiers: [],
+        geo: [],
+        cardTypes: []
+      },
+      userLimits: {
+        perUserPerDay: 1,
+        perUserPerWeek: 3,
+        maxTriggersPerProgram: 1000
+      },
+      
+      // Offer/Action Definition
+      offerSelection: [],
+      offerFallback: {
+        enabled: false,
+        fallbackOffers: []
+      },
+      offerVisibilityRules: {
+        maxPrice: null,
+        minInventory: null
+      },
+      
+      // Communication Setup
+      channels: ['Concierge'],
+      messageTemplate: {
+        type: 'saved',
+        templateId: null,
+        content: '',
+        language: 'English',
+        tone: 'Formal',
+        aiCopywriting: false
+      },
+      
+      // AI Support
+      aiOptimization: {
+        autoOptimization: false,
+        suggestSegments: false
+      },
+      
+      // Control & Auditing
+      testMode: false,
+      auditTrail: {
+        createdBy: 'Current User',
+        createdAt: new Date().toISOString(),
+        lastModifiedBy: 'Current User',
+        lastModifiedAt: new Date().toISOString()
+      }
+    };
+
+    // Set objectives based on template type
+    if (template.type === 'Cross-Sell') {
+      customBuildData.objectives = ['revenue_uplift', 'basket_size'];
+    } else if (template.type === 'Upsell') {
+      customBuildData.objectives = ['upgrade_conversion', 'revenue_uplift'];
+    } else if (template.type === 'Bundle') {
+      customBuildData.objectives = ['ancillary_attach', 'basket_size'];
+    }
+
+    // Set trigger events based on template trigger
+    const triggerMapping = {
+      'Flight Booking': ['flight_booked'],
+      'Flight Departure': ['pre_trip_x_days'],
+      'Flight Day': ['day_of_departure'],
+      'Hotel Booking': ['hotel_booked'],
+      'Hotel Check-in': ['day_of_checkin']
+    };
+    customBuildData.triggerEvents = triggerMapping[template.trigger] || ['flight_booked'];
+
+    // Set timing based on template timing
+    if (template.timing.includes('Immediately')) {
+      customBuildData.timingOption = 'immediately';
+    } else if (template.timing.includes('Day of')) {
+      customBuildData.timingOption = 'day_of_departure';
+    } else if (template.timing.includes('24 hours')) {
+      customBuildData.timingOption = 'hours_before_departure';
+      customBuildData.timingValue = '24';
+    } else if (template.timing.includes('3 days')) {
+      customBuildData.timingOption = 'days_before_trip_start';
+      customBuildData.timingValue = '3';
+    }
+
+    return customBuildData;
+  };
+
+  const handleSaveCustomBuild = (customFunction) => {
+    // Add the new function to the revenue functions list
+    const newFunction = {
+      id: `func-${Date.now()}`,
+      name: customFunction.title,
+      description: customFunction.description,
+      category: customFunction.functionType,
+      bookingTypes: customFunction.triggerEvents.map(event => {
+        // Map trigger events back to booking types
+        const eventMapping = {
+          'flight_booked': 'Flight',
+          'hotel_booked': 'Hotel',
+          'ticket_booked': 'Event Ticket'
+        };
+        return eventMapping[event] || 'Flight';
+      }),
+      targetTypes: customFunction.offerCategories.map(category => {
+        // Map offer categories back to target types
+        const categoryMapping = {
+          'hotel_upgrade': 'Hotel',
+          'flight': 'Flight',
+          'airport_lounge': 'Airport Lounge',
+          'airport_fast_track': 'Fast Track',
+          'airport_transfer': 'Airport Transfer',
+          'esim': 'eSIM',
+          'flight_seat': 'Seat Upgrade',
+          'ticket': 'Event Ticket',
+          'health_wellness': 'Spa Treatment'
+        };
+        return categoryMapping[category] || 'Hotel';
+      }),
+      timing: customFunction.timingOption === 'immediately' ? 'Immediate after booking' : 
+              customFunction.timingOption === 'day_of_departure' ? 'Day of flight departure' :
+              `${customFunction.timingValue} ${customFunction.timingOption.includes('hours') ? 'hours' : 'days'} before trip`,
+      status: 'Draft',
+      performance: {
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        revenue: '£0',
+        conversionRate: '0%'
+      },
+      comms: []
+    };
+
+    // Add to revenue functions (in a real app, this would be saved to backend)
+    // For now, we'll just close the modal and show a success message
+    setShowCustomBuildModal(false);
+    setTemplateForCustomBuild(null);
+    setToastMessage(`"${customFunction.title}" has been created successfully!`);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 5000);
   };
 
   const handlePrepareComms = (editedTemplate) => {
@@ -280,77 +705,126 @@ function RevenueOptimizer() {
 
   // Function to check if a template matches any existing revenue functions
   const getTemplateStatus = (template) => {
-    // Check if template matches any existing function by comparing key attributes
-    const matchingFunction = revenueFunctions.find(func => {
-      // Compare by name similarity or key characteristics
-      const nameMatch = func.name.toLowerCase().includes(template.title.toLowerCase()) ||
-                       template.title.toLowerCase().includes(func.name.toLowerCase());
+    try {
+      // Check if template matches any existing function by comparing key attributes
+      const matchingFunction = revenueFunctions.find(func => {
+        try {
+          // Compare by name similarity or key characteristics
+          const funcName = func.name || func.title || 'Unknown';
+          const templateTitle = template.title || 'Unknown';
+          const nameMatch = funcName.toLowerCase().includes(templateTitle.toLowerCase()) ||
+                           templateTitle.toLowerCase().includes(funcName.toLowerCase());
+          
+          // Compare by type/category
+          const funcCategory = func.category || func.functionType || 'Unknown';
+          const templateType = template.type || 'Unknown';
+          const typeMatch = funcCategory === templateType;
+          
+          // Compare by target types (offers)
+          const funcTargetTypes = Array.isArray(func.targetTypes) ? func.targetTypes : [];
+          const templateOfferSelection = Array.isArray(template.offerSelection) ? template.offerSelection : [];
+          const offerMatch = funcTargetTypes.some(target => 
+            templateOfferSelection.some(offer => 
+              target.toLowerCase().includes(offer.toLowerCase()) ||
+              offer.toLowerCase().includes(target.toLowerCase())
+            )
+          );
+          
+          return nameMatch || (typeMatch && offerMatch);
+        } catch (error) {
+          console.error('Error comparing function with template:', error);
+          return false;
+        }
+      });
       
-      // Compare by type/category
-      const typeMatch = func.category === template.type;
+      if (matchingFunction) {
+        return {
+          status: matchingFunction.status || 'Unknown',
+          functionId: matchingFunction.id || 'unknown',
+          functionName: matchingFunction.name || matchingFunction.title || 'Unknown'
+        };
+      }
       
-      // Compare by target types (offers)
-      const offerMatch = func.targetTypes.some(target => 
-        template.offerSelection.some(offer => 
-          target.toLowerCase().includes(offer.toLowerCase()) ||
-          offer.toLowerCase().includes(target.toLowerCase())
-        )
-      );
-      
-      return nameMatch || (typeMatch && offerMatch);
-    });
-    
-    if (matchingFunction) {
-      return {
-        status: matchingFunction.status,
-        functionId: matchingFunction.id,
-        functionName: matchingFunction.name
-      };
+      return { status: 'Not Implemented' };
+    } catch (error) {
+      console.error('Error in getTemplateStatus:', error);
+      return { status: 'Error' };
     }
-    
-    return { status: 'Not Implemented' };
   };
 
-  const filteredTemplates = templateLibrary.filter(template => {
-    const searchTerm = templateSearch.toLowerCase();
-    const matchesSearch = 
-      template.title.toLowerCase().includes(searchTerm) ||
-      template.description.toLowerCase().includes(searchTerm) ||
-      template.trigger.toLowerCase().includes(searchTerm) ||
-      template.timing.toLowerCase().includes(searchTerm) ||
-      template.offerSelection.some(offer => offer.toLowerCase().includes(searchTerm)) ||
-      (template.conditions && template.conditions.toLowerCase().includes(searchTerm));
-    
-    const matchesTypeFilter = templateFilter === 'all' || template.type.toLowerCase() === templateFilter.toLowerCase();
-    
-    const matchesProductFilter = templateProductFilter === 'all' || 
-      template.trigger.toLowerCase().includes(templateProductFilter.toLowerCase()) ||
-      template.offerSelection.some(offer => offer.toLowerCase().includes(templateProductFilter.toLowerCase()));
-    
-    const matchesPopularityFilter = templatePopularityFilter === 'all' || 
-      (templatePopularityFilter === 'popular' && template.status === 'Active' && template.performance) ||
-      (templatePopularityFilter === 'new' && template.status === 'Not Active');
-    
-    return matchesSearch && matchesTypeFilter && matchesProductFilter && matchesPopularityFilter;
-  });
+  const filteredTemplates = (() => {
+    try {
+      if (!Array.isArray(displayTemplateLibrary)) {
+        console.error('displayTemplateLibrary is not an array:', displayTemplateLibrary);
+        return [];
+      }
+      
+      return displayTemplateLibrary.filter(template => {
+        try {
+          const searchTerm = templateSearch.toLowerCase();
+          const matchesSearch = 
+            (template.title && template.title.toLowerCase().includes(searchTerm)) ||
+            (template.description && template.description.toLowerCase().includes(searchTerm)) ||
+            (template.trigger && template.trigger.toLowerCase().includes(searchTerm)) ||
+            (template.timing && template.timing.toLowerCase().includes(searchTerm)) ||
+            (template.offerSelection && template.offerSelection.some(offer => offer.toLowerCase().includes(searchTerm))) ||
+            (template.conditions && typeof template.conditions === 'string' && template.conditions.toLowerCase().includes(searchTerm));
+          
+          const matchesTypeFilter = templateFilter === 'all' || (template.type && template.type.toLowerCase() === templateFilter.toLowerCase());
+          
+          const matchesProductFilter = templateProductFilter === 'all' || 
+            (template.trigger && template.trigger.toLowerCase().includes(templateProductFilter.toLowerCase())) ||
+            (template.offerSelection && template.offerSelection.some(offer => offer.toLowerCase().includes(templateProductFilter.toLowerCase())));
+          
+          const matchesPopularityFilter = templatePopularityFilter === 'all' || 
+            (templatePopularityFilter === 'popular' && template.status === 'Active' && template.performance) ||
+            (templatePopularityFilter === 'new' && template.status === 'Not Active');
+          
+          return matchesSearch && matchesTypeFilter && matchesProductFilter && matchesPopularityFilter;
+        } catch (error) {
+          console.error('Error filtering template:', template, error);
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error('Error in filteredTemplates:', error);
+      return [];
+    }
+  })();
 
-  return (
-    <div className="revenue-optimizer-page">
+  // Add error boundary to prevent component from crashing
+  try {
+    console.log('Rendering RevenueOptimizer with data:', {
+      revenueFunctions: revenueFunctions.length,
+      templates: templates.length,
+      displayRevenueFunctions: displayRevenueFunctions.length,
+      displayTemplateLibrary: displayTemplateLibrary.length
+    });
+    
+    return (
+      <div className="revenue-optimizer-page">
       <div className="page-header">
         <h1 className="page-title">Revenue Optimizer</h1>
         <p className="page-subtitle">Build, communicate, and optimize your revenue functions</p>
       </div>
 
+      {/* Loading and Error States */}
+      {loading && (
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading data from Firebase...</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="error-state">
+          <p>Error loading data: {error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      )}
+
       {/* Core Capabilities Tabs */}
       <div className="capabilities-tabs">
-        <button 
-          className={`capability-tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          <span className="capability-icon">📋</span>
-          <span className="capability-text">Overview</span>
-          <span className="capability-desc">View your functions</span>
-        </button>
         <button 
           className={`capability-tab ${activeTab === 'build' ? 'active' : ''}`}
           onClick={() => setActiveTab('build')}
@@ -358,7 +832,7 @@ function RevenueOptimizer() {
           <span className="capability-icon">🔨</span>
           <span className="capability-text">Build</span>
           <span className="capability-desc">Create revenue functions</span>
-          <span className="tab-badge">{templateLibrary.length}</span>
+                      <span className="tab-badge">{displayTemplateLibrary.length}</span>
         </button>
         <button 
           className={`capability-tab ${activeTab === 'comms' ? 'active' : ''}`}
@@ -367,69 +841,85 @@ function RevenueOptimizer() {
           <span className="capability-icon">📢</span>
           <span className="capability-text">Comms</span>
           <span className="capability-desc">Manage communications</span>
-          <span className="tab-badge">{revenueFunctions.reduce((total, func) => total + func.comms.length, 0)}</span>
+          <span className="tab-badge">{(() => {
+            try {
+              return revenueFunctions.reduce((total, func) => {
+                const comms = Array.isArray(func.comms) ? func.comms : [];
+                return total + comms.length;
+              }, 0);
+            } catch (error) {
+              console.error('Error calculating comms badge:', error);
+              return 0;
+            }
+          })()}</span>
         </button>
         <button 
-          className={`capability-tab ${activeTab === 'review' ? 'active' : ''}`}
-          onClick={() => setActiveTab('review')}
+          className={`capability-tab ${activeTab === 'performance' ? 'active' : ''}`}
+          onClick={() => setActiveTab('performance')}
         >
           <span className="capability-icon">📊</span>
           <span className="capability-text">Performance</span>
           <span className="capability-desc">Analyze performance</span>
-          <span className="tab-badge">{revenueFunctions.filter(func => func.status === 'Active').length}</span>
+          <span className="tab-badge">{(() => {
+            try {
+              return revenueFunctions.filter(func => {
+                const status = func.status || 'Unknown';
+                return status === 'Active';
+              }).length;
+            } catch (error) {
+              console.error('Error calculating performance badge:', error);
+              return 0;
+            }
+          })()}</span>
         </button>
       </div>
 
       <div className="capability-content">
-        {/* OVERVIEW Tab */}
-        {activeTab === 'overview' && (
-          <RevenueOptimizerOverview 
-            revenueFunctions={revenueFunctions}
-            setActiveTab={setActiveTab}
-            getBookingTypeIcon={getBookingTypeIcon}
-            getStatusColor={getStatusColor}
-          />
-        )}
-
         {/* BUILD Tab */}
         {activeTab === 'build' && (
-          <RevenueOptimizerBuild 
-            buildSubTab={buildSubTab}
-            setBuildSubTab={setBuildSubTab}
-            templateSearch={templateSearch}
-            setTemplateSearch={setTemplateSearch}
-            templateFilter={templateFilter}
-            setTemplateFilter={setTemplateFilter}
-            templateProductFilter={templateProductFilter}
-            setTemplateProductFilter={setTemplateProductFilter}
-            templatePopularityFilter={templatePopularityFilter}
-            setTemplatePopularityFilter={setTemplatePopularityFilter}
-            filteredTemplates={filteredTemplates}
-            getBookingTypeIcon={getBookingTypeIcon}
-            getTemplateStatus={getTemplateStatus}
-            handleActivateTemplate={handleActivateTemplate}
-            setShowFunctionBuilder={setShowFunctionBuilder}
-            showTemplateModal={showTemplateModal}
-            setShowTemplateModal={setShowTemplateModal}
-            selectedTemplateForEdit={selectedTemplateForEdit}
-            handlePrepareComms={handlePrepareComms}
-          />
+          <React.Suspense fallback={<div>Loading Build tab...</div>}>
+            <RevenueOptimizerBuild 
+              buildSubTab={buildSubTab}
+              setBuildSubTab={setBuildSubTab}
+              templateSearch={templateSearch}
+              setTemplateSearch={setTemplateSearch}
+              templateFilter={templateFilter}
+              setTemplateFilter={setTemplateFilter}
+              templateProductFilter={templateProductFilter}
+              setTemplateProductFilter={setTemplateProductFilter}
+              templatePopularityFilter={templatePopularityFilter}
+              setTemplatePopularityFilter={setTemplatePopularityFilter}
+              filteredTemplates={filteredTemplates}
+              getBookingTypeIcon={getBookingTypeIcon}
+              getTemplateStatus={getTemplateStatus}
+              handleActivateTemplate={handleActivateTemplate}
+              setShowFunctionBuilder={setShowFunctionBuilder}
+              showTemplateModal={showTemplateModal}
+              setShowTemplateModal={setShowTemplateModal}
+              selectedTemplateForEdit={selectedTemplateForEdit}
+              handlePrepareComms={handlePrepareComms}
+            />
+          </React.Suspense>
         )}
 
         {/* COMMS Tab */}
         {activeTab === 'comms' && (
-          <RevenueOptimizerComms 
-            revenueFunctions={revenueFunctions}
-            getStatusColor={getStatusColor}
-            setShowCommsBuilder={setShowCommsBuilder}
-          />
+          <Suspense fallback={<div>Loading Comms tab...</div>}>
+            <RevenueOptimizerComms 
+              revenueFunctions={displayRevenueFunctions}
+              getStatusColor={getStatusColor}
+              setShowCommsBuilder={setShowCommsBuilder}
+            />
+          </Suspense>
         )}
 
         {/* PERFORMANCE Tab */}
-        {activeTab === 'review' && (
-          <RevenueOptimizerPerformance 
-            revenueFunctions={revenueFunctions}
-          />
+        {activeTab === 'performance' && (
+          <Suspense fallback={<div>Loading Performance tab...</div>}>
+            <RevenueOptimizerPerformance 
+              revenueFunctions={displayRevenueFunctions}
+            />
+          </Suspense>
         )}
       </div>
 
@@ -559,6 +1049,24 @@ function RevenueOptimizer() {
         </div>
       )}
 
+      {/* Custom Build Modal */}
+      {showCustomBuildModal && templateForCustomBuild && (
+        <div className="modal-overlay" onClick={() => setShowCustomBuildModal(false)}>
+          <div className="modal-content modal-fullscreen" onClick={(e) => e.stopPropagation()}>
+            <RevenueOptimizerCustomBuildNew
+              isOpen={showCustomBuildModal}
+              onClose={() => {
+                setShowCustomBuildModal(false);
+                setTemplateForCustomBuild(null);
+              }}
+              onSave={handleSaveCustomBuild}
+              editingFunction={convertTemplateToCustomBuild(templateForCustomBuild)}
+              getBookingTypeIcon={getBookingTypeIcon}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {showToast && (
         <div className="toast-notification">
@@ -571,6 +1079,21 @@ function RevenueOptimizer() {
       )}
     </div>
   );
+  } catch (error) {
+    console.error('Error rendering RevenueOptimizer:', error);
+    return (
+      <div className="revenue-optimizer-page">
+        <div className="page-header">
+          <h1 className="page-title">Revenue Optimizer</h1>
+          <p className="page-subtitle">Build, communicate, and optimize your revenue functions</p>
+        </div>
+        <div className="error-state">
+          <p>Error loading Revenue Optimizer: {error.message}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default RevenueOptimizer; 

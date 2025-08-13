@@ -42,7 +42,7 @@ function RevenueOptimizerOverview({ revenueFunctions, setActiveTab, getBookingTy
                   {func.status === 'Active' ? (
                     <button 
                       className="function-btn primary"
-                      onClick={() => setActiveTab('review')}
+                      onClick={() => setActiveTab('performance')}
                     >
                       View Performance
                     </button>
