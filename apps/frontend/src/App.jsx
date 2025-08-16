@@ -9,6 +9,9 @@ import Integrations from './Integrations';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import './App.css';
+import PersonaBuilder from './PersonaBuilder';
+import SettingsPage from './SettingsPage';
+import BookFlights from './BookFlights';
 
 function Landing() {
   return (
@@ -131,11 +134,14 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/book" element={<BookFlights />} />
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/booking-management" element={<BookingManagement />} />
           <Route path="/admin/revenue-optimizer" element={<RevenueOptimizer />} />
         <Route path="/admin/rewards" element={<RewardOrchestrator />} />
           <Route path="/admin/integrations" element={<Integrations />} />
+          <Route path="/admin/persona-builder" element={<PersonaBuilder />} />
+          <Route path="/admin/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Router>
