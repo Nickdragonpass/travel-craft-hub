@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 
 function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefitInputChange, addBenefit, removeBenefit, currentBenefit, setCurrentBenefit, showBenefitForm, setShowBenefitForm, benefitTypes, redemptionMethods, benefitsCatalog = [], addBenefitFromMarketplace }) {
-  const [activeTab, setActiveTab] = useState('create'); // 'create' | 'marketplace'
+  const [activeTab, setActiveTab] = useState('marketplace'); // 'create' | 'marketplace'
 
   // Marketplace filters
   const [search, setSearch] = useState('');
@@ -229,6 +229,9 @@ function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefi
                     <div className="benefit-info">
                       <h5>{benefit.title}</h5>
                       <p>{benefit.type} • {benefit.supplier}</p>
+                      {benefit.costToBank && (
+                        <small className="benefit-cost-display">Cost: ${benefit.costToBank}</small>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -248,17 +251,17 @@ function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefi
         <div className="benefits-tabs">
           <button
             type="button"
-            className={`tab-btn ${activeTab === 'create' ? 'active' : ''}`}
-            onClick={() => setActiveTab('create')}
-          >
-            Create New
-          </button>
-          <button
-            type="button"
             className={`tab-btn ${activeTab === 'marketplace' ? 'active' : ''}`}
             onClick={() => setActiveTab('marketplace')}
           >
             Marketplace
+          </button>
+          <button
+            type="button"
+            className={`tab-btn ${activeTab === 'create' ? 'active' : ''}`}
+            onClick={() => setActiveTab('create')}
+          >
+            Create New
           </button>
         </div>
 
@@ -427,6 +430,35 @@ function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefi
                   </div>
                 </div>
               </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Cost to Bank (USD)</label>
+                  <input
+                    type="number"
+                    value={currentBenefit.costToBank}
+                    onChange={(e) => handleBenefitInputChange('costToBank', e.target.value)}
+                    placeholder="Enter cost in USD"
+                    className="form-input enhanced"
+                    min="0"
+                    step="0.01"
+                  />
+                  <small className="field-description">
+                    The cost per customer for this benefit. Used for bundle pricing analysis.
+                  </small>
+                </div>
+
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    value={currentBenefit.description}
+                    onChange={(e) => handleBenefitInputChange('description', e.target.value)}
+                    placeholder="Enter benefit description"
+                    className="form-input enhanced"
+                    rows="3"
+                  />
+                </div>
+              </div>
               
             </div>
 
@@ -494,8 +526,6 @@ function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefi
                       <div className="card-type-chip">{item.type}</div>
                     </div>
                     <div className="card-sub">
-                      <span className="card-supplier">{item.supplier}</span>
-                      {item.value && <span className="card-value">Value: {item.value}</span>}
                     </div>
                     <p className="marketplace-desc">{item.description}</p>
                     <div className="card-footer">

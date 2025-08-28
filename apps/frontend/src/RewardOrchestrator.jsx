@@ -303,10 +303,8 @@ function RewardOrchestrator() {
   const renderManageTab = () => (
     <div className="manage-tab">
       <div className="tab-header">
-        <div className="header-content">
-          <h2>Manage Reward Programs</h2>
-        </div>
-        <div className="header-actions">
+        <h2>Manage Reward Programs</h2>
+        <div className="header-buttons">
           <button 
             className="btn secondary"
             onClick={() => setShowImportModal(true)}
@@ -551,8 +549,8 @@ function RewardOrchestrator() {
   const renderTestTab = () => (
     <div className="test-tab">
       <div className="tab-header">
-        <div className="header-content"><h2>A/B Testing</h2></div>
-        <div className="header-actions"><button className="btn primary" onClick={() => { setEditingTest(null); setShowABTestModal(true); }}>Create A/B Test</button></div>
+        <h2>A/B Testing</h2>
+        <button className="btn primary" onClick={() => { setEditingTest(null); setShowABTestModal(true); }}>Create A/B Test</button>
       </div>
       
       <div className="tab-subtitle"><p>Test different reward program variations to optimize performance</p></div>

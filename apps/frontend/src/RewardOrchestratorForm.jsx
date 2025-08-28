@@ -230,33 +230,134 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
     "Trigger-based"
   ];
 
-  // Load preset benefits catalog
+  // Load preset benefits catalog with pricing
   const benefitsCatalog = [
-    { id: 'market-1', title: '2x Lounge Passes', type: 'Lounge Access', supplier: 'DragonPass', description: 'Two complimentary lounge passes for the traveler', value: '2 passes', redemptionMethod: 'Automatic' },
-    { id: 'market-2', title: 'Airport Fast Track', type: 'Fast Track', supplier: 'Partner A', description: 'Priority security lane access at select airports', value: '1 pass', redemptionMethod: 'Automatic' },
-    { id: 'market-3', title: 'Priority Boarding', type: 'Priority Service', supplier: 'Airline A', description: 'Access to priority boarding lane', value: '1 boarding', redemptionMethod: 'Automatic' },
-    { id: 'market-4', title: 'Seat Upgrade', type: 'Upgrade', supplier: 'Airline B', description: 'Complimentary seat upgrade where available', value: '1 upgrade', redemptionMethod: 'Manual Approval' },
-    { id: 'market-5', title: 'Hotel Room Upgrade', type: 'Upgrade', supplier: 'Hotel Chain A', description: 'Room upgrade at check-in subject to availability', value: '1 upgrade', redemptionMethod: 'Manual Approval' },
-    { id: 'market-6', title: 'Free Checked Bag', type: 'Baggage', supplier: 'Airline C', description: 'One complimentary checked bag', value: '1 bag', redemptionMethod: 'Automatic' },
-    { id: 'market-7', title: 'Extra Carry-on', type: 'Baggage', supplier: 'Airline C', description: 'One additional cabin bag allowance', value: '1 item', redemptionMethod: 'Automatic' },
-    { id: 'market-8', title: 'Travel Insurance Discount', type: 'Discount', supplier: 'InsureCo', description: '10% off comprehensive travel insurance', value: '10% off', redemptionMethod: 'Customer Request' },
-    { id: 'market-9', title: 'Spa Access Voucher', type: 'Wellness', supplier: 'Hotel Chain B', description: 'Spa access day pass', value: '1 pass', redemptionMethod: 'Manual Approval' },
-    { id: 'market-10', title: 'Airport Transfer Credit', type: 'Transport', supplier: 'RideCo', description: 'Credit towards airport transfer', value: '$20', redemptionMethod: 'Automatic' },
-    { id: 'market-11', title: 'Ride-hailing Credit', type: 'Transport', supplier: 'RideCo', description: 'Credit on partner ride-hailing', value: '$15', redemptionMethod: 'Automatic' },
-    { id: 'market-12', title: 'Coffee Voucher', type: 'Food & Beverage', supplier: 'Cafe Partner', description: 'Complimentary coffee at airport cafe', value: '1 drink', redemptionMethod: 'Automatic' },
-    { id: 'market-13', title: 'Wi‑Fi Voucher', type: 'Connectivity', supplier: 'Airport Wi‑Fi', description: 'Premium Wi‑Fi access in airport', value: '1 session', redemptionMethod: 'Automatic' },
-    { id: 'market-14', title: 'Duty‑free Discount', type: 'Discount', supplier: 'Duty‑free', description: '10% off duty‑free purchases', value: '10% off', redemptionMethod: 'Automatic' },
-    { id: 'market-15', title: 'Lounge Guest Pass +1', type: 'Lounge Access', supplier: 'DragonPass', description: 'Guest pass for lounge access', value: '+1 guest', redemptionMethod: 'Automatic' },
-    { id: 'market-16', title: 'Meal Voucher', type: 'Food & Beverage', supplier: 'Food Partner', description: 'Airport meal voucher', value: '$10', redemptionMethod: 'Automatic' },
-    { id: 'market-17', title: 'eSIM Data Pack', type: 'Connectivity', supplier: 'eSIM Partner', description: 'International data pack', value: '5GB', redemptionMethod: 'Automatic' },
-    { id: 'market-18', title: 'Taxi Voucher', type: 'Transport', supplier: 'Taxi Partner', description: 'Voucher for taxi from airport', value: '$25', redemptionMethod: 'Automatic' },
-    { id: 'market-19', title: 'Late Checkout', type: 'Hotel', supplier: 'Hotel Chain B', description: 'Late checkout benefit where available', value: '2 hours', redemptionMethod: 'Manual Approval' },
-    { id: 'market-20', title: 'Early Check‑in', type: 'Hotel', supplier: 'Hotel Chain B', description: 'Early check‑in where available', value: '2 hours', redemptionMethod: 'Manual Approval' },
-    { id: 'market-21', title: 'Golf Green Fee Discount', type: 'Leisure', supplier: 'Golf Partner', description: 'Discount on golf green fees', value: '15% off', redemptionMethod: 'Customer Request' },
-    { id: 'market-22', title: 'Concierge Access', type: 'Service', supplier: 'ConciergeCo', description: 'Priority concierge assistance', value: 'Priority', redemptionMethod: 'Automatic' },
-    { id: 'market-23', title: 'Cashback on Travel', type: 'Cash Back', supplier: 'Bank', description: 'Cashback on eligible travel purchases', value: '2%', redemptionMethod: 'Automatic' },
-    { id: 'market-24', title: 'Bonus Points', type: 'Points', supplier: 'Bank', description: 'Bonus loyalty points on booking', value: '1,000 pts', redemptionMethod: 'Automatic' }
+    { id: 'market-1', title: '2x Lounge Passes', type: 'Lounge Access', supplier: 'DragonPass', description: 'Two complimentary lounge passes for the traveler', value: '2 passes', redemptionMethod: 'Automatic', costToBank: 45 },
+    { id: 'market-2', title: 'Airport Fast Track', type: 'Fast Track', supplier: 'Partner A', description: 'Priority security lane access at select airports', value: '1 pass', redemptionMethod: 'Automatic', costToBank: 25 },
+    { id: 'market-3', title: 'Priority Boarding', type: 'Priority Service', supplier: 'Airline A', description: 'Access to priority boarding lane', value: '1 boarding', redemptionMethod: 'Automatic', costToBank: 15 },
+    { id: 'market-4', title: 'Seat Upgrade', type: 'Upgrade', supplier: 'Airline B', description: 'Complimentary seat upgrade where available', value: '1 upgrade', redemptionMethod: 'Manual Approval', costToBank: 120 },
+    { id: 'market-5', title: 'Hotel Room Upgrade', type: 'Upgrade', supplier: 'Hotel Chain A', description: 'Room upgrade at check-in subject to availability', value: '1 upgrade', redemptionMethod: 'Manual Approval', costToBank: 85 },
+    { id: 'market-6', title: 'Free Checked Bag', type: 'Baggage', supplier: 'Airline C', description: 'One complimentary checked bag', value: '1 bag', redemptionMethod: 'Automatic', costToBank: 35 },
+    { id: 'market-7', title: 'Extra Carry-on', type: 'Baggage', supplier: 'Airline C', description: 'One additional cabin bag allowance', value: '1 item', redemptionMethod: 'Automatic', costToBank: 20 },
+    { id: 'market-8', title: 'Travel Insurance Discount', type: 'Discount', supplier: 'InsureCo', description: '10% off comprehensive travel insurance', value: '10% off', redemptionMethod: 'Customer Request', costToBank: 8 },
+    { id: 'market-9', title: 'Spa Access Voucher', type: 'Wellness', supplier: 'Hotel Chain B', description: 'Spa access day pass', value: '1 pass', redemptionMethod: 'Manual Approval', costToBank: 65 },
+    { id: 'market-10', title: 'Airport Transfer Credit', type: 'Transport', supplier: 'RideCo', description: 'Credit towards airport transfer', value: '$20', redemptionMethod: 'Automatic', costToBank: 20 },
+    { id: 'market-11', title: 'Ride-hailing Credit', type: 'Transport', supplier: 'RideCo', description: 'Credit on partner ride-hailing', value: '$15', redemptionMethod: 'Automatic', costToBank: 15 },
+    { id: 'market-12', title: 'Coffee Voucher', type: 'Food & Beverage', supplier: 'Cafe Partner', description: 'Complimentary coffee at airport cafe', value: '1 drink', redemptionMethod: 'Automatic', costToBank: 6 },
+    { id: 'market-13', title: 'Wi‑Fi Voucher', type: 'Connectivity', supplier: 'Airport Wi‑Fi', description: 'Premium Wi‑Fi access in airport', value: '1 session', redemptionMethod: 'Automatic', costToBank: 12 },
+    { id: 'market-14', title: 'Duty‑free Discount', type: 'Discount', supplier: 'Duty‑free', description: '10% off duty‑free purchases', value: '10% off', redemptionMethod: 'Automatic', costToBank: 5 },
+    { id: 'market-15', title: 'Lounge Guest Pass +1', type: 'Lounge Access', supplier: 'DragonPass', description: 'Guest pass for lounge access', value: '+1 guest', redemptionMethod: 'Automatic', costToBank: 25 },
+    { id: 'market-16', title: 'Meal Voucher', type: 'Food & Beverage', supplier: 'Food Partner', description: 'Airport meal voucher', value: '$10', redemptionMethod: 'Automatic', costToBank: 10 },
+    { id: 'market-17', title: 'eSIM Data Pack', type: 'Connectivity', supplier: 'eSIM Partner', description: 'International data pack', value: '5GB', redemptionMethod: 'Automatic', costToBank: 18 },
+    { id: 'market-18', title: 'Taxi Voucher', type: 'Transport', supplier: 'Taxi Partner', description: 'Voucher for taxi from airport', value: '$25', redemptionMethod: 'Automatic', costToBank: 25 },
+    { id: 'market-19', title: 'Late Checkout', type: 'Hotel', supplier: 'Hotel Chain B', description: 'Late checkout benefit where available', value: '2 hours', redemptionMethod: 'Manual Approval', costToBank: 15 },
+    { id: 'market-20', title: 'Early Check‑in', type: 'Hotel', supplier: 'Hotel Chain B', description: 'Early check‑in where available', value: '2 hours', redemptionMethod: 'Manual Approval', costToBank: 15 },
+    { id: 'market-21', title: 'Golf Green Fee Discount', type: 'Leisure', supplier: 'Golf Partner', description: 'Discount on golf green fees', value: '15% off', redemptionMethod: 'Customer Request', costToBank: 12 },
+    { id: 'market-22', title: 'Concierge Access', type: 'Service', supplier: 'ConciergeCo', description: 'Priority concierge assistance', value: 'Priority', redemptionMethod: 'Automatic', costToBank: 30 },
+    { id: 'market-23', title: 'Cashback on Travel', type: 'Cash Back', supplier: 'Bank', description: 'Cashback on eligible travel purchases', value: '2%', redemptionMethod: 'Automatic', costToBank: 22 },
+    { id: 'market-24', title: 'Bonus Points', type: 'Points', supplier: 'Bank', description: 'Bonus loyalty points on booking', value: '1,000 pts', redemptionMethod: 'Automatic', costToBank: 18 }
   ];
+
+  // Cost analysis and bundling suggestions
+  const calculateTotalCost = () => {
+    return formData.benefits.reduce((total, benefit) => {
+      // Use costToBank if available, otherwise estimate based on type
+      let cost = benefit.costToBank;
+      if (!cost) {
+        cost = estimateBenefitCost(benefit);
+      }
+      return total + cost;
+    }, 0);
+  };
+
+  const estimateBenefitCost = (benefit) => {
+    // Fallback cost estimation based on benefit type
+    const typeCosts = {
+      'Lounge Access': 25,
+      'Fast Track': 25,
+      'Priority Service': 15,
+      'Upgrade': 100,
+      'Baggage': 30,
+      'Discount': 10,
+      'Wellness': 50,
+      'Transport': 20,
+      'Food & Beverage': 8,
+      'Connectivity': 15,
+      'Leisure': 15,
+      'Service': 25,
+      'Cash Back': 20,
+      'Points': 15
+    };
+    return typeCosts[benefit.type] || 20;
+  };
+
+  const getBundlingSuggestions = () => {
+    const totalCost = calculateTotalCost();
+    const benefitCount = formData.benefits.length;
+    
+    let suggestions = [];
+    
+    if (totalCost > 200) {
+      suggestions.push({
+        type: 'warning',
+        message: 'Bundle cost is high. Consider removing premium benefits or negotiating supplier rates.',
+        action: 'Review and optimize'
+      });
+    } else if (totalCost > 150) {
+      suggestions.push({
+        type: 'info',
+        message: 'Bundle is in premium range. Good value for high-tier customers.',
+        action: 'Consider tiered pricing'
+      });
+    } else if (totalCost > 100) {
+      suggestions.push({
+        type: 'success',
+        message: 'Bundle cost is well-balanced. Good mix of value and affordability.',
+        action: 'Ready for launch'
+      });
+    } else if (totalCost > 50) {
+      suggestions.push({
+        type: 'info',
+        message: 'Bundle is cost-effective. Consider adding one premium benefit for differentiation.',
+        action: 'Add premium benefit'
+      });
+    } else {
+      suggestions.push({
+        type: 'warning',
+        message: 'Bundle cost is very low. May not provide enough perceived value.',
+        action: 'Add more benefits'
+      });
+    }
+
+    // Specific suggestions based on benefit mix
+    if (benefitCount < 3) {
+      suggestions.push({
+        type: 'info',
+        message: 'Bundle has few benefits. Consider adding 2-3 more for better customer appeal.',
+        action: 'Expand benefit selection'
+      });
+    } else if (benefitCount > 8) {
+      suggestions.push({
+        type: 'warning',
+        message: 'Bundle has many benefits. Consider grouping into tiers for easier management.',
+        action: 'Create benefit tiers'
+      });
+    }
+
+    // Check for benefit type diversity
+    const benefitTypes = [...new Set(formData.benefits.map(b => b.type))];
+    if (benefitTypes.length < 3) {
+      suggestions.push({
+        type: 'info',
+        message: 'Limited benefit variety. Mix different categories for broader appeal.',
+        action: 'Diversify benefit types'
+      });
+    }
+
+    return suggestions;
+  };
+
+  // Removed getCostPerCustomer since this is B2B2C - only show cost to clients
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -364,7 +465,7 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
         redemptionWindowEnd: currentBenefit.redemptionWindowEnd || "",
         customerUsageLimit: currentBenefit.customerUsageLimit || "",
         inventory: currentBenefit.inventory || "",
-        costToBank: currentBenefit.costToBank || "",
+        costToBank: currentBenefit.costToBank || estimateBenefitCost({ type: currentBenefit.type }),
         personaEligibilityOverride: currentBenefit.personaEligibilityOverride || "",
         visibleInUI: Boolean(currentBenefit.visibleInUI)
       };
@@ -413,7 +514,8 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
       redemptionMethod: preset.redemptionMethod || "",
       value: preset.value || "",
       maxRedemptions: preset.maxRedemptions || "",
-      visibleInUI: true
+      visibleInUI: true,
+      costToBank: preset.costToBank || estimateBenefitCost({ type: preset.type })
     };
     setFormData(prev => ({ ...prev, benefits: [...prev.benefits, benefitToAdd] }));
   };
@@ -508,6 +610,47 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
     }
   };
 
+  // Cost analysis component - footer version, ultra-compact design
+  const CostAnalysis = () => {
+    const totalCost = calculateTotalCost();
+    const benefitCount = formData.benefits.length;
+    const suggestions = getBundlingSuggestions();
+    
+    return (
+      <div className="cost-analysis compact">
+        <div className="cost-summary">
+          <div className="cost-metrics-inline">
+            <div className="cost-metric-inline">
+              <span className="metric-label-inline">Cost per Customer:</span>
+              <span className="metric-value-inline">${totalCost}</span>
+            </div>
+            <div className="cost-metric-inline">
+              <span className="metric-label-inline">Benefits:</span>
+              <span className="metric-value-inline">{benefitCount}</span>
+            </div>
+            <div className="cost-metric-inline">
+              <div className="info-tooltip">
+                <span className="tooltip-icon">ℹ️</span>
+                <div className="tooltip-content">
+                  {suggestions.map((suggestion, index) => (
+                    <div key={index} className={`tooltip-suggestion ${suggestion.type}`}>
+                      <div className="tooltip-icon-small">
+                        {suggestion.type === 'warning' && '⚠️'}
+                        {suggestion.type === 'info' && 'ℹ️'}
+                        {suggestion.type === 'success' && '✅'}
+                      </div>
+                      <span>{suggestion.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -550,6 +693,9 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
               Previous
             </button>
           )}
+        </div>
+        <div className="footer-center">
+          {currentStep === 3 && <CostAnalysis />}
         </div>
         <div className="footer-right">
           {currentStep < totalSteps ? (
