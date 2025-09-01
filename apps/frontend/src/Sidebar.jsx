@@ -33,6 +33,14 @@ function Sidebar({ isCollapsed, onToggle }) {
           <span className="link-icon">🔐</span>
           <span className="link-text">Entitlement Package</span>
         </NavLink>
+        <NavLink to="/admin/entitlement-package" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Entitlement Package">
+          <span className="link-icon">🎁</span>
+          <span className="link-text">Entitlement Package</span>
+        </NavLink>
+        <NavLink to="/admin/activity-component-management" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Activity Component Management">
+          <span className="link-icon">📊</span>
+          <span className="link-text">Activity Component Management</span>
+        </NavLink>
         <NavLink to="/admin/persona-builder" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Persona Builder">
           <span className="link-icon">🧩</span>
           <span className="link-text">Persona Builder</span>

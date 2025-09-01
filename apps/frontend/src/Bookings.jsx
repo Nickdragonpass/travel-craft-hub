@@ -870,7 +870,6 @@ function Bookings() {
       )}
 
 
-
       {/* Bookings Table */}
       <div className="bookings-table-container">
         <table className="bookings-table">

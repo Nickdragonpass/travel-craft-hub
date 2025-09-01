@@ -258,7 +258,6 @@ function BookingActionCenter() {
   return (
     <div className="booking-action-center">
 
-
       {/* Filters */}
       <div className="kanban-filters">
         <div className="filter-group">

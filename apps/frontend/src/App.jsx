@@ -12,6 +12,8 @@ import './App.css';
 import PersonaBuilder from './PersonaBuilder';
 import SettingsPage from './SettingsPage';
 import BookFlights from './BookFlights';
+import EntitlementPackage from './EntitlementPackage.candy';
+import ActivityComponentManagement from './ActivityComponentManagement.candy';
 
 function Landing() {
   return (
@@ -142,6 +144,8 @@ function App() {
           <Route path="/admin/integrations" element={<Integrations />} />
           <Route path="/admin/persona-builder" element={<PersonaBuilder />} />
           <Route path="/admin/settings" element={<SettingsPage />} />
+          <Route path="/admin/entitlement-package" element={<EntitlementPackage />} />
+          <Route path="/admin/activity-component-management" element={<ActivityComponentManagement />} />
         </Route>
       </Routes>
     </Router>
