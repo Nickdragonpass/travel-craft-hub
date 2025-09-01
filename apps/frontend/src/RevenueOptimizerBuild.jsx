@@ -20,7 +20,9 @@ function RevenueOptimizerBuild({
   showTemplateModal,
   setShowTemplateModal,
   selectedTemplateForEdit,
-  handlePrepareComms
+  handlePrepareComms,
+  handlePauseTemplate,
+  handleEditTemplate
 }) {
   const [editedTemplate, setEditedTemplate] = useState(null);
 
@@ -215,7 +217,22 @@ function RevenueOptimizerBuild({
                     )}
 
                     <div className="template-actions">
-                      {implementationStatus.status === 'Active' ? (
+                      {template.status === 'Active' || template.status === 'active' ? (
+                        <div className="active-template-actions" style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            className="template-btn secondary"
+                            onClick={() => handlePauseTemplate(template)}
+                          >
+                            Pause
+                          </button>
+                          <button 
+                            className="template-btn primary"
+                            onClick={() => handleEditTemplate(template)}
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      ) : implementationStatus.status === 'Active' ? (
                         <button className="template-btn primary">View Performance</button>
                       ) : implementationStatus.status === 'Draft' ? (
                         <button className="template-btn secondary">Continue Building</button>

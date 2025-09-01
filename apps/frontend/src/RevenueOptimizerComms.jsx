@@ -12,6 +12,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
   const [showEditModal, setShowEditModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,45 +34,87 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
       pushTitle: '',
       pushMessage: '',
       inAppTitle: '',
-      inAppMessage: ''
+      inAppMessage: '',
+      tiktokCaption: '',
+      tiktokHashtags: '',
+      instagramCaption: '',
+      instagramHashtags: '',
+      facebookCaption: '',
+      facebookLink: ''
+    },
+    images: {
+      emailHeaderImage: null,
+      emailBodyImage: null,
+      pushIcon: null,
+      inAppBanner: null,
+      tiktokVideo: null,
+      instagramPost: null,
+      facebookPost: null
     },
     language: 'english',
     tone: 'professional'
   });
 
-  const channels = ['email', 'sms', 'push', 'in-app'];
+  const channels = ['email', 'sms', 'push', 'in-app', 'tiktok', 'instagram', 'facebook'];
 
   // Mock data
   const mockTemplates = [
     {
       id: 1,
-      name: 'Welcome Email Template',
-      description: 'Welcome email for new customers',
+      name: 'Social Media Acquisition Campaign',
+      description: 'New acquisition campaign for TikTok & Instagram ads',
       type: 'email',
-      revenueType: 'upsell',
+      revenueType: 'acquisition',
       status: 'active',
       createdAt: '2024-01-15',
-      performance: { sent: 1200, opened: 800, converted: 45 }
+      performance: { sent: 1200, opened: 800, converted: 45 },
+      images: {
+        emailHeaderImage: '/chase-travel-ad.png',
+        emailBodyImage: null,
+        pushIcon: null,
+        inAppBanner: null,
+        tiktokVideo: null,
+        instagramPost: null,
+        facebookPost: null
+      }
     },
     {
       id: 2,
       name: 'Cross-sell SMS Template',
       description: 'SMS for cross-selling related products',
-      type: 'sms',
+      type: 'email',
       revenueType: 'cross-sell',
       status: 'draft',
       createdAt: '2024-01-20',
-      performance: { sent: 500, opened: 300, converted: 12 }
+      performance: { sent: 500, opened: 300, converted: 12 },
+      images: {
+        emailHeaderImage: '/sapphire-reserve-ad.png',
+        emailBodyImage: null,
+        pushIcon: null,
+        inAppBanner: null,
+        tiktokVideo: null,
+        instagramPost: null,
+        facebookPost: null
+      }
     },
     {
       id: 3,
       name: 'Push Notification Template',
       description: 'Push notification for app users',
-      type: 'push',
+      type: 'email',
       revenueType: 'upsell',
       status: 'active',
       createdAt: '2024-01-25',
-      performance: { sent: 800, opened: 600, converted: 28 }
+      performance: { sent: 800, opened: 600, converted: 28 },
+      images: {
+        emailHeaderImage: '/bank-credit-card-ad.png',
+        emailBodyImage: null,
+        pushIcon: null,
+        inAppBanner: null,
+        tiktokVideo: null,
+        instagramPost: null,
+        facebookPost: null
+      }
     }
   ];
 
@@ -172,6 +215,32 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
     }));
   };
 
+  const handleImageUpload = (imageType, file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setTemplateForm(prev => ({
+          ...prev,
+          images: {
+            ...prev.images,
+            [imageType]: e.target.result
+          }
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = (imageType) => {
+    setTemplateForm(prev => ({
+      ...prev,
+      images: {
+        ...prev.images,
+        [imageType]: null
+      }
+    }));
+  };
+
   const resetForm = () => {
     setTemplateForm({
       name: '',
@@ -186,7 +255,22 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
         pushTitle: '',
         pushMessage: '',
         inAppTitle: '',
-        inAppMessage: ''
+        inAppMessage: '',
+        tiktokCaption: '',
+        tiktokHashtags: '',
+        instagramCaption: '',
+        instagramHashtags: '',
+        facebookCaption: '',
+        facebookLink: ''
+      },
+      images: {
+        emailHeaderImage: null,
+        emailBodyImage: null,
+        pushIcon: null,
+        inAppBanner: null,
+        tiktokVideo: null,
+        instagramPost: null,
+        facebookPost: null
       },
       language: 'english',
       tone: 'professional'
@@ -208,7 +292,22 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
         pushTitle: '',
         pushMessage: '',
         inAppTitle: '',
-        inAppMessage: ''
+        inAppMessage: '',
+        tiktokCaption: '',
+        tiktokHashtags: '',
+        instagramCaption: '',
+        instagramHashtags: '',
+        facebookCaption: '',
+        facebookLink: ''
+      },
+      images: template.images || {
+        emailHeaderImage: null,
+        emailBodyImage: null,
+        pushIcon: null,
+        inAppBanner: null,
+        tiktokVideo: null,
+        instagramPost: null,
+        facebookPost: null
       },
       language: template.language || 'english',
       tone: template.tone || 'professional'
@@ -239,6 +338,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
     switch (type) {
       case 'upsell': return '#3b82f6';
       case 'cross-sell': return '#8b5cf6';
+      case 'pre-sell': return '#10b981';
       default: return '#6b7280';
     }
   };
@@ -329,6 +429,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                 <option value="all">All Types</option>
                 <option value="upsell">Up-sell</option>
                 <option value="cross-sell">Cross-sell</option>
+                <option value="pre-sell">Pre-sell (New acquisition)</option>
               </select>
             </div>
             <div className="filter-group">
@@ -366,12 +467,12 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                   </span>
                 </div>
               </div>
-              <div className="template-meta">
-                <span className="meta-item">
+              <div className="template-meta-horizontal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="meta-item-horizontal" style={{ flex: 1 }}>
                   <span className="meta-label">Type:</span>
                   <span className="meta-value">{template.type}</span>
-                </span>
-                <span className="meta-item">
+                </div>
+                <div className="meta-item-horizontal" style={{ flex: 1 }}>
                   <span className="meta-label">Revenue:</span>
                   <span 
                     className="meta-value"
@@ -379,27 +480,93 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                   >
                     {template.revenueType}
                   </span>
-                </span>
-                <span className="meta-item">
+                </div>
+                <div className="meta-item-horizontal" style={{ flex: 1 }}>
                   <span className="meta-label">Created:</span>
                   <span className="meta-value">{template.createdAt}</span>
-                </span>
+                </div>
               </div>
-              <div className="template-performance">
-                <div className="perf-item">
-                  <span className="perf-number">{template.performance?.sent || 0}</span>
-                  <span className="perf-label">Sent</span>
+              <div className="template-performance" style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginTop: '12px' }}>
+                <div className="perf-item" style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  backgroundColor: '#f8fafc', 
+                  padding: '8px 12px', 
+                  borderRadius: '6px', 
+                  flex: 1,
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <span className="perf-number" style={{ 
+                    fontSize: '18px', 
+                    fontWeight: '600', 
+                    color: '#1e293b',
+                    lineHeight: '1.2'
+                  }}>{template.performance?.sent || 0}</span>
+                  <span className="perf-label" style={{ 
+                    fontSize: '12px', 
+                    color: '#64748b', 
+                    fontWeight: '500',
+                    marginTop: '2px'
+                  }}>Sent</span>
                 </div>
-                <div className="perf-item">
-                  <span className="perf-number">{template.performance?.opened || 0}</span>
-                  <span className="perf-label">Opened</span>
+                <div className="perf-item" style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  backgroundColor: '#f0f9ff', 
+                  padding: '8px 12px', 
+                  borderRadius: '6px', 
+                  flex: 1,
+                  border: '1px solid #bae6fd'
+                }}>
+                  <span className="perf-number" style={{ 
+                    fontSize: '18px', 
+                    fontWeight: '600', 
+                    color: '#0369a1',
+                    lineHeight: '1.2'
+                  }}>{template.performance?.opened || 0}</span>
+                  <span className="perf-label" style={{ 
+                    fontSize: '12px', 
+                    color: '#0284c7', 
+                    fontWeight: '500',
+                    marginTop: '2px'
+                  }}>Opened</span>
                 </div>
-                <div className="perf-item">
-                  <span className="perf-number">{template.performance?.converted || 0}</span>
-                  <span className="perf-label">Converted</span>
+                <div className="perf-item" style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  backgroundColor: '#f0fdf4', 
+                  padding: '8px 12px', 
+                  borderRadius: '6px', 
+                  flex: 1,
+                  border: '1px solid #bbf7d0'
+                }}>
+                  <span className="perf-number" style={{ 
+                    fontSize: '18px', 
+                    fontWeight: '600', 
+                    color: '#166534',
+                    lineHeight: '1.2'
+                  }}>{template.performance?.converted || 0}</span>
+                  <span className="perf-label" style={{ 
+                    fontSize: '12px', 
+                    color: '#16a34a', 
+                    fontWeight: '500',
+                    marginTop: '2px'
+                  }}>Converted</span>
                 </div>
               </div>
               <div className="template-actions">
+                <button 
+                  className="template-btn secondary"
+                  onClick={() => {
+                    setSelectedTemplate(template);
+                    setShowPreviewModal(true);
+                  }}
+                >
+                  Preview
+                </button>
                 <button 
                   className="template-btn secondary"
                   onClick={() => openEditModal(template)}
@@ -443,7 +610,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
         <div className="modal-overlay">
           <div className="modal-content modal-large">
             <div className="modal-header">
-              <h3>{selectedTemplate ? 'Edit Communication Template' : 'Create Communication Template'}</h3>
+              <h3 style={{ color: 'white' }}>{selectedTemplate ? 'Edit Communication Template' : 'Create Communication Template'}</h3>
               <button 
                 className="modal-close"
                 onClick={() => {
@@ -489,6 +656,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                     >
                       <option value="upsell">Up-sell</option>
                       <option value="cross-sell">Cross-sell</option>
+                      <option value="pre-sell">Pre-sell (New acquisition)</option>
                     </select>
                   </div>
                 </div>
@@ -597,6 +765,307 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                         placeholder="Enter in-app notification message"
                         rows="3"
                       />
+                    </div>
+                  )}
+                  {templateForm.channels.includes('tiktok') && (
+                    <>
+                      <div className="form-group">
+                        <label>TikTok Caption</label>
+                        <textarea 
+                          className="form-input"
+                          value={templateForm.messageTemplate.tiktokCaption}
+                          onChange={(e) => handleNestedInputChange('messageTemplate', 'tiktokCaption', e.target.value)}
+                          placeholder="Enter TikTok video caption"
+                          rows="4"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>TikTok Hashtags</label>
+                        <input 
+                          type="text"
+                          className="form-input"
+                          value={templateForm.messageTemplate.tiktokHashtags}
+                          onChange={(e) => handleNestedInputChange('messageTemplate', 'tiktokHashtags', e.target.value)}
+                          placeholder="#travel #deals #upsell"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {templateForm.channels.includes('instagram') && (
+                    <>
+                      <div className="form-group">
+                        <label>Instagram Caption</label>
+                        <textarea 
+                          className="form-input"
+                          value={templateForm.messageTemplate.instagramCaption}
+                          onChange={(e) => handleNestedInputChange('messageTemplate', 'instagramCaption', e.target.value)}
+                          placeholder="Enter Instagram post caption"
+                          rows="4"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Instagram Hashtags</label>
+                        <input 
+                          type="text"
+                          className="form-input"
+                          value={templateForm.messageTemplate.instagramHashtags}
+                          onChange={(e) => handleNestedInputChange('messageTemplate', 'instagramHashtags', e.target.value)}
+                          placeholder="#travel #vacation #upgrade"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {templateForm.channels.includes('facebook') && (
+                    <>
+                      <div className="form-group">
+                        <label>Facebook Post Caption</label>
+                        <textarea 
+                          className="form-input"
+                          value={templateForm.messageTemplate.facebookCaption}
+                          onChange={(e) => handleNestedInputChange('messageTemplate', 'facebookCaption', e.target.value)}
+                          placeholder="Enter Facebook post caption"
+                          rows="4"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Facebook Link (Optional)</label>
+                        <input 
+                          type="url"
+                          className="form-input"
+                          value={templateForm.messageTemplate.facebookLink}
+                          onChange={(e) => handleNestedInputChange('messageTemplate', 'facebookLink', e.target.value)}
+                          placeholder="https://example.com/offer"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Images Section */}
+                <div className="form-section">
+                  <h4>Images & Assets</h4>
+                  {templateForm.channels.includes('email') && (
+                    <div className="image-upload-group">
+                      <div className="form-group">
+                        <label>Email Header Image</label>
+                        <div className="image-upload-container">
+                          {templateForm.images.emailHeaderImage ? (
+                            <div className="image-preview">
+                              <img src={templateForm.images.emailHeaderImage} alt="Email header" className="preview-image" />
+                              <button 
+                                type="button" 
+                                className="remove-image-btn"
+                                onClick={() => removeImage('emailHeaderImage')}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="image-upload-label">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload('emailHeaderImage', e.target.files[0])}
+                                className="image-upload-input"
+                              />
+                              <div className="upload-placeholder">
+                                <span>📷</span>
+                                <span>Upload Header Image</span>
+                              </div>
+                            </label>
+                          )}
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Email Body Image</label>
+                        <div className="image-upload-container">
+                          {templateForm.images.emailBodyImage ? (
+                            <div className="image-preview">
+                              <img src={templateForm.images.emailBodyImage} alt="Email body" className="preview-image" />
+                              <button 
+                                type="button" 
+                                className="remove-image-btn"
+                                onClick={() => removeImage('emailBodyImage')}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="image-upload-label">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload('emailBodyImage', e.target.files[0])}
+                                className="image-upload-input"
+                              />
+                              <div className="upload-placeholder">
+                                <span>📷</span>
+                                <span>Upload Body Image</span>
+                              </div>
+                            </label>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {templateForm.channels.includes('push') && (
+                    <div className="form-group">
+                      <label>Push Notification Icon</label>
+                      <div className="image-upload-container">
+                        {templateForm.images.pushIcon ? (
+                          <div className="image-preview">
+                            <img src={templateForm.images.pushIcon} alt="Push icon" className="preview-image icon-preview" />
+                            <button 
+                              type="button" 
+                              className="remove-image-btn"
+                              onClick={() => removeImage('pushIcon')}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="image-upload-label">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload('pushIcon', e.target.files[0])}
+                              className="image-upload-input"
+                            />
+                            <div className="upload-placeholder">
+                              <span>🔔</span>
+                              <span>Upload Push Icon</span>
+                            </div>
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {templateForm.channels.includes('in-app') && (
+                    <div className="form-group">
+                      <label>In-App Banner Image</label>
+                      <div className="image-upload-container">
+                        {templateForm.images.inAppBanner ? (
+                          <div className="image-preview">
+                            <img src={templateForm.images.inAppBanner} alt="In-app banner" className="preview-image" />
+                            <button 
+                              type="button" 
+                              className="remove-image-btn"
+                              onClick={() => removeImage('inAppBanner')}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="image-upload-label">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload('inAppBanner', e.target.files[0])}
+                              className="image-upload-input"
+                            />
+                            <div className="upload-placeholder">
+                              <span>🖼️</span>
+                              <span>Upload Banner Image</span>
+                            </div>
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {templateForm.channels.includes('tiktok') && (
+                    <div className="form-group">
+                      <label>TikTok Video Thumbnail</label>
+                      <div className="image-upload-container">
+                        {templateForm.images.tiktokVideo ? (
+                          <div className="image-preview">
+                            <img src={templateForm.images.tiktokVideo} alt="TikTok video" className="preview-image" />
+                            <button 
+                              type="button" 
+                              className="remove-image-btn"
+                              onClick={() => removeImage('tiktokVideo')}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="image-upload-label">
+                            <input
+                              type="file"
+                              accept="image/*,video/*"
+                              onChange={(e) => handleImageUpload('tiktokVideo', e.target.files[0])}
+                              className="image-upload-input"
+                            />
+                            <div className="upload-placeholder">
+                              <span>🎬</span>
+                              <span>Upload Video/Thumbnail</span>
+                            </div>
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {templateForm.channels.includes('instagram') && (
+                    <div className="form-group">
+                      <label>Instagram Post Image</label>
+                      <div className="image-upload-container">
+                        {templateForm.images.instagramPost ? (
+                          <div className="image-preview">
+                            <img src={templateForm.images.instagramPost} alt="Instagram post" className="preview-image" />
+                            <button 
+                              type="button" 
+                              className="remove-image-btn"
+                              onClick={() => removeImage('instagramPost')}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="image-upload-label">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload('instagramPost', e.target.files[0])}
+                              className="image-upload-input"
+                            />
+                            <div className="upload-placeholder">
+                              <span>📸</span>
+                              <span>Upload Post Image</span>
+                            </div>
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {templateForm.channels.includes('facebook') && (
+                    <div className="form-group">
+                      <label>Facebook Post Image</label>
+                      <div className="image-upload-container">
+                        {templateForm.images.facebookPost ? (
+                          <div className="image-preview">
+                            <img src={templateForm.images.facebookPost} alt="Facebook post" className="preview-image" />
+                            <button 
+                              type="button" 
+                              className="remove-image-btn"
+                              onClick={() => removeImage('facebookPost')}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="image-upload-label">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload('facebookPost', e.target.files[0])}
+                              className="image-upload-input"
+                            />
+                            <div className="upload-placeholder">
+                              <span>📘</span>
+                              <span>Upload Post Image</span>
+                            </div>
+                          </label>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -745,6 +1214,64 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                 style={{ backgroundColor: '#dc2626' }}
               >
                 Delete Template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Template Preview Modal */}
+      {showPreviewModal && selectedTemplate && (
+        <div className="modal-overlay">
+          <div className="modal-content modal-large">
+            <div className="modal-header">
+              <h3 style={{ color: 'white' }}>Template Preview - {selectedTemplate.name}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setSelectedTemplate(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="preview-container">
+                {selectedTemplate.type === 'email' && (
+                  <div className="email-preview">
+                    <div className="image-only-preview">
+                      {selectedTemplate.images?.emailHeaderImage && (
+                        <img 
+                          src={selectedTemplate.images.emailHeaderImage} 
+                          alt="Ad Preview" 
+                          className="clickable-image full-preview-image"
+                          onClick={() => openImageLightbox(selectedTemplate.images.emailHeaderImage, 'Ad Image')}
+                        />
+                      )}
+                    </div>
+                  </div>
+                                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="modal-btn secondary"
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setSelectedTemplate(null);
+                }}
+              >
+                Close
+              </button>
+              <button 
+                className="modal-btn primary"
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  openEditModal(selectedTemplate);
+                }}
+              >
+                Edit Template
               </button>
             </div>
           </div>

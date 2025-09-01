@@ -418,14 +418,15 @@ body, html {
   width: 250px;
   min-width: 250px;
   max-width: 250px;
-  height: 100%;
+  height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
-  padding: 32px 0 0 0;
+  padding: 32px 0 32px 0;
   box-shadow: 2px 0 8px rgba(26,34,51,0.04);
   gap: 0;
   flex-shrink: 0;
-  overflow-y: auto;
+  overflow-y: scroll !important;
+  overflow-x: hidden;
   position: fixed;
   left: 0;
   top: 64px;
@@ -1849,8 +1850,8 @@ body, html {
 
 /* Enhanced Modal for Charts */
 .modal-large {
-  max-width: 900px;
-  width: 95%;
+  max-width: 1800px;
+  width: 98%;
 }
 
 .modal-fullscreen {
@@ -3868,7 +3869,7 @@ body, html {
 /* Modern Booking Details Modal */
 .booking-detail-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   padding: 0;
 }
@@ -4230,6 +4231,31 @@ body, html {
   margin-left: auto;
 }
 
+/* Force performance tab header layout */
+.performance-tab .tab-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  flex-direction: row !important;
+  text-align: left !important;
+}
+
+.performance-tab .tab-header .header-content {
+  flex: 0 1 auto;
+  text-align: left !important;
+}
+
+.performance-tab .tab-header .header-content h2 {
+  text-align: left !important;
+  margin: 0;
+}
+
+.performance-tab .tab-header .header-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
 /* Force the test-tab header to use flexbox layout */
 .test-tab .tab-header {
   display: flex !important;
@@ -4274,6 +4300,12 @@ body, html {
 }
 
 .manage-tab .tab-header .header-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.performance-tab .tab-header .header-buttons {
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
@@ -9627,7 +9659,7 @@ body, html {
   display: flex;
   gap: 24px;
   margin-bottom: 32px;
-  align-items: center;
+  align-items: flex-start;
   background: var(--brand-white);
   border: 1px solid var(--brand-card-border);
   border-radius: 16px;
@@ -9635,6 +9667,7 @@ body, html {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
+  flex-wrap: wrap;
 }
 
 .template-controls::before {
@@ -9649,16 +9682,12 @@ body, html {
 }
 
 .template-search {
-  flex: 1;
-  min-width: 200px;
-}
-
-.template-search {
   display: flex;
   flex-direction: column;
   gap: 8px;
   flex: 1;
-  min-width: 200px;
+  min-width: 280px;
+  margin-right: 16px;
 }
 
 .template-search-input {
@@ -9695,10 +9724,11 @@ body, html {
 
 .template-filters {
   display: flex;
-  gap: 24px;
-  flex-wrap: nowrap;
+  gap: 20px;
+  flex-wrap: wrap;
   flex: 0 0 auto;
-  align-items: center;
+  align-items: flex-start;
+  min-width: fit-content;
 }
 
 .template-filter-select {
@@ -9717,6 +9747,30 @@ body, html {
   gap: 8px;
   min-width: 140px;
   position: relative;
+}
+
+/* Responsive design for template controls */
+@media (max-width: 1200px) {
+  .template-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  
+  .template-search {
+    margin-right: 0;
+    min-width: 100%;
+  }
+  
+  .template-filters {
+    justify-content: space-between;
+    gap: 16px;
+  }
+  
+  .filter-group {
+    flex: 1;
+    min-width: 120px;
+  }
 }
 
 .filter-group::after {
@@ -24915,9 +24969,9 @@ input[type="time"].form-input {
 }
 
 /* Improvement Modal Styles */
-.improvement-modal {
-  max-width: 800px;
-  width: 90%;
+.modal-content.improvement-modal {
+  max-width: 1200px !important;
+  width: 95% !important;
 }
 
 .improvement-opportunities {
@@ -29498,4 +29552,108 @@ input[type="time"].form-input {
 .edit-metrics-btn:hover {
   background: var(--brand-accent);
   border-color: var(--brand-accent);
+}
+
+/* Force 2-column layout for booking detail sections */
+.modal-content.modal-large .booking-detail-sections {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 24px !important;
+  width: 100% !important;
+}
+
+.modal-content.modal-large {
+  max-width: 1800px !important;
+  width: 98% !important;
+}
+
+/* Make all modal text white for readability */
+.modal-content.modal-large .section-title h3 {
+  color: white !important;
+}
+
+.modal-content.modal-large .section-icon {
+  color: white !important;
+}
+
+.modal-content.modal-large .booking-type-badge .type-text {
+  color: white !important;
+}
+
+.modal-content.modal-large .booking-type-badge .type-icon {
+  color: white !important;
+}
+
+.modal-content.modal-large .modal-title-section h2 {
+  color: white !important;
+}
+
+@media (max-width: 1024px) {
+  .modal-content.modal-large .booking-detail-sections {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* Center align only the flight numbers in the itinerary modal */
+.modal-content.modal-large .flight-info .flight-number {
+  text-align: center !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Force scrolling on expanded sidebar */
+.admin-sidebar:not(.collapsed) {
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  max-height: calc(100vh - 64px) !important;
+}
+
+/* Force scrolling on sidebar content when expanded */
+.admin-sidebar:not(.collapsed) .sidebar-content {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 96px) !important;
+}
+
+/* Make sidebar links bigger when expanded to force scrolling */
+.admin-sidebar:not(.collapsed) .sidebar-link {
+  padding: 20px 32px !important;
+  margin-bottom: 8px !important;
+  font-size: 1.1rem !important;
+}
+
+/* Image Only Preview Styles */
+.image-only-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.full-preview-image {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.full-preview-image:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .full-preview-image {
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .full-preview-image {
+    max-height: 50vh;
+  }
 }

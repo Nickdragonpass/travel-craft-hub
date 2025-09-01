@@ -642,57 +642,21 @@ function RevenueOptimizer() {
   };
 
   const handleSaveCustomBuild = (customFunction) => {
-    // Add the new function to the revenue functions list
-    const newFunction = {
-      id: `func-${Date.now()}`,
-      name: customFunction.title,
-      description: customFunction.description,
-      category: customFunction.functionType,
-      bookingTypes: customFunction.triggerEvents.map(event => {
-        // Map trigger events back to booking types
-        const eventMapping = {
-          'flight_booked': 'Flight',
-          'hotel_booked': 'Hotel',
-          'ticket_booked': 'Event Ticket'
-        };
-        return eventMapping[event] || 'Flight';
-      }),
-      targetTypes: customFunction.offerCategories.map(category => {
-        // Map offer categories back to target types
-        const categoryMapping = {
-          'hotel_upgrade': 'Hotel',
-          'flight': 'Flight',
-          'airport_lounge': 'Airport Lounge',
-          'airport_fast_track': 'Fast Track',
-          'airport_transfer': 'Airport Transfer',
-          'esim': 'eSIM',
-          'flight_seat': 'Seat Upgrade',
-          'ticket': 'Event Ticket',
-          'health_wellness': 'Spa Treatment'
-        };
-        return categoryMapping[category] || 'Hotel';
-      }),
-      timing: customFunction.timingOption === 'immediately' ? 'Immediate after booking' : 
-              customFunction.timingOption === 'day_of_departure' ? 'Day of flight departure' :
-              `${customFunction.timingValue} ${customFunction.timingOption.includes('hours') ? 'hours' : 'days'} before trip`,
-      status: 'Draft',
-      performance: {
-        impressions: 0,
-        clicks: 0,
-        conversions: 0,
-        revenue: '£0',
-        conversionRate: '0%'
-      },
-      comms: []
-    };
-
-    // Add to revenue functions (in a real app, this would be saved to backend)
-    // For now, we'll just close the modal and show a success message
-    setShowCustomBuildModal(false);
-    setTemplateForCustomBuild(null);
-    setToastMessage(`"${customFunction.title}" has been created successfully!`);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 5000);
+    console.log('handleSaveCustomBuild called with:', customFunction);
+    
+    try {
+      // Simplified demo version - just close modal and show success
+      setShowCustomBuildModal(false);
+      setTemplateForCustomBuild(null);
+      setToastMessage(`"${customFunction.title || 'New Function'}" has been created successfully!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 5000);
+    } catch (error) {
+      console.error('Error in handleSaveCustomBuild:', error);
+      // Still close the modal even if there's an error
+      setShowCustomBuildModal(false);
+      setTemplateForCustomBuild(null);
+    }
   };
 
   const handlePrepareComms = (editedTemplate) => {
@@ -701,6 +665,18 @@ function RevenueOptimizer() {
     setToastMessage(`"${editedTemplate.title}" has been added to the Comms tab. Please plan your communications before activating.`);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 5000);
+  };
+
+  const handlePauseTemplate = (template) => {
+    setToastMessage(`"${template.title}" has been paused.`);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+    // In a real implementation, this would update the template status in the database
+  };
+
+  const handleEditTemplate = (template) => {
+    setTemplateForCustomBuild(template);
+    setShowCustomBuildModal(true);
   };
 
   // Function to check if a template matches any existing revenue functions
@@ -808,18 +784,11 @@ function RevenueOptimizer() {
         <p className="page-subtitle">Build, communicate, and optimize your revenue functions</p>
       </div>
 
-      {/* Loading and Error States */}
+      {/* Loading State */}
       {loading && (
         <div className="loading-state">
           <div className="loading-spinner"></div>
           <p>Loading data from Firebase...</p>
-        </div>
-      )}
-      
-      {error && (
-        <div className="error-state">
-          <p>Error loading data: {error}</p>
-          <button onClick={() => window.location.reload()}>Retry</button>
         </div>
       )}
 
@@ -898,6 +867,8 @@ function RevenueOptimizer() {
               setShowTemplateModal={setShowTemplateModal}
               selectedTemplateForEdit={selectedTemplateForEdit}
               handlePrepareComms={handlePrepareComms}
+              handlePauseTemplate={handlePauseTemplate}
+              handleEditTemplate={handleEditTemplate}
             />
           </React.Suspense>
         )}

@@ -29,6 +29,10 @@ function Sidebar({ isCollapsed, onToggle }) {
           <span className="link-icon">🎁</span>
           <span className="link-text">Reward Orchestrator</span>
         </NavLink>
+        <NavLink to="/admin/entitlement-management" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Entitlement Package">
+          <span className="link-icon">🔐</span>
+          <span className="link-text">Entitlement Package</span>
+        </NavLink>
         <NavLink to="/admin/persona-builder" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Persona Builder">
           <span className="link-icon">🧩</span>
           <span className="link-text">Persona Builder</span>

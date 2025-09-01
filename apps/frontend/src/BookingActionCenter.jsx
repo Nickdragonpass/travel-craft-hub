@@ -23,7 +23,7 @@ function BookingActionCenter() {
       status: 'backlog',
       assignedTo: null,
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-      customer: 'John Smith',
+      customer: 'Sarah Johnson',
       bookingType: 'Flight',
       urgency: 'immediate'
     },
@@ -34,7 +34,7 @@ function BookingActionCenter() {
       description: 'Customer denied entry to Priority Pass lounge',
       priority: 'high',
       status: 'assigned',
-      assignedTo: 'Sarah Johnson',
+      assignedTo: 'John Smith',
       createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
       customer: 'Emma Wilson',
       bookingType: 'Airport Lounge',
@@ -96,7 +96,7 @@ function BookingActionCenter() {
 
   // Available agents
   const agents = [
-    { id: 'sarah', name: 'Sarah Johnson', avatar: 'SJ', active: 3 },
+    { id: 'john', name: 'John Smith', avatar: 'JS', active: 3 },
     { id: 'mike', name: 'Mike Chen', avatar: 'MC', active: 2 },
     { id: 'lisa', name: 'Lisa Park', avatar: 'LP', active: 1 },
     { id: 'tom', name: 'Tom Wilson', avatar: 'TW', active: 0 }
@@ -193,10 +193,13 @@ function BookingActionCenter() {
   };
 
   const handleAssignItem = (itemId, agentId) => {
+    const agent = agents.find(a => a.id === agentId);
+    const assignedName = agentId === 'unassigned' ? null : (agent ? agent.name : agentId);
+    
     setActionItems(prev => 
       prev.map(item => 
         item.id === itemId 
-          ? { ...item, assignedTo: agentId === 'unassigned' ? null : agentId }
+          ? { ...item, assignedTo: assignedName }
           : item
       )
     );
@@ -254,26 +257,7 @@ function BookingActionCenter() {
 
   return (
     <div className="booking-action-center">
-      <div className="action-center-header">
-        <div className="header-content">
-          <h1>Booking Action Center</h1>
-          <p>Manage urgent actions, amendments, and customer issues requiring attention</p>
-        </div>
-        <div className="header-stats">
-          <div className="stat-item">
-            <span className="stat-number">{filteredItems.length}</span>
-            <span className="stat-label">Filtered Items</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{actionItems.filter(item => item.priority === 'high').length}</span>
-            <span className="stat-label">High Priority</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{actionItems.filter(item => item.status === 'backlog').length}</span>
-            <span className="stat-label">Unassigned</span>
-          </div>
-        </div>
-      </div>
+
 
       {/* Filters */}
       <div className="kanban-filters">

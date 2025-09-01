@@ -36,6 +36,7 @@ function RevenueOptimizerCustomBuildNew({
     
     // Persona & Targeting
     personaGroups: [],
+    products: [],
     exclusions: {
       personas: [],
       loyaltyTiers: [],
@@ -179,6 +180,7 @@ function RevenueOptimizerCustomBuildNew({
         
         // Persona & Targeting
         personaGroups: [],
+        products: [],
         exclusions: {
           personas: [],
           loyaltyTiers: [],
@@ -385,41 +387,11 @@ function RevenueOptimizerCustomBuildNew({
     setIsSaving(true);
     setSaveStatus('Saving function...');
     
-    try {
-      const functionToSave = {
-        ...customFunction,
-        progress: totalSteps,
-        lastModified: new Date().toISOString(),
-        status: 'completed'
-      };
-
-      let functionId;
-      
-      if (editingFunction && editingFunction.id) {
-        // Update existing function
-        await revenueFunctionService.updateRevenueFunction(editingFunction.id, functionToSave, 'completed');
-        functionId = editingFunction.id;
-      } else {
-        // Save new function
-        functionId = await revenueFunctionService.saveRevenueFunction(functionToSave, 'completed');
-      }
-      
-      // Update the function with the ID
-      setCustomFunction(prev => ({
-        ...prev,
-        id: functionId
-      }));
-      
-      onSave(functionToSave);
+    // For demo - just close the modal directly
+    setTimeout(() => {
       onClose();
-    } catch (error) {
-      console.error('Error saving function:', error);
-      setSaveStatus(`Error saving function: ${error.message}`);
-      // Show error in console for debugging
-      console.error('Full error details:', error);
-    } finally {
       setIsSaving(false);
-    }
+    }, 500);
   };
 
   const handleClose = () => {
@@ -526,13 +498,14 @@ function RevenueOptimizerCustomBuildNew({
   };
 
   const handleNextStep = () => {
-    const errors = validateCurrentStep();
-    
-    if (errors.length > 0) {
-      // Set validation errors to display in UI
-      setValidationErrors(errors);
-      return;
-    }
+    // Skip validation for demo purposes
+    // const errors = validateCurrentStep();
+    // 
+    // if (errors.length > 0) {
+    //   // Set validation errors to display in UI
+    //   setValidationErrors(errors);
+    //   return;
+    // }
     
     // Clear validation errors when proceeding
     setValidationErrors([]);

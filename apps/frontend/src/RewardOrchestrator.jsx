@@ -43,7 +43,11 @@ function RewardOrchestrator() {
         status: 'active',
         startDate: '2024-01-01',
         endDate: '2024-12-31',
-        benefits: [ { id: 'ben-3', title: 'Unlimited Lounge Access', type: 'Access Pass' } ],
+        benefits: [ 
+          { id: 'ben-3', title: 'Unlimited Lounge Access', type: 'Access Pass' },
+          { id: 'ben-4', title: 'Priority Boarding', type: 'Access Pass' },
+          { id: 'ben-5', title: 'Hotel Room Upgrade', type: 'Upgrade' }
+        ],
         performance: { totalRedemptions: 8920, activeUsers: 2670, revenueGenerated: '£445,000', conversionRate: '8.3%' }
       }
     ];
@@ -390,17 +394,16 @@ function RewardOrchestrator() {
                 {expandedPrograms.has(program.id) ? (
                   <>
                     <div className="program-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Target:</span>
-                        <span className="detail-value">{program.targetPersonas.join(', ')}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Products:</span>
-                        <span className="detail-value">{program.linkedProducts.join(', ')}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="detail-label">Benefits:</span>
-                        <span className="detail-value">{program.benefits.length} benefits</span>
+                      <h4>Benefits</h4>
+                      <div className="benefit-tiles">
+                        {program.benefits.map(benefit => (
+                          <div key={benefit.id} className="benefit-tile">
+                            <div className="benefit-header">
+                              <div className="benefit-title">{benefit.title}</div>
+                              <span className="chip chip-outline">{benefit.type}</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
@@ -652,10 +655,8 @@ function RewardOrchestrator() {
   const renderPerformanceTab = () => (
     <div className="performance-tab">
       <div className="tab-header">
-        <div className="header-content">
-          <h2>Performance Analytics</h2>
-        </div>
-        <div className="header-actions">
+        <h2>Performance Analytics</h2>
+        <div className="header-buttons">
           <button className="btn secondary">Export Data</button>
           <button className="btn primary">Generate Report</button>
         </div>
@@ -668,10 +669,10 @@ function RewardOrchestrator() {
       <div className="performance-overview">
         <div className="overview-stats">
           <div className="stat-card">
-            <div className="stat-icon">💰</div>
+            <div className="stat-icon">👥</div>
             <div className="stat-content">
-              <h3>£712,000</h3>
-              <p>Total Revenue Generated</p>
+              <h3>5,790</h3>
+              <p>Active Users</p>
             </div>
           </div>
           <div className="stat-card">
@@ -682,36 +683,22 @@ function RewardOrchestrator() {
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">👥</div>
-            <div className="stat-content">
-              <h3>5,790</h3>
-              <p>Active Users</p>
-            </div>
-          </div>
-          <div className="stat-card">
             <div className="stat-icon">📊</div>
             <div className="stat-content">
               <h3>7.7%</h3>
               <p>Avg. Conversion Rate</p>
             </div>
           </div>
-        </div>
-
-        <div className="performance-charts">
-          <div className="chart-section">
-            <h3>Redemption Trends</h3>
-            <div className="chart-placeholder">
-              <p>Chart visualization will be implemented here</p>
-            </div>
-          </div>
-
-          <div className="chart-section">
-            <h3>Revenue by Program</h3>
-            <div className="chart-placeholder">
-              <p>Chart visualization will be implemented here</p>
+          <div className="stat-card">
+            <div className="stat-icon">💰</div>
+            <div className="stat-content">
+              <h3>£712,000</h3>
+              <p>Total Revenue Generated</p>
             </div>
           </div>
         </div>
+
+
 
         <div className="top-performers">
           <h3>Top Performing Programs</h3>
@@ -728,12 +715,12 @@ function RewardOrchestrator() {
                     <span className="metric-value">{program.performance.totalRedemptions.toLocaleString()}</span>
                   </div>
                   <div className="metric">
-                    <span className="metric-label">Revenue</span>
-                    <span className="metric-value">{program.performance.revenueGenerated}</span>
-                  </div>
-                  <div className="metric">
                     <span className="metric-label">Conversion</span>
                     <span className="metric-value">{program.performance.conversionRate}</span>
+                  </div>
+                  <div className="metric">
+                    <span className="metric-label">Revenue</span>
+                    <span className="metric-value">{program.performance.revenueGenerated}</span>
                   </div>
                 </div>
               </div>

@@ -29,6 +29,22 @@ function Step3Targeting({
       </div>
 
       <div className="form-group">
+        <label>Select Products</label>
+        <div className="checkbox-grid">
+          {['Gold Card', 'Platinum Card', 'Basic Card'].map(product => (
+            <label key={product} className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={customFunction.products?.includes(product) || false}
+                onChange={() => handleArrayToggle('products', product)}
+              />
+              <span>{product}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="form-group">
         <div className="exclusions-header" onClick={() => setExclusionsExpanded(!exclusionsExpanded)}>
           <label>Exclusions (Optional)</label>
           <span className={`dropdown-arrow ${exclusionsExpanded ? 'expanded' : ''}`}>

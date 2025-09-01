@@ -35,6 +35,7 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
         type: 'Email',
         status: 'Active',
         performance: {
+          impressions: 18750,
           opens: 18750,
           clicks: 1875,
           conversions: 938,
@@ -50,6 +51,7 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
         type: 'Email',
         status: 'Active',
         performance: {
+          impressions: 16250,
           opens: 16250,
           clicks: 1625,
           conversions: 812,
@@ -394,11 +396,19 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
               
               <div className="metrics-row">
                 <div className="metric-card">
-                  <div className="metric-icon">💰</div>
+                  <div className="metric-icon">👥</div>
                   <div className="metric-content">
-                    <h3>Total Revenue</h3>
-                    <p className="metric-value">£{functionData.performance.revenue.toLocaleString()}</p>
-                    <p className="metric-trend positive">+12.5% vs last period</p>
+                    <h3>Impressions</h3>
+                    <p className="metric-value">{functionData.performance.impressions.toLocaleString()}</p>
+                    <p className="metric-trend positive">+15.2% vs last period</p>
+                  </div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-icon">🖱️</div>
+                  <div className="metric-content">
+                    <h3>Click Through Rate</h3>
+                    <p className="metric-value">{((functionData.performance.clicks / functionData.performance.impressions) * 100).toFixed(1)}%</p>
+                    <p className="metric-trend positive">+2.3% vs last period</p>
                   </div>
                 </div>
                 <div className="metric-card">
@@ -410,19 +420,11 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
                   </div>
                 </div>
                 <div className="metric-card">
-                  <div className="metric-icon">👥</div>
+                  <div className="metric-icon">💰</div>
                   <div className="metric-content">
-                    <h3>Impressions</h3>
-                    <p className="metric-value">{functionData.performance.impressions.toLocaleString()}</p>
-                    <p className="metric-trend positive">+15.2% vs last period</p>
-                  </div>
-                </div>
-                <div className="metric-card">
-                  <div className="metric-icon">🎯</div>
-                  <div className="metric-content">
-                    <h3>Conversions</h3>
-                    <p className="metric-value">{functionData.performance.conversions.toLocaleString()}</p>
-                    <p className="metric-trend positive">+8.3% vs last period</p>
+                    <h3>Total Revenue</h3>
+                    <p className="metric-value">£{functionData.performance.revenue.toLocaleString()}</p>
+                    <p className="metric-trend positive">+12.5% vs last period</p>
                   </div>
                 </div>
               </div>
@@ -472,22 +474,22 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
                       <div className="comm-metrics">
                         <div className="metric-pair">
                           <div className="metric">
-                            <span className="label">Revenue</span>
-                            <span className="value">£{comm.performance.revenue.toLocaleString()}</span>
+                            <span className="label">Impressions</span>
+                            <span className="value">{comm.performance.impressions?.toLocaleString() || '0'}</span>
                           </div>
                           <div className="metric">
-                            <span className="label">Conversion Rate</span>
-                            <span className="value">{comm.performance.conversionRate}%</span>
+                            <span className="label">Click Through Rate</span>
+                            <span className="value">{comm.performance.clickRate ? comm.performance.clickRate + '%' : ((comm.performance.clicks / comm.performance.impressions * 100) || 0).toFixed(1) + '%'}</span>
                           </div>
                         </div>
                         <div className="metric-pair">
                           <div className="metric">
-                            <span className="label">Clicks</span>
-                            <span className="value">{comm.performance.clicks.toLocaleString()}</span>
+                            <span className="label">Conversion Rate</span>
+                            <span className="value">{comm.performance.conversionRate}%</span>
                           </div>
                           <div className="metric">
-                            <span className="label">Conversions</span>
-                            <span className="value">{comm.performance.conversions.toLocaleString()}</span>
+                            <span className="label">Revenue</span>
+                            <span className="value">£{comm.performance.revenue.toLocaleString()}</span>
                           </div>
                         </div>
                       </div>

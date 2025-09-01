@@ -234,12 +234,21 @@ function RevenueOptimizerPerformance({ revenueFunctions }) {
       <div className="review-overview">
         <div className="overview-metrics">
           <div className="metric-card large">
-            <div className="metric-icon">💰</div>
+            <div className="metric-icon">👥</div>
             <div className="metric-content">
-              <h3>Total Revenue Generated</h3>
-              <div className="metric-value">£{totalRevenue.toLocaleString()}</div>
-              <div className="metric-change positive">+12.5% vs last period</div>
+              <h3>Total Impressions</h3>
+              <div className="metric-value">{totalImpressions.toLocaleString()}</div>
+              <div className="metric-change positive">+15.2% vs last period</div>
               <div className="metric-detail">From {activeFunctions.length} active functions</div>
+            </div>
+          </div>
+          <div className="metric-card large">
+            <div className="metric-icon">🖱️</div>
+            <div className="metric-content">
+              <h3>Overall Click Through Rate</h3>
+              <div className="metric-value">{((activeFunctions.reduce((sum, f) => sum + (f.performance.clicks || 0), 0) / totalImpressions) * 100).toFixed(1)}%</div>
+              <div className="metric-change positive">+2.3% vs last period</div>
+              <div className="metric-detail">{activeFunctions.reduce((sum, f) => sum + (f.performance.clicks || 0), 0).toLocaleString()} total clicks</div>
             </div>
           </div>
           <div className="metric-card large">
@@ -248,25 +257,16 @@ function RevenueOptimizerPerformance({ revenueFunctions }) {
               <h3>Overall Conversion Rate</h3>
               <div className="metric-value">{overallConversionRate}%</div>
               <div className="metric-change positive">+1.2% vs last period</div>
-              <div className="metric-detail">{totalConversions} conversions from {totalImpressions.toLocaleString()} impressions</div>
+              <div className="metric-detail">{totalConversions} conversions total</div>
             </div>
           </div>
           <div className="metric-card large">
-            <div className="metric-icon">📧</div>
+            <div className="metric-icon">💰</div>
             <div className="metric-content">
-              <h3>Avg Communication Performance</h3>
-              <div className="metric-value">{avgCommsPerformance.toFixed(1)}%</div>
-              <div className="metric-change positive">+2.1% vs last period</div>
-              <div className="metric-detail">Across {activeComms.length} active communications</div>
-            </div>
-          </div>
-          <div className="metric-card large">
-            <div className="metric-icon">⚡</div>
-            <div className="metric-content">
-              <h3>Active Campaigns</h3>
-              <div className="metric-value">{activeFunctions.length}</div>
-              <div className="metric-change neutral">Live now</div>
-              <div className="metric-detail">{activeComms.length} communications running</div>
+              <h3>Total Revenue Generated</h3>
+              <div className="metric-value">£{totalRevenue.toLocaleString()}</div>
+              <div className="metric-change positive">+12.5% vs last period</div>
+              <div className="metric-detail">Across all functions</div>
             </div>
           </div>
         </div>
@@ -308,16 +308,20 @@ function RevenueOptimizerPerformance({ revenueFunctions }) {
                     <div className="function-overview">
                       <div className="overview-metrics">
                         <div className="overview-metric">
-                          <span className="metric-label">Revenue</span>
-                          <span className="metric-value">{func.performance?.revenue || '£0'}</span>
+                          <span className="metric-label">Impressions</span>
+                          <span className="metric-value">{func.performance?.impressions?.toLocaleString() || '0'}</span>
                         </div>
                         <div className="overview-metric">
-                          <span className="metric-label">Conversion</span>
+                          <span className="metric-label">Click Through Rate</span>
+                          <span className="metric-value">{func.performance?.clickThroughRate || ((func.performance?.clicks / func.performance?.impressions * 100) || 0).toFixed(1) + '%'}</span>
+                        </div>
+                        <div className="overview-metric">
+                          <span className="metric-label">Conversion Rate</span>
                           <span className="metric-value">{func.performance?.conversionRate || '0%'}</span>
                         </div>
                         <div className="overview-metric">
-                          <span className="metric-label">Comms</span>
-                          <span className="metric-value">{activeComms.length}</span>
+                          <span className="metric-label">Revenue</span>
+                          <span className="metric-value">{func.performance?.revenue || '£0'}</span>
                         </div>
                       </div>
                       

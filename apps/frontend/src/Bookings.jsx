@@ -32,19 +32,19 @@ function Bookings() {
 
   // Full mock bookings data with trip grouping
   const mockBookings = [
-    // Trip 1: John Smith's New York Trip (Flight + Hotel + Airport Services)
+    // Trip 1: Sarah Johnson's London Trip (Flight + Hotel + Airport Services)
     {
       id: 'BK-FL-001',
       tripId: 'TRIP-001',
-      customerName: 'John Smith',
+      customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Flight',
       flightType: 'Round Trip',
       airline: 'British Airways',
       departureDate: '2024-03-15',
       returnDate: '2024-03-22',
-      origin: 'LHR',
-      destination: 'JFK',
+      origin: 'JFK',
+      destination: 'LHR',
       passengers: 1,
       bookingReference: 'ABC123456',
       totalPrice: '£2,190.00',
@@ -52,7 +52,7 @@ function Bookings() {
       status: 'Confirmed',
       bookingDate: '2024-02-15',
       customer: {
-        email: 'john.smith@email.com',
+        email: 'sarah.johnson@email.com',
         phone: '+44 7700 900123',
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
@@ -62,7 +62,7 @@ function Bookings() {
     {
       id: 'BK-HT-001',
       tripId: 'TRIP-001',
-      customerName: 'John Smith',
+      customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Hotel',
       hotelName: 'The Plaza Hotel',
@@ -77,7 +77,7 @@ function Bookings() {
       status: 'Confirmed',
       bookingDate: '2024-02-15',
       customer: {
-        email: 'john.smith@email.com',
+        email: 'sarah.johnson@email.com',
         phone: '+44 7700 900123',
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
@@ -87,7 +87,7 @@ function Bookings() {
     {
       id: 'BK-AT-001',
       tripId: 'TRIP-001',
-      customerName: 'John Smith',
+      customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Airport Transfer',
       transferType: 'Private Car',
@@ -102,7 +102,7 @@ function Bookings() {
       status: 'Confirmed',
       bookingDate: '2024-02-15',
       customer: {
-        email: 'john.smith@email.com',
+        email: 'sarah.johnson@email.com',
         phone: '+44 7700 900123',
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
@@ -112,7 +112,7 @@ function Bookings() {
     {
       id: 'BK-AL-001',
       tripId: 'TRIP-001',
-      customerName: 'John Smith',
+      customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Airport Lounge',
       loungeName: 'No.1 Traveller Lounge',
@@ -126,7 +126,7 @@ function Bookings() {
       status: 'Confirmed',
       bookingDate: '2024-02-15',
       customer: {
-        email: 'john.smith@email.com',
+        email: 'sarah.johnson@email.com',
         phone: '+44 7700 900123',
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
@@ -136,7 +136,7 @@ function Bookings() {
     {
       id: 'BK-ES-001',
       tripId: 'TRIP-001',
-      customerName: 'John Smith',
+      customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'eSIM',
       destination: 'United States',
@@ -149,7 +149,7 @@ function Bookings() {
       status: 'Confirmed',
       bookingDate: '2024-02-15',
       customer: {
-        email: 'john.smith@email.com',
+        email: 'sarah.johnson@email.com',
         phone: '+44 7700 900123',
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
@@ -757,17 +757,6 @@ function Bookings() {
               <span className="filter-badge">{activeFiltersCount}</span>
             )}
           </button>
-          
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search bookings..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="modern-search-input"
-            />
-            <span className="search-icon">🔍</span>
-          </div>
         </div>
 
         <div className="filters-right">
@@ -880,27 +869,7 @@ function Bookings() {
         </div>
       )}
 
-      {/* Trip Summary */}
-      <div className="trip-summary-section">
-        <div className="trip-summary-stats">
-          <div className="trip-stat">
-            <span className="trip-stat-number">{tripGroups.filter(trip => !trip.isSingleBooking).length}</span>
-            <span className="trip-stat-label">Multi-Booking Trips</span>
-          </div>
-          <div className="trip-stat">
-            <span className="trip-stat-number">{tripGroups.filter(trip => trip.isSingleBooking).length}</span>
-            <span className="trip-stat-label">Single-Booking Trips</span>
-          </div>
-          <div className="trip-stat">
-            <span className="trip-stat-number">{tripGroups.reduce((sum, trip) => sum + trip.totalBookings, 0)}</span>
-            <span className="trip-stat-label">Total Bookings</span>
-          </div>
-          <div className="trip-stat">
-            <span className="trip-stat-number">£{filteredBookings.reduce((sum, booking) => sum + parseFloat(booking.totalPrice.replace('£', '').replace(',', '')), 0).toLocaleString()}</span>
-            <span className="trip-stat-label">Total Value</span>
-          </div>
-        </div>
-      </div>
+
 
       {/* Bookings Table */}
       <div className="bookings-table-container">
@@ -1202,7 +1171,7 @@ function Bookings() {
                             <div className="flight-segment">
                               <div className="airport-info">
                                 <div className="airport-code">{selectedBooking.origin}</div>
-                                <div className="airport-name">London Heathrow</div>
+                                <div className="airport-name">New York JFK</div>
                               </div>
                               <div className="flight-info">
                                 <div className="flight-number">BA 203</div>
@@ -1214,7 +1183,7 @@ function Bookings() {
                               </div>
                               <div className="airport-info">
                                 <div className="airport-code">{selectedBooking.destination}</div>
-                                <div className="airport-name">New York JFK</div>
+                                <div className="airport-name">London Heathrow</div>
                               </div>
                             </div>
                           </div>
@@ -1230,7 +1199,7 @@ function Bookings() {
                               <div className="flight-segment">
                                 <div className="airport-info">
                                   <div className="airport-code">{selectedBooking.destination}</div>
-                                  <div className="airport-name">New York JFK</div>
+                                  <div className="airport-name">London Heathrow</div>
                                 </div>
                                 <div className="flight-info">
                                   <div className="flight-number">BA 204</div>
@@ -1242,7 +1211,7 @@ function Bookings() {
                                 </div>
                                 <div className="airport-info">
                                   <div className="airport-code">{selectedBooking.origin}</div>
-                                  <div className="airport-name">London Heathrow</div>
+                                  <div className="airport-name">New York JFK</div>
                                 </div>
                               </div>
                             </div>
@@ -1254,11 +1223,7 @@ function Bookings() {
                         <h4>Passengers</h4>
                         <div className="passenger-list">
                           <div className="passenger-item">
-                            <span className="passenger-name">Mr. John Smith</span>
-                            <span className="passenger-type">Adult</span>
-                          </div>
-                          <div className="passenger-item">
-                            <span className="passenger-name">Mrs. Jane Smith</span>
+                            <span className="passenger-name">Ms. Sarah Johnson</span>
                             <span className="passenger-type">Adult</span>
                           </div>
                         </div>
