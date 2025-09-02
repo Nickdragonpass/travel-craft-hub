@@ -32,15 +32,16 @@ import {
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./candyComponents/ui/chart";
 import { CampaignPageData } from "./candyComponents/dashboard/CampaignPageData";
+import { UserProfile } from "./candyComponents/dashboard/UserProfile";
 import { ComponentDetailSidebar } from "./candyComponents/dashboard/ComponentDetailSidebar";
-
+import { ComponentFilterPanel } from "./candyComponents/dashboard/ComponentFilterPanel";
 
 const components = [
   { id: "banner", name: "Banner", icon: Image, lastModified: "2024-01-15 10:30" },
   { id: "benefits-list", name: "Benefits List", icon: List, lastModified: "2024-01-14 15:20" },
   { id: "spending-rewards", name: "Spending Milestone Rewards", icon: Target, lastModified: "2024-01-13 09:45" },
-  { id: "task-achievement", name: "Task Achievement", icon: CheckSquare, lastModified: "2024-01-12 14:10" },
   { id: "interest-recommendation", name: "Interest-Based Recommendation Sales", icon: TrendingUp, lastModified: "2024-01-11 11:25" },
+  { id: "task-achievement", name: "Task Achievement", icon: CheckSquare, lastModified: "2024-01-12 14:10" },
   { id: "mini-game", name: "Mini-Game", icon: Gamepad2, lastModified: "2024-01-10 16:40" },
   { id: "community", name: "Community", icon: Users, lastModified: "2024-01-09 13:15" },
 ];
@@ -207,7 +208,76 @@ const getAnalyticsData = (startDate, endDate) => {
   };
 };
 
+// Mock campaigns data
+
+const mockCampaigns = [
+  {
+    id: "1",
+    name: "Summer Travel Rewards",
+    description: "Special rewards campaign for frequent travelers during summer season",
+    userSegment: "Frequent Traveller",
+    targetRegion: "UK",
+    targetChannel: "Visa",
+    onlineTime: "2024-06-01 - 2024-08-31"
+  },
+  {
+    id: "2", 
+    name: "Pet Care Benefits",
+    description: "Exclusive benefits and discounts for pet owners",
+    userSegment: "Pet Owner",
+    targetRegion: "North Asia",
+    targetChannel: "Master Card",
+    onlineTime: "2024-03-15 - 2024-12-31"
+  },
+  {
+    id: "3",
+    name: "Youth Banking Plus",
+    description: "Enhanced banking features and rewards for young customers",
+    userSegment: "Youth",
+    targetRegion: "Latin America",
+    targetChannel: "SPDB",
+    onlineTime: "2024-01-01 - 2024-12-31"
+  },
+  {
+    id: "4",
+    name: "Foodie Rewards Program",
+    description: "Cashback and deals at popular restaurants and cafes",
+    userSegment: "Food Lover",
+    targetRegion: "Middle East",
+    targetChannel: "Visa",
+    onlineTime: "2024-05-01 - 2024-11-30"
+  },
+  {
+    id: "5",
+    name: "Business Growth Package",
+    description: "Tailored financial solutions for entrepreneurs and small businesses",
+    userSegment: "Entrepreneur",
+    targetRegion: "UK",
+    targetChannel: "Master Card",
+    onlineTime: "2024-02-01 - 2024-12-31"
+  }
+];
+
 const CampaignComponentManagement = () => {
+  // View state - 'list' or 'detail'
+  const [currentView, setCurrentView] = useState('list');
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  
+  // Campaign list filters
+  const [campaignFilters, setCampaignFilters] = useState({
+    userSegment: "",
+    targetRegion: "",
+    targetChannel: ""
+  });
+
+  // Create campaign dialog state
+  const [createCampaignOpen, setCreateCampaignOpen] = useState(false);
+  const [newCampaign, setNewCampaign] = useState({
+    name: "",
+    description: ""
+  });
+
+  // Campaign detail states
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [startDate, setStartDate] = useState("2024-01-01");
   const [endDate, setEndDate] = useState("2024-01-31");
@@ -239,6 +309,13 @@ const CampaignComponentManagement = () => {
   ]);
   const [addTierOpen, setAddTierOpen] = useState(false);
   const [newTier, setNewTier] = useState({ threshold: 0, reward: "" });
+
+  // Filter state for component management
+  const [filters, setFilters] = useState({
+    userSegment: "",
+    targetRegion: "", 
+    targetChannel: ""
+  });
 
   // Get dynamic analytics data based on selected date range
   const analyticsData = getAnalyticsData(startDate, endDate);
@@ -759,6 +836,125 @@ const CampaignComponentManagement = () => {
     }
   };
 
+  const renderManagement = () => (
+    <div className="space-y-6">
+      {/* Components and Configuration */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Components List */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Components
+              </CardTitle>
+              <Dialog open={addComponentOpen} onOpenChange={setAddComponentOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Component
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Component</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="component-type">Component Type</Label>
+                      <Select value={newComponentType} onValueChange={setNewComponentType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select component type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableComponents.map((component) => (
+                            <SelectItem key={component} value={component}>
+                              {component}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setAddComponentOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleAddComponent}>
+                        Add Component
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {components.map((component) => {
+                const Icon = component.icon;
+                return (
+                  <div
+                    key={component.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      selectedComponent === component.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setSelectedComponent(component.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-medium">{component.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Modified: {component.lastModified}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedDetailComponent(component.id);
+                            setDetailSidebarOpen(true);
+                          }}
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Component Configuration */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Component Configuration
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {renderConfigPanel()}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Time Period Filter */}
@@ -797,6 +993,9 @@ const CampaignComponentManagement = () => {
 
       {/* Campaign Page Data */}
       <CampaignPageData dateRange={{ from: new Date(startDate), to: new Date(endDate) }} />
+
+      {/* User Profile Analytics */}
+      <UserProfile dateRange={{ from: new Date(startDate), to: new Date(endDate) }} />
 
       {/* Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1032,84 +1231,6 @@ const CampaignComponentManagement = () => {
           </CardContent>
         </Card>
 
-        {/* Task Achievement Analytics */}
-        <Card className="rounded-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between text-base">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="h-4 w-4" />
-                Task Achievement
-              </div>
-              <Button 
-                size="sm" 
-                variant="ghost"
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                onClick={() => {
-                  setSelectedDetailComponent("task-achievement");
-                  setDetailSidebarOpen(true);
-                }}
-              >
-                Detail
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <div className="text-xl font-bold">{analyticsData["task-achievement"].views.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">Total Views</div>
-              </div>
-              <div>
-                <div className="text-xl font-bold">{analyticsData["task-achievement"].task1Completions.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">Task 1 Completions</div>
-              </div>
-              <div>
-                <div className="text-xl font-bold">{analyticsData["task-achievement"].task2Completions.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">Task 2 Completions</div>
-              </div>
-              <div>
-                <div className="text-xl font-bold">{analyticsData["task-achievement"].conversionRate.toFixed(1)}%</div>
-                <div className="text-xs text-muted-foreground">Avg Conversion</div>
-              </div>
-            </div>
-            <div className="h-32">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analyticsData["task-achievement"].dailyData}>
-                  <XAxis 
-                    dataKey="date" 
-                    tick={{ fontSize: 10 }}
-                    tickFormatter={(value) => new Date(value).getDate().toString()}
-                  />
-                  <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                    formatter={(value, name) => [
-                      typeof value === 'number' ? value.toLocaleString() : value,
-                      name === 'task1Completions' ? 'Task 1 Completions' : 
-                      name === 'task2Completions' ? 'Task 2 Completions' :
-                      name === 'conversionRate' ? 'Conversion Rate (%)' : name
-                    ]}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="task1Completions" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="task2Completions" 
-                    stroke="hsl(var(--secondary))" 
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Interest Recommendation Analytics */}
         <Card className="rounded-lg">
           <CardHeader className="pb-3">
@@ -1179,6 +1300,85 @@ const CampaignComponentManagement = () => {
                   <Line 
                     type="monotone" 
                     dataKey="purchases" 
+                    stroke="hsl(var(--secondary))" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Task Achievement Analytics */}
+        <Card className="rounded-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between text-base">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="h-4 w-4" />
+                Task Achievement
+              </div>
+              <Button 
+                size="sm" 
+                variant="ghost"
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                onClick={() => {
+                  setSelectedDetailComponent("task-achievement");
+                  setDetailSidebarOpen(true);
+                }}
+              >
+                Detail
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <div className="text-xl font-bold">{analyticsData["task-achievement"].views.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Total Views</div>
+              </div>
+              <div>
+                <div className="text-xl font-bold">{analyticsData["task-achievement"].task1Completions.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Task 1 Completions</div>
+              </div>
+              <div>
+                <div className="text-xl font-bold">{analyticsData["task-achievement"].task2Completions.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Task 2 Completions</div>
+              </div>
+              <div>
+                <div className="text-xl font-bold">{analyticsData["task-achievement"].conversionRate.toFixed(1)}%</div>
+                <div className="text-xs text-muted-foreground">Avg Conversion</div>
+              </div>
+            </div>
+            <div className="h-32">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={analyticsData["task-achievement"].dailyData}>
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(value) => new Date(value).getDate().toString()}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip 
+                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                    formatter={(value, name) => [
+                      typeof value === 'number' ? value.toLocaleString() : value,
+                      name === 'views' ? 'Views' : 
+                      name === 'task1Completions' ? 'Task 1 Completions' :
+                      name === 'task2Completions' ? 'Task 2 Completions' :
+                      name === 'conversionRate' ? 'Conversion Rate (%)' : name
+                    ]}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="task1Completions" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="task2Completions" 
                     stroke="hsl(var(--secondary))" 
                     strokeWidth={2}
                     dot={false}
@@ -1340,12 +1540,171 @@ const CampaignComponentManagement = () => {
     </div>
   );
 
+  // Filter campaigns based on current filters
+  const filteredCampaigns = mockCampaigns.filter(campaign => {
+    if (campaignFilters.userSegment && campaign.userSegment !== campaignFilters.userSegment) return false;
+    if (campaignFilters.targetRegion && campaign.targetRegion !== campaignFilters.targetRegion) return false; 
+    if (campaignFilters.targetChannel && campaign.targetChannel !== campaignFilters.targetChannel) return false;
+    return true;
+  });
+
+  const handleViewCampaignDetail = (campaign) => {
+    setSelectedCampaign(campaign);
+    setCurrentView('detail');
+  };
+
+  const handleBackToCampaignList = () => {
+    setCurrentView('list');
+    setSelectedCampaign(null);
+  };
+
+  const handleCreateCampaign = () => {
+    if (newCampaign.name && newCampaign.description) {
+      // Here you would typically save to backend
+      console.log('Creating campaign:', newCampaign);
+      setCreateCampaignOpen(false);
+      setNewCampaign({ name: "", description: "" });
+    }
+  };
+
+  const handleCancelCreateCampaign = () => {
+    setCreateCampaignOpen(false);
+    setNewCampaign({ name: "", description: "" });
+  };
+
+  if (currentView === 'list') {
+    return (
+      <div className="w-full flex-1 p-6">
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold">Activity Component Management</h1>
+            <p className="text-muted-foreground">Manage and configure activity campaigns</p>
+          </div>
+
+
+          {/* Create Campaign Button */}
+          <div className="flex justify-start">
+            <Dialog open={createCampaignOpen} onOpenChange={setCreateCampaignOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="bg-primary hover:bg-primary/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Campaign
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Campaign</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="campaign-name">Campaign Name</Label>
+                    <Input
+                      id="campaign-name"
+                      value={newCampaign.name}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
+                      placeholder="Enter campaign name"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="campaign-description">Description</Label>
+                    <Textarea
+                      id="campaign-description"
+                      value={newCampaign.description}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, description: e.target.value })}
+                      placeholder="Enter campaign description"
+                      className="mt-1"
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={handleCancelCreateCampaign}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateCampaign}>
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Campaign List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Campaign List</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-4 font-medium">Name</th>
+                      <th className="text-left py-3 px-4 font-medium">Description</th>
+                      <th className="text-left py-3 px-4 font-medium">User Segment</th>
+                      <th className="text-left py-3 px-4 font-medium">Target Region</th>
+                      <th className="text-left py-3 px-4 font-medium">Target Channel</th>
+                      <th className="text-left py-3 px-4 font-medium">Online Time</th>
+                      <th className="text-left py-3 px-4 font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCampaigns.map((campaign) => (
+                      <tr key={campaign.id} className="border-b hover:bg-muted/50">
+                        <td className="py-3 px-4 font-medium">{campaign.name}</td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground max-w-xs truncate">
+                          {campaign.description}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant="secondary">{campaign.userSegment}</Badge>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant="outline">{campaign.targetRegion}</Badge>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant="outline">{campaign.targetChannel}</Badge>
+                        </td>
+                        <td className="py-3 px-4 text-sm">{campaign.onlineTime}</td>
+                        <td className="py-3 px-4">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleViewCampaignDetail(campaign)}
+                            className="flex items-center gap-1"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            Detail
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Detail view (existing campaign management interface)
   return (
     <div className="w-full flex-1 p-6">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Campaign Component Management</h1>
-          <p className="text-muted-foreground">Manage and configure campaign components</p>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={handleBackToCampaignList} className="flex items-center gap-2">
+            <span>←</span> Back to Campaign List
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {selectedCampaign ? selectedCampaign.name : "Campaign Component Management"}
+            </h1>
+            <p className="text-muted-foreground">
+              {selectedCampaign ? selectedCampaign.description : "Manage and configure campaign components"}
+            </p>
+          </div>
         </div>
 
         <Tabs defaultValue="management" className="w-full">
@@ -1361,107 +1720,7 @@ const CampaignComponentManagement = () => {
           </TabsList>
 
           <TabsContent value="management" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Component List */}
-              <div className="lg:col-span-1">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold">Components</h2>
-                    <Dialog open={addComponentOpen} onOpenChange={setAddComponentOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm">
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add Component
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Add New Component</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="component-type">Select Component Type</Label>
-                             <Select value={newComponentType} onValueChange={setNewComponentType}>
-                               <SelectTrigger className="bg-background border-input">
-                                 <SelectValue placeholder="Choose a component type" />
-                               </SelectTrigger>
-                               <SelectContent className="bg-background border-input shadow-lg z-50">
-                                {availableComponents.map((component) => (
-                                  <SelectItem key={component} value={component}>
-                                    {component}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button onClick={handleAddComponent}>Save</Button>
-                            <Button variant="outline" onClick={() => setAddComponentOpen(false)}>Cancel</Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-
-                  <div className="space-y-2">
-                    {components.map((component) => (
-                      <Card 
-                        key={component.id} 
-                        className={`rounded-lg cursor-pointer transition-colors ${
-                          selectedComponent === component.id ? 'ring-2 ring-primary' : ''
-                        }`}
-                        onClick={() => setSelectedComponent(component.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <component.icon className="h-5 w-5 text-muted-foreground" />
-                              <div>
-                                <p className="font-medium text-sm">{component.name}</p>
-                                <p className="text-xs text-muted-foreground">{component.lastModified}</p>
-                              </div>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedComponent(component.id);
-                              }}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Configuration Panel */}
-              <div className="lg:col-span-2">
-                <Card className="rounded-lg">
-                  <CardHeader>
-                    <CardTitle>
-                      {selectedComponent 
-                        ? `Configure ${components.find(c => c.id === selectedComponent)?.name}`
-                        : 'Component Configuration'
-                      }
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {renderConfigPanel()}
-                    {selectedComponent && (
-                      <div className="flex justify-end space-x-2 mt-6 pt-6 border-t">
-                        <Button variant="outline">Cancel</Button>
-                        <Button>Save Changes</Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            {renderManagement()}
           </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-4">

@@ -434,6 +434,8 @@ body, html {
   transition: none;
 }
 
+
+
 .admin-sidebar.collapsed {
   width: 80px !important;
   min-width: 80px !important;
@@ -510,6 +512,16 @@ body, html {
   background: #dc2626;
   border: 1.5px solid #dc2626;
   color: #fff;
+}
+
+.sidebar-content::-webkit-scrollbar{
+  width: 6px;
+}
+.sidebar-content::-webkit-scrollbar-track{
+  background: var(--brand-primary);
+}
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #777;
 }
 
 .toggle-icon {

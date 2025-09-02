@@ -272,69 +272,6 @@ export const CampaignPageData = ({ dateRange }: CampaignPageDataProps) => {
                 ))}
               </div>
 
-              {/* Gender Distribution */}
-              <div className="space-y-4">
-                <h4 className="font-medium flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Gender Distribution
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  {data.userProfiles.genderData.map((gender, index) => (
-                    <div key={gender.name} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-sm font-medium">{gender.name}</span>
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: gender.color }}
-                        />
-                        <span className="text-sm font-medium">{gender.value}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Age Distribution */}
-              <div className="space-y-4">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Age Distribution
-                </h4>
-                <div className="space-y-2">
-                  {data.userProfiles.ageData.map((age, index) => (
-                    <div key={age.name} className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{age.name}</span>
-                        <span className="font-medium">{age.value}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className="h-2 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${age.value}%`,
-                            backgroundColor: age.color
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Interest Labels */}
-              <div className="space-y-4">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Heart className="w-4 h-4" />
-                  Top Interest Categories
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {data.userProfiles.topInterests.slice(0, 6).map((interest, index) => (
-                    <Badge key={interest.name} variant="outline" className="text-sm">
-                      {interest.name} ({interest.percentage}%)
-                    </Badge>
-                  ))}
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>

@@ -3,6 +3,7 @@ import { DateRange } from "react-day-picker";
 import { subDays } from "date-fns";
 import { BenefitPackagePerformance } from "./dashboard/BenefitPackagePerformance";
 import { CampaignPageData } from "./dashboard/CampaignPageData";
+import { UserProfile } from "./dashboard/UserProfile";
 import { DateRangePicker } from "./ui/date-range-picker";
 
 const DataInsightsDashboard = () => {
@@ -29,6 +30,9 @@ const DataInsightsDashboard = () => {
 
       {/* Campaign Page Data Module */}
       <CampaignPageData dateRange={dateRange} />
+
+      {/* User Profile Module */}
+      <UserProfile dateRange={dateRange} />
     </div>
   );
 };

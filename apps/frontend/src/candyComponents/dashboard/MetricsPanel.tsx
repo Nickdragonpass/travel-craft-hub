@@ -18,7 +18,8 @@ export const MetricsPanel = ({ selectedEntitlements }: MetricsPanelProps) => {
         averageCost: 0,
         totalPackage: 0,
         profitMargin: 0,
-        recommendedPrice: 0
+        recommendedPrice: 0,
+        estimateVolume: 0
       };
     }
 
@@ -30,7 +31,8 @@ export const MetricsPanel = ({ selectedEntitlements }: MetricsPanelProps) => {
       averageCost: 60 + (selectionCount * 15),
       totalPackage: 100 + (selectionCount * 25),
       profitMargin: 20 + (selectionCount * 8),
-      recommendedPrice: 140 + (selectionCount * 20)
+      recommendedPrice: 140 + (selectionCount * 20),
+      estimateVolume: Math.floor(1000 + (selectionCount * 200))
     };
   };
 
@@ -50,9 +52,13 @@ export const MetricsPanel = ({ selectedEntitlements }: MetricsPanelProps) => {
               <div className="text-xl font-bold">{metrics.margin}%</div>
             </div>
             <div className="bg-white/10 rounded-lg p-3 text-center">
-              <div className="text-xs opacity-90 mb-1">Value Score</div>
+              <div className="text-xs opacity-90 mb-1">Revenue</div>
               <div className="text-xl font-bold">{metrics.valueScore}</div>
             </div>
+          </div>
+          <div className="bg-white/10 rounded-lg p-3 text-center">
+            <div className="text-xs opacity-90 mb-1">Estimate Volume</div>
+            <div className="text-xl font-bold">{metrics.estimateVolume.toLocaleString()}</div>
           </div>
         </CardContent>
       </Card>
