@@ -128,8 +128,13 @@ function AdminLayout() {
 }
 
 function App() {
+  // Automatically detect if we're on GitHub Pages or localhost
+  const basename = window.location.hostname === 'nickdragonpass.github.io' 
+    ? '/travel-craft-hub' 
+    : '';
+  
   return (
-    <Router>
+    <Router basename={basename}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/admin" element={<AdminLayout />}>
