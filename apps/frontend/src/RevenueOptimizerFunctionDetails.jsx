@@ -31,7 +31,7 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
     communications: [
       {
         id: 'comm-1',
-        name: 'Spanish Email Campaign',
+        name: 'Instagram reel campaign',
         type: 'Email',
         status: 'Active',
         performance: {
@@ -47,18 +47,18 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
       },
       {
         id: 'comm-2',
-        name: 'Portuguese Email Campaign',
+        name: 'UK market TikTok campaign',
         type: 'Email',
         status: 'Active',
         performance: {
           impressions: 16250,
           opens: 16250,
           clicks: 1625,
-          conversions: 812,
-          revenue: 26309,
+          conversions: 130,
+          revenue: 4208,
           openRate: 13.0,
           clickRate: 10.0,
-          conversionRate: 5.0
+          conversionRate: 0.8
         }
       },
       {
@@ -1046,14 +1046,14 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
               <div className="improvement-opportunities">
                 <div className="opportunity-item">
                   <div className="opportunity-header">
-                    <div className="opportunity-icon">🎨</div>
+                    <div className="opportunity-icon">🎯</div>
                     <div className="opportunity-info">
-                      <h3>Optimize CTA Colors</h3>
-                      <p>Test red vs blue CTA buttons for better conversion</p>
+                      <h3>Replace CTA Button Text</h3>
+                      <p>Change current CTA from "Learn More" to "Upgrade My Seat Now" with red button color</p>
                     </div>
                     <div className="opportunity-metrics">
-                      <span className="expected-lift">+23%</span>
-                      <span className="confidence">94% confidence</span>
+                      <span className="expected-lift">+45%</span>
+                      <span className="confidence">92% confidence</span>
                     </div>
                   </div>
                   <div className="opportunity-actions">
@@ -1070,14 +1070,14 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
 
                 <div className="opportunity-item">
                   <div className="opportunity-header">
-                    <div className="opportunity-icon">⏰</div>
+                    <div className="opportunity-icon">🏆</div>
                     <div className="opportunity-info">
-                      <h3>Optimize Send Timing</h3>
-                      <p>Test 9 AM vs 6 PM send times for better engagement</p>
+                      <h3>Add "147 passengers upgraded today"</h3>
+                      <p>Insert social proof counter above CTA button showing real-time upgrade activity</p>
                     </div>
                     <div className="opportunity-metrics">
-                      <span className="expected-lift">+15%</span>
-                      <span className="confidence">89% confidence</span>
+                      <span className="expected-lift">+38%</span>
+                      <span className="confidence">87% confidence</span>
                     </div>
                   </div>
                   <div className="opportunity-actions">
@@ -1094,13 +1094,37 @@ function RevenueOptimizerFunctionDetails({ functionId, onBack }) {
 
                 <div className="opportunity-item">
                   <div className="opportunity-header">
-                    <div className="opportunity-icon">💰</div>
+                    <div className="opportunity-icon">⚡</div>
                     <div className="opportunity-info">
-                      <h3>Test Discount Amounts</h3>
-                      <p>Test 10% vs 15% discounts for optimal revenue</p>
+                      <h3>Add "Only 4 premium seats left"</h3>
+                      <p>Display countdown timer and seat availability directly below the offer title</p>
                     </div>
                     <div className="opportunity-metrics">
-                      <span className="expected-lift">+28%</span>
+                      <span className="expected-lift">+52%</span>
+                      <span className="confidence">89% confidence</span>
+                    </div>
+                  </div>
+                  <div className="opportunity-actions">
+                    <label className="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedImprovements.includes('urgency-messaging')}
+                        onChange={(e) => handleImprovementSelection('urgency-messaging', e.target.checked)}
+                      />
+                      <span>Select this improvement</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="opportunity-item">
+                  <div className="opportunity-header">
+                    <div className="opportunity-icon">💰</div>
+                    <div className="opportunity-info">
+                      <h3>Increase discount from 10% to 15%</h3>
+                      <p>Update offer pricing to show "15% off premium seats"</p>
+                    </div>
+                    <div className="opportunity-metrics">
+                      <span className="expected-lift">+65%</span>
                       <span className="confidence">91% confidence</span>
                     </div>
                   </div>

@@ -42,12 +42,12 @@ function RevenueOptimizerPerformance({ revenueFunctions }) {
         impressions: 18900,
         clicks: 5670,
         conversions: 945,
-        revenue: '£141,750',
-        conversionRate: '5.0%'
+        revenue: '£89,250',
+        conversionRate: '3.2%'
       },
       comms: [
-        { id: 'comm-4', name: 'South America Email (Spanish)', status: 'Active', performance: { opens: '31%', clicks: '12.4%', impressions: 6300, deliveries: '97%' } },
-        { id: 'comm-5', name: 'South America Email (Portuguese)', status: 'Active', performance: { opens: '29%', clicks: '11.8%', impressions: 4200, deliveries: '96%' } },
+        { id: 'comm-4', name: 'Instagram reel campaign', status: 'Active', performance: { opens: '31%', clicks: '12.4%', impressions: 6300, deliveries: '97%' } },
+        { id: 'comm-5', name: 'UK market TikTok campaign', status: 'Active', performance: { opens: '29%', clicks: '11.8%', impressions: 4200, deliveries: '96%' } },
         { id: 'comm-6', name: 'Digital Concierge (A/B Test A)', status: 'Active', performance: { impressions: 4200, clicks: '18.2%', opens: '45%' } },
         { id: 'comm-7', name: 'Digital Concierge (A/B Test B)', status: 'Active', performance: { impressions: 4200, clicks: '16.8%', opens: '42%' } }
       ]
@@ -195,81 +195,7 @@ function RevenueOptimizerPerformance({ revenueFunctions }) {
 
   return (
     <div className="review-section">
-      <div className="review-header">
-        <h3>Live Performance Tracking</h3>
-        <p className="review-subtitle">Real-time monitoring of active up-sell and cross-sell campaigns</p>
-        <div className="review-filters">
-          <select 
-            className="review-select" 
-            value={selectedTimeframe}
-            onChange={(e) => setSelectedTimeframe(e.target.value)}
-          >
-            <option value="7">Last 7 Days</option>
-            <option value="30">Last 30 Days</option>
-            <option value="90">Last 90 Days</option>
-            <option value="180">Last 6 Months</option>
-          </select>
-          <select 
-            className="review-select"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="all">All Categories</option>
-            <option value="Cross-Sell">Cross-Sell</option>
-            <option value="Upsell">Upsell</option>
-            <option value="Bundle">Bundle</option>
-          </select>
-          <select 
-            className="review-select"
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-          >
-            <option value="all">All Status</option>
-            <option value="Active">Active Only</option>
-            <option value="Draft">Draft</option>
-          </select>
-        </div>
-      </div>
-
       <div className="review-overview">
-        <div className="overview-metrics">
-          <div className="metric-card large">
-            <div className="metric-icon">👥</div>
-            <div className="metric-content">
-              <h3>Total Impressions</h3>
-              <div className="metric-value">{totalImpressions.toLocaleString()}</div>
-              <div className="metric-change positive">+15.2% vs last period</div>
-              <div className="metric-detail">From {activeFunctions.length} active functions</div>
-            </div>
-          </div>
-          <div className="metric-card large">
-            <div className="metric-icon">🖱️</div>
-            <div className="metric-content">
-              <h3>Overall Click Through Rate</h3>
-              <div className="metric-value">{((activeFunctions.reduce((sum, f) => sum + (f.performance.clicks || 0), 0) / totalImpressions) * 100).toFixed(1)}%</div>
-              <div className="metric-change positive">+2.3% vs last period</div>
-              <div className="metric-detail">{activeFunctions.reduce((sum, f) => sum + (f.performance.clicks || 0), 0).toLocaleString()} total clicks</div>
-            </div>
-          </div>
-          <div className="metric-card large">
-            <div className="metric-icon">📈</div>
-            <div className="metric-content">
-              <h3>Overall Conversion Rate</h3>
-              <div className="metric-value">{overallConversionRate}%</div>
-              <div className="metric-change positive">+1.2% vs last period</div>
-              <div className="metric-detail">{totalConversions} conversions total</div>
-            </div>
-          </div>
-          <div className="metric-card large">
-            <div className="metric-icon">💰</div>
-            <div className="metric-content">
-              <h3>Total Revenue Generated</h3>
-              <div className="metric-value">£{totalRevenue.toLocaleString()}</div>
-              <div className="metric-change positive">+12.5% vs last period</div>
-              <div className="metric-detail">Across all functions</div>
-            </div>
-          </div>
-        </div>
 
         <div className="functions-performance">
           <h4>Function Performance</h4>
@@ -324,16 +250,16 @@ function RevenueOptimizerPerformance({ revenueFunctions }) {
                           <span className="metric-value">{func.performance?.revenue || '£0'}</span>
                         </div>
                       </div>
-                      
-                      <div className="function-actions">
-                        <button 
-                          className={`view-details-btn ${performanceScore < 70 ? 'improve-btn' : ''}`}
-                          onClick={() => handleViewDetails(func.id)}
-                          style={{ display: 'block', visibility: 'visible' }}
-                        >
-                          {performanceScore < 70 ? 'Improve Performance' : 'View Details'}
-                        </button>
-                      </div>
+                    </div>
+                    
+                    <div className="function-actions" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+                      <button 
+                        className={`view-details-btn ${performanceScore < 70 ? 'improve-btn' : ''}`}
+                        onClick={() => handleViewDetails(func.id)}
+                        style={{ display: 'block', visibility: 'visible' }}
+                      >
+                        {performanceScore < 70 ? 'Improve Performance' : 'View Details'}
+                      </button>
                     </div>
                   </div>
                 );

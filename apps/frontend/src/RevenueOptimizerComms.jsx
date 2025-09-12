@@ -67,9 +67,9 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
       revenueType: 'acquisition',
       status: 'active',
       createdAt: '2024-01-15',
-      performance: { sent: 1200, opened: 800, converted: 45 },
+      performance: { impressions: 1200, clickThroughRate: 66.7, converted: 3.8 },
       images: {
-        emailHeaderImage: '/chase-travel-ad.png',
+        emailHeaderImage: '/social-media-acquisition-ad.png',
         emailBodyImage: null,
         pushIcon: null,
         inAppBanner: null,
@@ -86,7 +86,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
       revenueType: 'cross-sell',
       status: 'draft',
       createdAt: '2024-01-20',
-      performance: { sent: 500, opened: 300, converted: 12 },
+      performance: { impressions: 500, clickThroughRate: 60.0, converted: 2.4 },
       images: {
         emailHeaderImage: '/sapphire-reserve-ad.png',
         emailBodyImage: null,
@@ -105,9 +105,9 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
       revenueType: 'upsell',
       status: 'active',
       createdAt: '2024-01-25',
-      performance: { sent: 800, opened: 600, converted: 28 },
+      performance: { impressions: 800, clickThroughRate: 75.0, converted: 3.5 },
       images: {
-        emailHeaderImage: '/bank-credit-card-ad.png',
+        emailHeaderImage: '/chase-travel-ad.png',
         emailBodyImage: null,
         pushIcon: null,
         inAppBanner: null,
@@ -153,7 +153,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
       ...templateForm,
       status: 'draft',
       createdAt: new Date().toISOString().split('T')[0],
-      performance: { sent: 0, opened: 0, converted: 0 }
+      performance: { impressions: 0, clickThroughRate: 0, converted: 0 }
     };
     
     setTemplates(prev => [...prev, newTemplate]);
@@ -189,7 +189,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
       id: Date.now(),
       status: 'draft',
       createdAt: new Date().toISOString().split('T')[0],
-      performance: { sent: 0, opened: 0, converted: 0 }
+      performance: { impressions: 0, clickThroughRate: 0, converted: 0 }
     };
     
     setTemplates(prev => [...prev, newTemplate]);
@@ -373,25 +373,6 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
 
       {/* Stats Overview */}
       <div className="comms-overview">
-        <div className="comms-stats">
-          <div className="stat-card">
-            <span className="stat-number">{templates.length}</span>
-            <span className="stat-label">Total Templates</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-number">{templates.filter(t => t.status === 'active').length}</span>
-            <span className="stat-label">Active Templates</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-number">{templates.filter(t => t.status === 'draft').length}</span>
-            <span className="stat-label">Draft Templates</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-number">{templates.reduce((sum, t) => sum + (t.performance?.converted || 0), 0)}</span>
-            <span className="stat-label">Total Conversions</span>
-          </div>
-        </div>
-
         {/* Filters */}
         <div className="template-controls">
           <div className="template-search">
@@ -502,13 +483,13 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                     fontWeight: '600', 
                     color: '#1e293b',
                     lineHeight: '1.2'
-                  }}>{template.performance?.sent || 0}</span>
+                  }}>{template.performance?.impressions || 0}</span>
                   <span className="perf-label" style={{ 
                     fontSize: '12px', 
                     color: '#64748b', 
                     fontWeight: '500',
                     marginTop: '2px'
-                  }}>Sent</span>
+                  }}>Impressions</span>
                 </div>
                 <div className="perf-item" style={{ 
                   display: 'flex', 
@@ -525,13 +506,13 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                     fontWeight: '600', 
                     color: '#0369a1',
                     lineHeight: '1.2'
-                  }}>{template.performance?.opened || 0}</span>
+                  }}>{template.performance?.clickThroughRate || 0}%</span>
                   <span className="perf-label" style={{ 
                     fontSize: '12px', 
                     color: '#0284c7', 
                     fontWeight: '500',
                     marginTop: '2px'
-                  }}>Opened</span>
+                  }}>CTR</span>
                 </div>
                 <div className="perf-item" style={{ 
                   display: 'flex', 
@@ -548,7 +529,7 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                     fontWeight: '600', 
                     color: '#166534',
                     lineHeight: '1.2'
-                  }}>{template.performance?.converted || 0}</span>
+                  }}>{template.performance?.converted || 0}%</span>
                   <span className="perf-label" style={{ 
                     fontSize: '12px', 
                     color: '#16a34a', 
@@ -677,7 +658,6 @@ function RevenueOptimizerComms({ revenueFunctions, setActiveTab, getBookingTypeI
                     ))}
                   </div>
                 </div>
-
                 {/* Message Template Section */}
                 <div className="form-section">
                   <h4>Message Template</h4>
