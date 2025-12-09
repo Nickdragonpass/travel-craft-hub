@@ -16,6 +16,8 @@ function RewardOrchestrator() {
   const [abTests, setAbTests] = useState([]);
   const [editingTest, setEditingTest] = useState(null);
   const [expandedTests, setExpandedTests] = useState(new Set());
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [selectedProgramForTopUp, setSelectedProgramForTopUp] = useState(null);
 
   useEffect(() => {
     const mockRewardPrograms = [
@@ -28,6 +30,14 @@ function RewardOrchestrator() {
         status: 'active',
         startDate: '2024-01-01',
         endDate: '2024-12-31',
+        // Budget/Planned values
+        allocationBudget: 150000,
+        allocationEntitlements: 5000,
+        allocationAudience: 8000,
+        // Actual/Used values
+        actualCostSpent: 108000,
+        actualEntitlementsUsed: 3250,
+        actualAudienceReached: 5800,
         benefits: [
           { id: 'ben-1', title: '4 Free Lounge Passes', type: 'Entitlement' },
           { id: 'ben-2', title: '2x Points on Travel', type: 'Points / Miles Redemption' }
@@ -43,6 +53,14 @@ function RewardOrchestrator() {
         status: 'active',
         startDate: '2024-01-01',
         endDate: '2024-12-31',
+        // Budget/Planned values
+        allocationBudget: 250000,
+        allocationEntitlements: 3000,
+        allocationAudience: 4500,
+        // Actual/Used values
+        actualCostSpent: 217500,
+        actualEntitlementsUsed: 2610,
+        actualAudienceReached: 3950,
         benefits: [ 
           { id: 'ben-3', title: 'Unlimited Lounge Access', type: 'Access Pass' },
           { id: 'ben-4', title: 'Priority Boarding', type: 'Access Pass' },
@@ -369,7 +387,13 @@ function RewardOrchestrator() {
 
           <div className="programs-grid">
             {rewardPrograms.map((program) => {
-              const tests = getTestsForProgram(program.id);
+              // Calculate if package needs attention (any metric > 85%)
+              const needsTopUp = program.status === 'active' && (
+                (program.actualCostSpent && program.allocationBudget && (program.actualCostSpent / program.allocationBudget) > 0.85) ||
+                (program.actualEntitlementsUsed && program.allocationEntitlements && (program.actualEntitlementsUsed / program.allocationEntitlements) > 0.85) ||
+                (program.actualAudienceReached && program.allocationAudience && (program.actualAudienceReached / program.allocationAudience) > 0.85)
+              );
+              
               return (
               <div key={program.id} className={`program-card ${expandedPrograms.has(program.id) ? 'expanded' : 'collapsed'}`}>
                 <div className="program-header">
@@ -380,8 +404,12 @@ function RewardOrchestrator() {
                   <div className="program-meta">
                     <div className="program-status">
                       {getStatusBadge(program.status)}
+                      {needsTopUp && (
+                        <span className="status-badge status-warning" style={{ backgroundColor: '#fef3c7', color: '#d97706', border: '1px solid #f59e0b', marginLeft: '8px' }}>
+                          ⚠️ Top-up needed
+                        </span>
+                      )}
                     </div>
-                      {tests.length > 0 && (<span className="chip chip-outline">Tests ({tests.length})</span>)}
                     <button 
                       className="expand-btn"
                       onClick={() => toggleProgramExpansion(program.id)}
@@ -393,6 +421,98 @@ function RewardOrchestrator() {
                 
                 {expandedPrograms.has(program.id) ? (
                   <>
+                    {/* Live Usage Tracking - Only for Active Programs */}
+                    {program.status === 'active' && (program.allocationBudget || program.allocationEntitlements || program.allocationAudience) && (
+                      <div className="program-usage-tracking">
+                        <h4>Budget vs Actuals</h4>
+                        <div className="usage-metrics-grid">
+                          {program.allocationEntitlements && program.actualEntitlementsUsed !== undefined && (
+                            <div className="usage-metric">
+                              <div className="metric-header">
+                                <span className="metric-label">Entitlements</span>
+                                <span className="metric-value">
+                                  {program.actualEntitlementsUsed.toLocaleString()} / {program.allocationEntitlements.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="metric-progress">
+                                <div className="progress-bar">
+                                  <div className="progress-fill" style={{ 
+                                    width: `${(program.actualEntitlementsUsed / program.allocationEntitlements * 100).toFixed(1)}%`, 
+                                    backgroundColor: (program.actualEntitlementsUsed / program.allocationEntitlements) > 0.85 ? '#ef4444' : (program.actualEntitlementsUsed / program.allocationEntitlements) > 0.7 ? '#f59e0b' : '#10b981'
+                                  }} />
+                                </div>
+                                <span className="progress-label">
+                                  {(program.actualEntitlementsUsed / program.allocationEntitlements * 100).toFixed(1)}% used • {(program.allocationEntitlements - program.actualEntitlementsUsed).toLocaleString()} remaining
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {program.allocationAudience && program.actualAudienceReached !== undefined && (
+                            <div className="usage-metric">
+                              <div className="metric-header">
+                                <span className="metric-label">Audience</span>
+                                <span className="metric-value">
+                                  {program.actualAudienceReached.toLocaleString()} / {program.allocationAudience.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="metric-progress">
+                                <div className="progress-bar">
+                                  <div className="progress-fill" style={{ 
+                                    width: `${(program.actualAudienceReached / program.allocationAudience * 100).toFixed(1)}%`, 
+                                    backgroundColor: (program.actualAudienceReached / program.allocationAudience) > 0.85 ? '#ef4444' : (program.actualAudienceReached / program.allocationAudience) > 0.7 ? '#f59e0b' : '#10b981'
+                                  }} />
+                                </div>
+                                <span className="progress-label">
+                                  {(program.actualAudienceReached / program.allocationAudience * 100).toFixed(1)}% reached • {(program.allocationAudience - program.actualAudienceReached).toLocaleString()} remaining
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {program.allocationBudget && program.actualCostSpent !== undefined && (
+                            <div className="usage-metric">
+                              <div className="metric-header">
+                                <span className="metric-label">Cost</span>
+                                <span className="metric-value">
+                                  £{program.actualCostSpent.toLocaleString()} / £{program.allocationBudget.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="metric-progress">
+                                <div className="progress-bar">
+                                  <div className="progress-fill" style={{ 
+                                    width: `${(program.actualCostSpent / program.allocationBudget * 100).toFixed(1)}%`, 
+                                    backgroundColor: (program.actualCostSpent / program.allocationBudget) > 0.85 ? '#ef4444' : (program.actualCostSpent / program.allocationBudget) > 0.7 ? '#f59e0b' : '#10b981'
+                                  }} />
+                                </div>
+                                <span className="progress-label">
+                                  {(program.actualCostSpent / program.allocationBudget * 100).toFixed(1)}% spent • £{(program.allocationBudget - program.actualCostSpent).toLocaleString()} remaining
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        {program.actualCostSpent && program.actualAudienceReached && (
+                          <div className="usage-summary">
+                            <div className="summary-item">
+                              <span className="summary-label">Actual Cost/User:</span>
+                              <span className="summary-value">£{Math.round(program.actualCostSpent / program.actualAudienceReached)}</span>
+                            </div>
+                            {program.allocationBudget && program.allocationAudience && (
+                              <div className="summary-item">
+                                <span className="summary-label">Planned Cost/User:</span>
+                                <span className="summary-value">£{Math.round(program.allocationBudget / program.allocationAudience)}</span>
+                              </div>
+                            )}
+                            <div className="summary-item">
+                              <span className="summary-label">Status:</span>
+                              <span className="summary-value" style={{ color: (program.actualCostSpent / program.allocationBudget) > 0.85 ? '#ef4444' : '#10b981' }}>
+                                {(program.actualCostSpent / program.allocationBudget) > 0.85 ? '⚠️ Consider top-up' : '✓ On track'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="program-details">
                       <h4>Benefits</h4>
                       <div className="benefit-tiles">
@@ -407,43 +527,15 @@ function RewardOrchestrator() {
                       </div>
                     </div>
 
-                      {tests.length > 0 && (
-                        <div className="tests-summary" style={{ marginTop: 12 }}>
-                          <h4>Tests</h4>
-                          <div className="benefit-tiles">
-                            {tests.map(t => (
-                              <div key={t.id} className="benefit-tile">
-                                <div className="benefit-header">
-                                  <div className="benefit-title">{t.name}</div>
-                                  <span className="chip chip-accent">{t.status}</span>
-                                </div>
-                                <div className="benefit-meta">
-                                  <span className="meta-item">A: <strong>{t.performance?.A?.redemptions ?? 0}</strong> redemptions • <strong>{t.performance?.A?.revenue ?? '£0'}</strong></span>
-                                  <span className="meta-item">B: <strong>{t.performance?.B?.redemptions ?? 0}</strong> redemptions • <strong>{t.performance?.B?.revenue ?? '£0'}</strong></span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    <div className="program-performance">
-                      <div className="perf-metric">
-                        <span className="perf-label">Redemptions</span>
-                        <span className="perf-value">{program.performance.totalRedemptions.toLocaleString()}</span>
-                      </div>
-                      <div className="perf-metric">
-                        <span className="perf-label">Revenue</span>
-                        <span className="perf-value">{program.performance.revenueGenerated}</span>
-                      </div>
-                    </div>
+                    {/* Program-level performance removed from Manage expanded card per request */}
 
                     <div className="program-actions">
                         <button className="action-btn secondary" onClick={() => { setEditingProgramId(program.id); setImportFormData(mapProgramToForm(program)); setShowCreateModal(true); }}>Edit</button>
-                        {program.status === 'draft' ? (
+                        {program.status === 'active' && (
+                          <button className="action-btn primary" onClick={() => { setSelectedProgramForTopUp(program); setShowTopUpModal(true); }}>Top Up Package</button>
+                        )}
+                        {program.status === 'draft' && (
                           <button className="action-btn primary" onClick={() => setRewardPrograms(prev => prev.map(p => p.id === program.id ? { ...p, status: 'active' } : p))}>Launch</button>
-                        ) : (
-                          <button className="action-btn secondary" onClick={() => { setEditingProgramId(program.id); setImportFormData(mapProgramToForm(program)); setShowCreateModal(true); }}>View Details</button>
                         )}
                     </div>
                   </>
@@ -465,10 +557,10 @@ function RewardOrchestrator() {
                     </div>
                     <div className="program-actions-compact">
                         <button className="action-btn secondary small" onClick={() => { setEditingProgramId(program.id); setImportFormData(mapProgramToForm(program)); setShowCreateModal(true); }}>Edit</button>
-                        {program.status === 'draft' ? (
-                          <button className="action-btn primary small" onClick={() => setRewardPrograms(prev => prev.map(p => p.id === program.id ? { ...p, status: 'active' } : p))}>Launch</button>
+                        {program.status === 'active' ? (
+                          <button className="action-btn primary small" onClick={() => { setSelectedProgramForTopUp(program); setShowTopUpModal(true); }}>Top Up</button>
                         ) : (
-                          <button className="action-btn primary small" onClick={() => { setEditingProgramId(program.id); setImportFormData(mapProgramToForm(program)); setShowCreateModal(true); }}>View Details</button>
+                          <button className="action-btn primary small" onClick={() => setRewardPrograms(prev => prev.map(p => p.id === program.id ? { ...p, status: 'active' } : p))}>Launch</button>
                         )}
                     </div>
                   </div>
@@ -497,6 +589,30 @@ function RewardOrchestrator() {
   const pauseTest = (id) => setAbTests(prev => prev.map(t => t.id === id ? { ...t, status: 'paused' } : t));
   const resumeTest = (id) => setAbTests(prev => prev.map(t => t.id === id ? { ...t, status: 'active' } : t));
   const deleteTest = (id) => setAbTests(prev => prev.filter(t => t.id !== id));
+
+  const handleTopUp = (updates) => {
+    const { programId, type, additionalBudget, additionalEntitlements, extendEndDate } = updates;
+    
+    setRewardPrograms(prev => prev.map(p => {
+      if (p.id !== programId) return p;
+      
+      const updated = { ...p };
+      
+      if (type === 'budget' || type === 'both') {
+        updated.allocationBudget = (p.allocationBudget || 0) + parseFloat(additionalBudget || 0);
+      }
+      
+      if (type === 'entitlements' || type === 'both') {
+        updated.allocationEntitlements = (p.allocationEntitlements || 0) + parseFloat(additionalEntitlements || 0);
+      }
+      
+      if (extendEndDate) {
+        updated.endDate = extendEndDate;
+      }
+      
+      return updated;
+    }));
+  };
 
   const groupTestsByProgram = useMemo(() => {
     const map = new Map();
@@ -735,12 +851,9 @@ function RewardOrchestrator() {
     <div className="reward-orchestrator-page">
       <div className="page-header">
         <div className="header-content">
-          <h1>Reward Orchestrator</h1>
+          <h1>Benefit Orchestrator</h1>
+          <p className="header-subtitle">Define, manage, test, and track your reward offerings to maximize customer engagement and retention</p>
         </div>
-      </div>
-      
-      <div className="page-subtitle">
-        <p>Define, manage, test, and track your reward offerings to maximize customer engagement and retention</p>
       </div>
 
       <div className="tab-navigation">
@@ -808,6 +921,116 @@ function RewardOrchestrator() {
           onCreateTest={(test) => setAbTests(prev => [...prev, test])}
           onClose={() => { setShowABTestModal(false); setEditingTest(null); }}
         />
+      )}
+
+      {/* Top Up Modal */}
+      {showTopUpModal && selectedProgramForTopUp && (
+        <div className="modal-overlay" onClick={() => setShowTopUpModal(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3>Top Up: {selectedProgramForTopUp.name}</h3>
+              <button className="close-btn" onClick={() => setShowTopUpModal(false)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              {/* Current Status */}
+              <div className="topup-current-status">
+                <h4>Current Status</h4>
+                <div className="status-grid">
+                  {selectedProgramForTopUp.allocationBudget && (
+                    <div className="status-item">
+                      <span className="status-label">Budget:</span>
+                      <span className="status-value">£{Math.floor(selectedProgramForTopUp.allocationBudget * 0.72).toLocaleString()} / £{selectedProgramForTopUp.allocationBudget.toLocaleString()}</span>
+                      <span className="status-percentage">72% used</span>
+                    </div>
+                  )}
+                  {selectedProgramForTopUp.allocationEntitlements && (
+                    <div className="status-item">
+                      <span className="status-label">Entitlements:</span>
+                      <span className="status-value">{Math.floor(selectedProgramForTopUp.allocationEntitlements * 0.65).toLocaleString()} / {selectedProgramForTopUp.allocationEntitlements.toLocaleString()}</span>
+                      <span className="status-percentage">65% used</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Top Up Form */}
+              <div className="topup-form">
+                <div className="form-group">
+                  <label>Add Budget (£)</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="Enter additional budget amount"
+                    id="topup-budget-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Add Entitlements</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="Enter additional number of users"
+                    id="topup-entitlements-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Extend End Date (Optional)</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    defaultValue={selectedProgramForTopUp.endDate || ''}
+                    id="topup-date-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Reason for Top Up</label>
+                  <textarea
+                    className="form-input"
+                    rows={3}
+                    placeholder="Provide a reason for audit trail (optional)"
+                    id="topup-reason-input"
+                  />
+                </div>
+              </div>
+
+              <div className="topup-info-box">
+                <div className="info-icon">💡</div>
+                <div>
+                  <strong>Tip:</strong> Top-ups are applied immediately and will extend the package capacity. All eligible users will continue to have access to the benefits.
+                </div>
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button className="btn secondary" onClick={() => setShowTopUpModal(false)}>Cancel</button>
+              <button 
+                className="btn primary"
+                onClick={() => {
+                  const additionalBudget = parseFloat(document.getElementById('topup-budget-input').value) || 0;
+                  const additionalEntitlements = parseFloat(document.getElementById('topup-entitlements-input').value) || 0;
+                  const newEndDate = document.getElementById('topup-date-input').value;
+                  
+                  if (additionalBudget > 0 || additionalEntitlements > 0) {
+                    handleTopUp({
+                      programId: selectedProgramForTopUp.id,
+                      additionalBudget,
+                      additionalEntitlements,
+                      extendEndDate: newEndDate !== selectedProgramForTopUp.endDate ? newEndDate : null
+                    });
+                    setShowTopUpModal(false);
+                    setSelectedProgramForTopUp(null);
+                  }
+                }}
+              >
+                Confirm Top Up
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

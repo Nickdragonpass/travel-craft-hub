@@ -1,0 +1,13 @@
+.program-performance {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+

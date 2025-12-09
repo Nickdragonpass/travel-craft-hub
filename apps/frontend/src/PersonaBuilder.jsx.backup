@@ -592,118 +592,18 @@ function PersonaBuilder() {
             <div className="preview-box" style={{ paddingTop: 16 }}>
               <h2 className="section-title">Assignment Tracking & Insights</h2>
               <p className="page-subtitle" style={{ margin: '0 0 12px 0' }}>Track where personas are assigned and view insights (placeholders).</p>
-              
-              {/* Persona Performance Metrics */}
-              <div className="analytics-section" style={{ paddingTop: 0 }}>
-                <h3 className="section-title" style={{ fontSize: 16 }}>Persona Performance Metrics</h3>
-                <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 24 }}>
-                  {personas.map(p => (
-                    <div key={p.id} className="metric-card" style={{ padding: 16, border: '1px solid var(--brand-card-border)', borderRadius: 'var(--brand-radius)', background: 'var(--brand-white)' }}>
-                      <div className="metric-header">
-                        <span className="metric-label">{p.name}</span>
-                        <span className="chip chip-outline">Pop: {countPopulationForPersona(p)}</span>
-                      </div>
-                      <div className="metric-stats" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
-                        <div className="metric-stat">
-                          <span className="stat-label">Engagement</span>
-                          <span className="stat-value">{Math.floor(Math.random() * 30 + 15)}%</span>
-                        </div>
-                        <div className="metric-stat">
-                          <span className="stat-label">Revenue</span>
-                          <span className="stat-value">£{Math.floor(Math.random() * 50000 + 10000).toLocaleString()}</span>
-                        </div>
-                        <div className="metric-stat">
-                          <span className="stat-label">Churn Risk</span>
-                          <span className="stat-value" style={{ color: Math.random() > 0.5 ? '#ef4444' : '#10b981' }}>{Math.floor(Math.random() * 15 + 5)}%</span>
-                        </div>
-                        <div className="metric-stat">
-                          <span className="stat-label">Growth</span>
-                          <span className="stat-value" style={{ color: '#10b981' }}>+{Math.floor(Math.random() * 20 + 5)}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                <div>
+                  <h3>Bookings</h3>
+                  <p className="page-subtitle" style={{ margin: 0 }}>Coming soon: View bookings tagged with personas.</p>
                 </div>
-              </div>
-
-              {/* Persona Health Indicators */}
-              <div className="analytics-section" style={{ paddingTop: 0 }}>
-                <h3 className="section-title" style={{ fontSize: 16 }}>Persona Health Dashboard</h3>
-                <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: 24 }}>
-                  <div className="health-card" style={{ padding: 16, border: '1px solid var(--brand-card-border)', borderRadius: 'var(--brand-radius)', background: 'var(--brand-white)' }}>
-                    <h4>Active vs Dormant Users</h4>
-                    <div className="health-metrics">
-                      <div className="health-metric">
-                        <span className="health-label">Active (30d)</span>
-                        <span className="health-value" style={{ color: '#10b981' }}>{Math.floor(personas.length * 0.7)} personas</span>
-                      </div>
-                      <div className="health-metric">
-                        <span className="health-label">Dormant (30d)</span>
-                        <span className="health-value" style={{ color: '#f59e0b' }}>{Math.floor(personas.length * 0.3)} personas</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="health-card" style={{ padding: 16, border: '1px solid var(--brand-card-border)', borderRadius: 'var(--brand-radius)', background: 'var(--brand-white)' }}>
-                    <h4>Population Trends</h4>
-                    <div className="health-metrics">
-                      <div className="health-metric">
-                        <span className="health-label">Growing</span>
-                        <span className="health-value" style={{ color: '#10b981' }}>{Math.floor(personas.length * 0.6)} personas</span>
-                      </div>
-                      <div className="health-metric">
-                        <span className="health-label">Stable</span>
-                        <span className="health-value" style={{ color: '#6b7280' }}>{Math.floor(personas.length * 0.3)} personas</span>
-                      </div>
-                      <div className="health-metric">
-                        <span className="health-label">Declining</span>
-                        <span className="health-value" style={{ color: '#ef4444' }}>{Math.floor(personas.length * 0.1)} personas</span>
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <h3>Upsell / Cross-sell Functions</h3>
+                  <p className="page-subtitle" style={{ margin: 0 }}>Coming soon: See which functions target each persona.</p>
                 </div>
-              </div>
-
-              {/* AI Recommendations */}
-              <div className="analytics-section" style={{ paddingTop: 0 }}>
-                <h3 className="section-title" style={{ fontSize: 16 }}>AI Recommendations</h3>
-                <div className="recommendations-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-                  <div className="recommendation-card" style={{ padding: 16, border: '1px solid var(--brand-card-border)', borderRadius: 'var(--brand-radius)', background: 'var(--brand-white)' }}>
-                    <h4>Persona Optimization</h4>
-                    <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
-                      <li>Consider splitting "Young Professionals Brazil Platinum" by age groups</li>
-                      <li>Add loyalty tier as key behavioral segment for Business Travelers</li>
-                      <li>Test cross-sell opportunities for Luxury Leisure travelers</li>
-                    </ul>
-                    <button className="btn secondary" style={{ marginTop: 8 }}>Apply Suggestions</button>
-                  </div>
-                  <div className="recommendation-card" style={{ padding: 16, border: '1px solid var(--brand-card-border)', borderRadius: 'var(--brand-radius)', background: 'var(--brand-white)' }}>
-                    <h4>Assignment Opportunities</h4>
-                    <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
-                      <li>Increase upsell targeting for high-value personas</li>
-                      <li>Bundle reward packages for mid-tier spenders</li>
-                      <li>Test engagement campaigns for dormant segments</li>
-                    </ul>
-                    <button className="btn secondary" style={{ marginTop: 8 }}>View Opportunities</button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Assignment Tracking */}
-              <div className="analytics-section" style={{ paddingTop: 0 }}>
-                <h3 className="section-title" style={{ fontSize: 16 }}>Assignment Tracking</h3>
-                <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-                  <div>
-                    <h4>Bookings</h4>
-                    <p className="page-subtitle" style={{ margin: 0 }}>Coming soon: View bookings tagged with personas.</p>
-                  </div>
-                  <div>
-                    <h4>Upsell / Cross-sell Functions</h4>
-                    <p className="page-subtitle" style={{ margin: 0 }}>Coming soon: See which functions target each persona.</p>
-                  </div>
-                  <div>
-                    <h4>Reward Packages</h4>
-                    <p className="page-subtitle" style={{ margin: 0 }}>Coming soon: See reward packages linked to personas.</p>
-                  </div>
+                <div>
+                  <h3>Reward Packages</h3>
+                  <p className="page-subtitle" style={{ margin: 0 }}>Coming soon: See reward packages linked to personas.</p>
                 </div>
               </div>
             </div>
@@ -714,4 +614,4 @@ function PersonaBuilder() {
   );
 }
 
-export default PersonaBuilder;
+export default PersonaBuilder; 

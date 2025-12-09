@@ -13,26 +13,30 @@ function Sidebar({ isCollapsed, onToggle }) {
           <span className="link-icon">📊</span>
           <span className="link-text">Dashboard</span>
         </NavLink>
+        {/*
         <NavLink to="/admin/book" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Book">
           <span className="link-icon">✈️</span>
           <span className="link-text">Book</span>
         </NavLink>
-        <NavLink to="/admin/booking-management" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Booking Management">
+        */}
+        <NavLink to="/admin/booking-management" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Order Management">
           <span className="link-icon">📋</span>
-          <span className="link-text">Booking Management</span>
+          <span className="link-text">Order Management</span>
         </NavLink>
         <NavLink to="/admin/revenue-optimizer" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Revenue Optimizer">
           <span className="link-icon">💰</span>
           <span className="link-text">Revenue Optimizer</span>
         </NavLink>
-        <NavLink to="/admin/rewards" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Reward Orchestrator">
+        <NavLink to="/admin/rewards" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Benefit Orchestrator">
           <span className="link-icon">🎁</span>
-          <span className="link-text">Reward Orchestrator</span>
+          <span className="link-text">Benefit Orchestrator</span>
         </NavLink>
+        {/*
         <NavLink to="/admin/entitlement-management" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Entitlement Package">
           <span className="link-icon">🔐</span>
           <span className="link-text">Entitlement Package</span>
         </NavLink>
+        */}
         <NavLink to="/admin/persona-builder" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Persona Builder">
           <span className="link-icon">🧩</span>
           <span className="link-text">Persona Builder</span>
@@ -41,6 +45,7 @@ function Sidebar({ isCollapsed, onToggle }) {
           <span className="link-icon">📈</span>
           <span className="link-text">Analytics</span>
         </NavLink>
+        {/*
         <NavLink to="/admin/integrations" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Integrations">
           <span className="link-icon">🔗</span>
           <span className="link-text">Integrations</span>
@@ -49,6 +54,7 @@ function Sidebar({ isCollapsed, onToggle }) {
           <span className="link-icon">🏢</span>
           <span className="link-text">Corporate Travel</span>
         </NavLink>
+        */}
         <NavLink to="/admin/settings" className={({ isActive }) => isActive ? 'sidebar-link active' : 'sidebar-link'} data-title="Settings">
           <span className="link-icon">⚙️</span>
           <span className="link-text">Settings</span>

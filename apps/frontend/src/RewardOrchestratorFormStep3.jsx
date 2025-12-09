@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefitInputChange, addBenefit, removeBenefit, currentBenefit, setCurrentBenefit, showBenefitForm, setShowBenefitForm, benefitTypes, redemptionMethods, benefitsCatalog = [], addBenefitFromMarketplace }) {
+function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefitInputChange, addBenefit, removeBenefit, updateBenefit, currentBenefit, setCurrentBenefit, showBenefitForm, setShowBenefitForm, benefitTypes, redemptionMethods, benefitsCatalog = [], addBenefitFromMarketplace }) {
   const [activeTab, setActiveTab] = useState('marketplace'); // 'create' | 'marketplace'
 
   // Marketplace filters
@@ -190,303 +190,76 @@ function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefi
     return formData.benefits.some(b => (b.title || '').toLowerCase() === (preset.title || '').toLowerCase());
   };
 
+  const getPointsForType = (type) => {
+    const pts = formData?.pointsPerBenefitType?.[type];
+    return Number.isFinite(pts) ? pts : 1;
+  };
+
+  // Lightweight guidance helpers
+  const POINT_VALUE_GBP = 30;
+  const pointsPerCustomer = (() => {
+    const budget = parseFloat(formData.allocationBudget || 0);
+    const ents = parseFloat(formData.allocationEntitlements || 0);
+    if (budget > 0 && ents > 0) return (budget / ents) / POINT_VALUE_GBP;
+    return 0;
+  })();
+
+  const basketPoints = useMemo(() => {
+    if (!Array.isArray(formData.benefits)) return 0;
+    return formData.benefits.reduce((sum, b) => {
+      const qty = Number.isFinite(b.quantity) ? b.quantity : 1;
+      return sum + getPointsForType(b.type) * qty;
+    }, 0);
+  }, [formData.benefits]);
+
+  const guidance = useMemo(() => {
+    const tips = [];
+    if (!pointsPerCustomer) {
+      tips.push('Set audience and budget to get tailored suggestions.');
+      return tips;
+    }
+    if (basketPoints === 0) {
+      tips.push('Add benefits to start building your package.');
+      return tips;
+    }
+    const diff = pointsPerCustomer - basketPoints;
+    if (diff > 0.25) tips.push('You have spare points — consider adding another benefit or increasing quantities.');
+    if (diff < -0.25) tips.push('Basket exceeds points — remove a higher point item or reduce quantities.');
+    // Mix suggestion
+    const typesInBasket = new Set((formData.benefits || []).map(b => b.type));
+    if (typesInBasket.size < 2) tips.push('Diversify benefit types to appeal to a broader audience.');
+    return tips;
+  }, [pointsPerCustomer, basketPoints, formData.benefits]);
+
   const [selectedOpen, setSelectedOpen] = useState(false);
 
   return (
     <div className="form-step">
-      <div className="step-header">
-        <h3>Benefits & Rewards</h3>
-        <p>Configure the rewards and benefits for your program</p>
-      </div>
 
       <div className="benefits-section">
-        {/* Selected Benefits - Collapsible Summary */}
-        {formData.benefits.length > 0 && (
-          <div className="selected-benefits">
-            <div className="selected-header">
-              <div className="selected-title">
-                <span className="label">Selected Benefits</span>
-                <span className="badge">{formData.benefits.length}</span>
-              </div>
-              <button type="button" className="btn secondary small" onClick={() => setSelectedOpen(!selectedOpen)}>
-                {selectedOpen ? 'Hide' : 'Manage'}
-              </button>
-            </div>
 
-            {!selectedOpen ? (
-              <div className="selected-chips">
-                {formData.benefits.slice(0, 6).map(b => (
-                  <span key={b.id} className="selected-chip">{b.title}</span>
-                ))}
-                {formData.benefits.length > 6 && (
-                  <span className="selected-more">+{formData.benefits.length - 6} more</span>
-                )}
-              </div>
-            ) : (
-              <div className="benefits-list compact">
-                {formData.benefits.map((benefit) => (
-                  <div key={benefit.id} className="benefit-item">
-                    <div className="benefit-info">
-                      <h5>{benefit.title}</h5>
-                      <p>{benefit.type} • {benefit.supplier}</p>
-                      {benefit.costToBank && (
-                        <small className="benefit-cost-display">Cost: ${benefit.costToBank}</small>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="remove-benefit-btn"
-                      onClick={() => removeBenefit(benefit.id)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Tabs hidden for now */}
+        {false && (
+          <div className="benefits-tabs">
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'marketplace' ? 'active' : ''}`}
+              onClick={() => setActiveTab('marketplace')}
+            >
+              Marketplace
+            </button>
+            <button
+              type="button"
+              className={`tab-btn ${activeTab === 'create' ? 'active' : ''}`}
+              onClick={() => setActiveTab('create')}
+            >
+              Create New
+            </button>
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="benefits-tabs">
-          <button
-            type="button"
-            className={`tab-btn ${activeTab === 'marketplace' ? 'active' : ''}`}
-            onClick={() => setActiveTab('marketplace')}
-          >
-            Marketplace
-          </button>
-          <button
-            type="button"
-            className={`tab-btn ${activeTab === 'create' ? 'active' : ''}`}
-            onClick={() => setActiveTab('create')}
-          >
-            Create New
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'create' ? (
-          <div className="benefit-form">
-            <div className="benefit-form-header">
-              <h4>Create New Benefit</h4>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="required">Benefit Title</label>
-                  <input
-                    type="text"
-                    value={currentBenefit.title}
-                    onChange={(e) => handleBenefitInputChange('title', e.target.value)}
-                    placeholder="Enter benefit title"
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="required">Benefit Type</label>
-                  <select
-                    value={currentBenefit.type}
-                    onChange={(e) => handleBenefitInputChange('type', e.target.value)}
-                    className="form-input enhanced"
-                  >
-                    <option value="">Select type</option>
-                    {benefitTypes.map(type => (
-                      <option key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="required">Product Type</label>
-                  <select
-                    value={currentBenefit.productType || ''}
-                    onChange={(e) => { const pt = e.target.value; handleBenefitInputChange('productType', pt); clearSuppliers(); setSupplierOpen(false); setSupplierSearch(''); setDeliveryOpen(false); setDeliverySearch(''); handleBenefitInputChange('deliveryMethods', []); ensureDefaultDelivery(pt); }}
-                    className="form-input enhanced"
-                  >
-                    <option value="">Select product</option>
-                    {productTypes.map(pt => (
-                      <option key={pt} value={pt}>{pt.charAt(0).toUpperCase() + pt.slice(1)}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Suppliers (optional)</label>
-                  <div className={`modern-multiselect ${supplierOpen ? 'open' : ''}`}>
-                    <button
-                      type="button"
-                      className="multiselect-trigger"
-                      disabled={!currentBenefit.productType}
-                      onClick={() => setSupplierOpen(!supplierOpen)}
-                    >
-                      <span className="multiselect-placeholder">{supplierSummary()}</span>
-                      <span className="chevron">▾</span>
-                    </button>
-
-                    {supplierOpen && (
-                      <div className="multiselect-panel">
-                        <div className="multiselect-search">
-                          <input
-                            type="text"
-                            value={supplierSearch}
-                            onChange={(e) => setSupplierSearch(e.target.value)}
-                            placeholder="Search suppliers..."
-                          />
-                        </div>
-                        <div className="multiselect-options">
-                          {(supplierOptions || []).map((s) => (
-                            <label key={s} className="multiselect-option">
-                              <input
-                                type="checkbox"
-                                checked={selectedSuppliers.includes(s)}
-                                onChange={() => toggleSupplier(s)}
-                              />
-                              <span>{s}</span>
-                            </label>
-                          ))}
-                          {supplierOptions.length === 0 && (
-                            <div className="multiselect-empty">No suppliers found</div>
-                          )}
-                        </div>
-                        <div className="multiselect-actions">
-                          <button type="button" className="btn secondary" onClick={clearSuppliers}>Clear</button>
-                          <button type="button" className="btn primary" onClick={() => setSupplierOpen(false)}>Done</button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Redemption Method</label>
-                  <select
-                    value={currentBenefit.redemptionMethod}
-                    onChange={(e) => handleBenefitInputChange('redemptionMethod', e.target.value)}
-                    className="form-input enhanced"
-                  >
-                    <option value="">Select method</option>
-                    {redemptionMethods.map(method => (
-                      <option key={method} value={method}>
-                        {method.charAt(0).toUpperCase() + method.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>Delivery Logic</label>
-                  <div className={`modern-multiselect ${deliveryOpen ? 'open' : ''}`}>
-                    <button
-                      type="button"
-                      className="multiselect-trigger"
-                      disabled={!currentBenefit.productType}
-                      onClick={() => setDeliveryOpen(!deliveryOpen)}
-                    >
-                      <span className="multiselect-placeholder">{deliverySummary()}</span>
-                      <span className="chevron">▾</span>
-                    </button>
-
-                    {deliveryOpen && (
-                      <div className="multiselect-panel">
-                        <div className="multiselect-search">
-                          <input
-                            type="text"
-                            value={deliverySearch}
-                            onChange={(e) => setDeliverySearch(e.target.value)}
-                            placeholder="Search delivery methods..."
-                          />
-                        </div>
-                        <div className="multiselect-options">
-                          {(deliveryOptions || []).map((m) => (
-                            <label key={m} className="multiselect-option">
-                              <input
-                                type="radio"
-                                name="delivery-method"
-                                checked={selectedDelivery.includes(m)}
-                                onChange={() => toggleDelivery(m)}
-                              />
-                              <span>{m}</span>
-                            </label>
-                          ))}
-                          {deliveryOptions.length === 0 && (
-                            <div className="multiselect-empty">No methods found</div>
-                          )}
-                        </div>
-                        <div className="multiselect-actions">
-                          <button type="button" className="btn secondary" onClick={clearDelivery}>Clear</button>
-                          <button type="button" className="btn primary" onClick={() => setDeliveryOpen(false)}>Done</button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Cost to Bank (USD)</label>
-                  <input
-                    type="number"
-                    value={currentBenefit.costToBank}
-                    onChange={(e) => handleBenefitInputChange('costToBank', e.target.value)}
-                    placeholder="Enter cost in USD"
-                    className="form-input enhanced"
-                    min="0"
-                    step="0.01"
-                  />
-                  <small className="field-description">
-                    The cost per customer for this benefit. Used for bundle pricing analysis.
-                  </small>
-                </div>
-
-                <div className="form-group">
-                  <label>Description</label>
-                  <textarea
-                    value={currentBenefit.description}
-                    onChange={(e) => handleBenefitInputChange('description', e.target.value)}
-                    placeholder="Enter benefit description"
-                    className="form-input enhanced"
-                    rows="3"
-                  />
-                </div>
-              </div>
-              
-            </div>
-
-            <div className="benefit-form-actions">
-              <button
-                type="button"
-                className="btn secondary"
-                onClick={() => { setCurrentBenefit({ title: '', type: '', supplier: '', redemptionMethod: '', deliveryLogic: '', redemptionWindowStart: '', redemptionWindowEnd: '', customerUsageLimit: '', inventory: '', costToBank: '', personaEligibilityOverride: '', visibleInUI: false, productType: '', suppliers: [], deliveryMethods: [] }); setSupplierOpen(false); setSupplierSearch(''); setDeliveryOpen(false); setDeliverySearch(''); }}
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                className="btn primary"
-                onClick={() => addBenefit(true)}
-              >
-                Add and continue
-              </button>
-              <button
-                type="button"
-                className="btn primary"
-                onClick={() => { addBenefit(false); setActiveTab('marketplace'); }}
-              >
-                Add and close
-              </button>
-            </div>
-          </div>
-        ) : (
+        {/* Tab Content - temporarily show marketplace only */}
+        {
           <>
             <div className="marketplace-toolbar">
               <div className="toolbar-left">
@@ -523,27 +296,61 @@ function RewardOrchestratorFormStep3({ formData, handleInputChange, handleBenefi
                   <div key={item.id} className={`marketplace-card ${added ? 'added' : ''}`}>
                     <div className="card-header">
                       <div className="card-title">{item.title}</div>
-                      <div className="card-type-chip">{item.type}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+                        <div className="card-type-chip">{item.type}</div>
+                        <div className="card-value">{getPointsForType(item.type)} pt</div>
+                      </div>
                     </div>
                     <div className="card-sub">
                     </div>
                     <p className="marketplace-desc">{item.description}</p>
                     <div className="card-footer">
-                      <button
-                        type="button"
-                        className="btn primary"
-                        disabled={added}
-                        onClick={() => addBenefitFromMarketplace(item)}
-                      >
-                        {added ? 'Added' : 'Add to package'}
-                      </button>
+                      {!added ? (
+                        <button
+                          type="button"
+                          className="btn primary"
+                          onClick={() => addBenefitFromMarketplace(item)}
+                        >
+                          Select
+                        </button>
+                      ) : (
+                        <div className="quantity-controls">
+                          <label style={{ marginRight: 8 }}>Qty/year</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={(formData.benefits.find(b => (b.title||'')===item.title)?.quantity) || 1}
+                            onChange={(e) => {
+                              const b = formData.benefits.find(b => (b.title||'')===item.title);
+                              if (b && updateBenefit) {
+                                let qty = parseInt(e.target.value || '1', 10);
+                                if (!Number.isFinite(qty) || qty < 1) qty = 1;
+                                updateBenefit(b.id, { quantity: qty });
+                              }
+                            }}
+                            className="form-input small enhanced"
+                            style={{ width: 90 }}
+                          />
+                          <button
+                            type="button"
+                            className="btn secondary"
+                            onClick={() => {
+                              const b = formData.benefits.find(b => (b.title||'')===item.title);
+                              if (b) removeBenefit(b.id);
+                            }}
+                            style={{ marginLeft: 8 }}
+                          >
+                            Deselect
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
           </>
-        )}
+        }
       </div>
     </div>
   );

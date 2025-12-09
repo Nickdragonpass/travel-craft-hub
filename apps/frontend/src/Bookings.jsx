@@ -5,12 +5,9 @@ function Bookings() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [filterType, setFilterType] = useState('all');
-  const [filterRewardProgram, setFilterRewardProgram] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
-  const [filterPointsUsed, setFilterPointsUsed] = useState('all');
-  const [filterTripGroup, setFilterTripGroup] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState({});
@@ -97,7 +94,7 @@ function Bookings() {
       transferTime: '06:00',
       vehicleType: 'Luxury Sedan',
       bookingReference: 'LHR-AT-001',
-      totalPrice: '£0.00',
+      totalPrice: '£85.00',
       pointsUsed: '0',
       status: 'Confirmed',
       bookingDate: '2024-02-15',
@@ -107,7 +104,7 @@ function Bookings() {
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
       },
-      payment: { method: 'Entitlement', entitlementsUsed: '1' }
+      payment: { method: 'Entitlement', entitlementsUsed: '1', servicePrice: '£85.00' }
     },
     {
       id: 'BK-AL-001',
@@ -121,7 +118,7 @@ function Bookings() {
       duration: '3 hours',
       guests: 1,
       bookingReference: 'LHR-LG-001',
-      totalPrice: '£0.00',
+      totalPrice: '£45.00',
       pointsUsed: '0',
       status: 'Confirmed',
       bookingDate: '2024-02-15',
@@ -131,7 +128,7 @@ function Bookings() {
         loyaltyTier: 'Gold Member',
         loyaltyNumber: 'BA123456789'
       },
-      payment: { method: 'Entitlement', entitlementsUsed: '1' }
+      payment: { method: 'Entitlement', entitlementsUsed: '1', servicePrice: '£45.00' }
     },
     {
       id: 'BK-ES-001',
@@ -229,7 +226,7 @@ function Bookings() {
         loyaltyTier: 'Silver Member',
         loyaltyNumber: 'BA987654321'
       },
-      payment: { method: 'Credit Card', last4: '5678', amount: '£25.00', pointsUsed: '0' }
+      payment: { method: 'Discount', customerPaid: '£10.00', discountAmount: '£15.00', last4: '5678' }
     },
 
     // Trip 3: Michael Brown's London Business Trip (Flight + Hotel + Event)
@@ -499,7 +496,7 @@ function Bookings() {
       bookingReference: 'AA-LAX-001',
       totalPrice: '£2,500.00',
       pointsUsed: '0',
-      status: 'Failed',
+      status: 'Completed',
       bookingDate: '2024-05-01',
       customer: {
         email: 'thomas.anderson@email.com',
@@ -524,7 +521,7 @@ function Bookings() {
       bookingReference: 'BHH-2024-001',
       totalPrice: '£4,200.00',
       pointsUsed: '0',
-      status: 'Pending action',
+      status: 'Confirmed',
       bookingDate: '2024-05-01',
       customer: {
         email: 'thomas.anderson@email.com',
@@ -548,7 +545,7 @@ function Bookings() {
       bookingReference: 'TS-WEM-001',
       totalPrice: '£350.00',
       pointsUsed: '0',
-      status: 'Failed',
+      status: 'Completed',
       bookingDate: '2024-05-10',
       customer: {
         email: 'maria.garcia@email.com',
@@ -571,7 +568,7 @@ function Bookings() {
       bookingReference: 'ESIM-IT-001',
       totalPrice: '£45.00',
       pointsUsed: '0',
-      status: 'Pending action',
+      status: 'Confirmed',
       bookingDate: '2024-05-15',
       customer: {
         email: 'james.wilson@email.com',
@@ -607,17 +604,17 @@ function Bookings() {
       tripGroups[tripId].bookings.push(booking);
       tripGroups[tripId].totalBookings += 1;
       tripGroups[tripId].totalValue += parseFloat(booking.totalPrice.replace('£', '').replace(',', ''));
-      
-      // Update trip status if any booking has issues
-      if (booking.status === 'Failed' || booking.status === 'Pending action') {
-        tripGroups[tripId].tripStatus = booking.status;
-      }
     });
     
-    // Mark single booking trips
+    // Mark single booking trips and update trip status
     Object.values(tripGroups).forEach(group => {
       if (group.totalBookings === 1) {
         group.isSingleBooking = true;
+      }
+      // If all bookings in trip are completed, trip is completed
+      const allCompleted = group.bookings.every(b => b.status === 'Completed');
+      if (allCompleted && group.bookings.length > 0) {
+        group.tripStatus = 'Completed';
       }
     });
     
@@ -634,11 +631,6 @@ function Bookings() {
       return false;
     }
 
-    // Reward program filter
-    if (filterRewardProgram !== 'all' && booking.rewardProgram.toLowerCase() !== filterRewardProgram.toLowerCase()) {
-      return false;
-    }
-
     // Status filter
     if (filterStatus !== 'all' && booking.status.toLowerCase() !== filterStatus.toLowerCase()) {
       return false;
@@ -649,22 +641,6 @@ function Bookings() {
       return false;
     }
     if (filterDateTo && new Date(booking.bookingDate) > new Date(filterDateTo)) {
-      return false;
-    }
-
-    // Points used filter
-    if (filterPointsUsed === 'with_points' && booking.pointsUsed === '0') {
-      return false;
-    }
-    if (filterPointsUsed === 'no_points' && booking.pointsUsed !== '0') {
-      return false;
-    }
-
-    // Trip group filter
-    if (filterTripGroup === 'multi_trips' && allTripGroups.find(trip => trip.tripId === (booking.tripId || `TRIP-${booking.id}`))?.isSingleBooking) {
-      return false;
-    }
-    if (filterTripGroup === 'single_trips' && !allTripGroups.find(trip => trip.tripId === (booking.tripId || `TRIP-${booking.id}`))?.isSingleBooking) {
       return false;
     }
 
@@ -698,12 +674,9 @@ function Bookings() {
 
   const clearFilters = () => {
     setFilterType('all');
-    setFilterRewardProgram('all');
     setFilterStatus('all');
     setFilterDateFrom('');
     setFilterDateTo('');
-    setFilterPointsUsed('all');
-    setFilterTripGroup('all');
     setSearchTerm('');
   };
 
@@ -734,11 +707,8 @@ function Bookings() {
 
   const activeFiltersCount = [
     filterType !== 'all',
-    filterRewardProgram !== 'all',
     filterStatus !== 'all',
     filterDateFrom || filterDateTo,
-    filterPointsUsed !== 'all',
-    filterTripGroup !== 'all',
     searchTerm
   ].filter(Boolean).length;
 
@@ -773,7 +743,7 @@ function Bookings() {
         <div className="filters-panel">
           <div className="filters-grid">
             <div className="filter-group">
-              <label className="filter-label">Booking Type</label>
+              <label className="filter-label">Order Type</label>
               <select 
                 value={filterType} 
                 onChange={(e) => setFilterType(e.target.value)}
@@ -791,20 +761,6 @@ function Bookings() {
             </div>
 
             <div className="filter-group">
-              <label className="filter-label">Reward Program</label>
-              <select 
-                value={filterRewardProgram} 
-                onChange={(e) => setFilterRewardProgram(e.target.value)}
-                className="modern-select"
-              >
-                <option value="all">All Programs</option>
-                <option value="platinum member">👑 Platinum Member</option>
-                <option value="gold member">🥇 Gold Member</option>
-                <option value="silver member">🥈 Silver Member</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
               <label className="filter-label">Status</label>
               <select 
                 value={filterStatus} 
@@ -813,14 +769,12 @@ function Bookings() {
               >
                 <option value="all">All Statuses</option>
                 <option value="confirmed">Confirmed</option>
-                <option value="failed">Failed</option>
-                <option value="pending action">Pending action</option>
                 <option value="completed">Completed</option>
               </select>
             </div>
 
             <div className="filter-group">
-              <label className="filter-label">Booking Date Range</label>
+              <label className="filter-label">Order Date Range</label>
               <div className="date-range">
                 <input
                   type="date"
@@ -840,64 +794,37 @@ function Bookings() {
               </div>
             </div>
 
-            <div className="filter-group">
-              <label className="filter-label">Points Usage</label>
-              <select 
-                value={filterPointsUsed} 
-                onChange={(e) => setFilterPointsUsed(e.target.value)}
-                className="modern-select"
-              >
-                <option value="all">All Bookings</option>
-                <option value="with_points">Used Points</option>
-                <option value="no_points">No Points Used</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label className="filter-label">Trip Grouping</label>
-              <select 
-                value={filterTripGroup} 
-                onChange={(e) => setFilterTripGroup(e.target.value)}
-                className="modern-select"
-              >
-                <option value="all">All Trips</option>
-                <option value="multi_trips">Multi-Booking Trips</option>
-                <option value="single_trips">Single-Booking Trips</option>
-              </select>
-            </div>
           </div>
         </div>
       )}
 
 
 
-      {/* Bookings Table */}
+      {/* Orders Table */}
       <div className="bookings-table-container">
         <table className="bookings-table">
           <thead>
             <tr>
-              {/* New column for flag icon */}
-              <th></th>
               <th>Trip ID</th>
-              <th>Booking ID</th>
+              <th>Order ID</th>
               <th>Customer Name</th>
-              <th>Reward Program</th>
               <th>Type</th>
               <th>Service Date</th>
+              <th>Benefit Type</th>
               <th>Total Price</th>
-              <th>Cash Paid</th>
-              <th>Points Used</th>
+              <th>Customer Purchase</th>
+              <th>Funded Cost</th>
               <th>Status</th>
               <th>Details</th>
             </tr>
           </thead>
           <tbody>
-                         {tripGroups.map(tripGroup => (
+            {tripGroups.map(tripGroup => (
                <React.Fragment key={tripGroup.tripId}>
                  {/* Trip Header Row */}
                  {(
                    <tr className="trip-header-row">
-                     <td colSpan="11" className="trip-header">
+                     <td colSpan="10" className="trip-header">
                        <div className="trip-header-content">
                          <div className="trip-info">
                            <button 
@@ -930,14 +857,6 @@ function Bookings() {
                  {/* Collapsed Trip Summary Row */}
                  {collapsedTrips[tripGroup.tripId] && (
                    <tr className="trip-collapsed-row">
-                     <td className="flag-cell">
-                       {tripGroup.tripStatus === 'Failed' && (
-                         <span className="flag-icon" title="Trip has failed bookings">🚩</span>
-                       )}
-                       {tripGroup.tripStatus === 'Pending action' && (
-                         <span className="flag-icon" title="Trip has pending bookings">🚩</span>
-                       )}
-                     </td>
                      <td className="trip-id-cell">
                        <span className="trip-indicator">🔗</span>
                      </td>
@@ -948,9 +867,6 @@ function Bookings() {
                      <td className="customer-name">
                        {tripGroup.customerName}
                      </td>
-                     <td className="reward-program">
-                       {tripGroup.bookings[0]?.rewardProgram || ''}
-                     </td>
                      <td className="booking-type">
                        <span className="type-icon">🌍</span>
                        <span className="type-text">Trip ({tripGroup.totalBookings} bookings)</span>
@@ -958,19 +874,39 @@ function Bookings() {
                      <td className="booking-date">
                        {tripGroup.bookings[0]?.departureDate || tripGroup.bookings[0]?.checkIn || tripGroup.bookings[0]?.eventDate || 'Multiple'}
                      </td>
+                     <td className="benefit-type">
+                       {tripGroup.bookings.map(booking => {
+                         if (booking.payment.method === 'Entitlement') {
+                           return 'Entitlement';
+                         } else if (booking.payment.method === 'Points') {
+                           return 'Points';
+                         } else if (booking.payment.method === 'Points + Cash' && booking.pointsUsed !== '0') {
+                           return 'Points';
+                         } else if (booking.payment.method === 'Discount') {
+                           return 'Discount';
+                         }
+                         return null;
+                       }).filter((value, index, self) => self.indexOf(value) === index).filter(Boolean).join(', ') || '-'}
+                     </td>
                      <td className="total-price">
                        £{tripGroup.totalValue.toLocaleString()}
                      </td>
                      <td className="cash-paid">
                        £{tripGroup.bookings.reduce((sum, booking) => {
-                         const cash = booking.payment.method === 'Points' ? 0 : 
+                         const cash = booking.payment.method === 'Credit Card' ? parseFloat(booking.totalPrice.replace('£', '').replace(',', '')) :
                                     booking.payment.method === 'Points + Cash' ? parseFloat(booking.payment.cash.replace('£', '').replace(',', '')) :
-                                    parseFloat(booking.totalPrice.replace('£', '').replace(',', ''));
+                                    booking.payment.method === 'Discount' ? parseFloat(booking.payment.customerPaid.replace('£', '').replace(',', '')) :
+                                    0;
                          return sum + cash;
                        }, 0).toLocaleString()}
                      </td>
-                     <td className="points-used">
-                       {tripGroup.bookings.reduce((sum, booking) => sum + parseInt(booking.pointsUsed.replace(',', '') || '0'), 0).toLocaleString()}
+                     <td className="funded-cost">
+                       £{tripGroup.bookings.reduce((sum, booking) => {
+                         const funded = booking.payment.method === 'Entitlement' ? parseFloat(booking.totalPrice.replace('£', '').replace(',', '')) :
+                                      booking.payment.method === 'Discount' ? parseFloat(booking.payment.discountAmount.replace('£', '').replace(',', '')) :
+                                      0;
+                         return sum + funded;
+                       }, 0).toLocaleString()}
                      </td>
                      <td className="booking-status">
                        <span className={`status-badge ${getStatusColor(tripGroup.tripStatus)}`}>
@@ -992,14 +928,6 @@ function Bookings() {
                  {!collapsedTrips[tripGroup.tripId] && 
                    tripGroup.bookings.map((booking, index) => (
                    <tr key={booking.id} className="booking-row trip-booking">
-                <td className="flag-cell">
-                  {booking.status === 'Failed' && (
-                    <span className="flag-icon" title="Booking failed - requires immediate attention">🚩</span>
-                  )}
-                  {booking.status === 'Pending action' && (
-                    <span className="flag-icon" title="Action required - booking needs attention">🚩</span>
-                  )}
-                </td>
                      <td className="trip-id-cell">
                        <span className="trip-indicator">🔗</span>
                      </td>
@@ -1009,9 +937,6 @@ function Bookings() {
                 </td>
                 <td className="customer-name">
                   {booking.customerName}
-                </td>
-                <td className="reward-program">
-                  {booking.rewardProgram}
                 </td>
                 <td className="booking-type">
                   <span className="type-icon">{getBookingTypeIcon(booking.bookingType)}</span>
@@ -1026,16 +951,28 @@ function Bookings() {
                   {booking.bookingType === 'Fast Track' && booking.serviceDate}
                   {booking.bookingType === 'Airport Lounge' && booking.accessDate}
                 </td>
+                <td className="benefit-type">
+                  {booking.payment.method === 'Entitlement' ? 'Entitlement' :
+                   booking.payment.method === 'Points' ? 'Points' :
+                   booking.payment.method === 'Points + Cash' && booking.pointsUsed !== '0' ? 'Points' :
+                   booking.payment.method === 'Discount' ? 'Discount' :
+                   '-'}
+                </td>
                 <td className="total-price">
                   {booking.totalPrice}
                 </td>
                 <td className="cash-paid">
-                  {booking.payment.method === 'Points' ? '-' :
+                  {booking.payment.method === 'Credit Card' ? booking.totalPrice :
                    booking.payment.method === 'Points + Cash' ? booking.payment.cash :
-                   booking.totalPrice}
+                   booking.payment.method === 'Discount' ? booking.payment.customerPaid :
+                   '-'}
                 </td>
-                <td className="points-used">
-                  {booking.pointsUsed === '0' ? '-' : booking.pointsUsed}
+                <td className="funded-cost">
+                  {booking.payment.method === 'Entitlement' ? booking.totalPrice :
+                   booking.payment.method === 'Points' ? '-' :
+                   booking.payment.method === 'Points + Cash' && booking.pointsUsed !== '0' ? '-' :
+                   booking.payment.method === 'Discount' ? booking.payment.discountAmount :
+                   '-'}
                 </td>
                 <td className="booking-status">
                   <span className={`status-badge ${getStatusColor(booking.status)}`}>
@@ -1074,12 +1011,6 @@ function Bookings() {
                     <span className={`status-badge ${getStatusColor(selectedBooking.status)}`}>
                       {selectedBooking.status}
                     </span>
-                    {selectedBooking.status === 'Failed' && (
-                      <span className="flag-icon" title="Booking failed - requires immediate attention">🚩</span>
-                    )}
-                    {selectedBooking.status === 'Pending action' && (
-                      <span className="flag-icon" title="Action required - booking needs attention">🚩</span>
-                    )}
                   </div>
                 </div>
                 <button className="modal-close" onClick={closeModal}>×</button>

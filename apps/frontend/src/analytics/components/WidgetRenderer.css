@@ -1,0 +1,138 @@
+.widget-renderer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  color: var(--brand-text-secondary);
+}
+
+.widget-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--brand-bg);
+  border-top-color: var(--brand-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.widget-renderer-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  padding: 20px;
+  color: var(--brand-text-secondary);
+  text-align: center;
+}
+
+.widget-chart-container {
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+}
+
+.widget-table-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.widget-table-container .table-wrapper {
+  width: 100%;
+}
+
+.widget-table-container .analytics-table {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.widget-table-container .analytics-table th {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.widget-table-container .analytics-table td {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+/* Make widgets in custom dashboard smaller/compact */
+.dashboard-widget .metric-card {
+  padding: 16px;
+  min-height: auto;
+}
+
+.dashboard-widget .widget-chart-container {
+  min-height: 200px;
+  padding: 8px;
+}
+
+/* Funnel styles for engagement funnel widget */
+.funnel-container {
+  padding: 20px;
+}
+
+.funnel-stage {
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.funnel-bar {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, #2d3748 100%);
+  padding: 16px 24px;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.funnel-bar:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(26, 34, 51, 0.3);
+}
+
+.funnel-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: var(--brand-accent);
+  border-radius: 0 4px 4px 0;
+}
+
+.funnel-label {
+  font-weight: 600;
+  font-size: 1rem;
+  flex: 1;
+}
+
+.funnel-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 16px;
+}
+
+.funnel-percentage {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+

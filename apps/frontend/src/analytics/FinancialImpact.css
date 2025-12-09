@@ -1,0 +1,49 @@
+.financial-impact {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gauge-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.gauge {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8px solid #e5e7eb;
+}
+
+.gauge-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  border-radius: 0 0 100px 100px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  z-index: 10;
+}
+

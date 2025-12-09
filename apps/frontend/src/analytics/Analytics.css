@@ -1,0 +1,152 @@
+.analytics-page {
+  padding: 24px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.analytics-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.analytics-header-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+}
+
+.analytics-page .page-title {
+  margin-bottom: 8px;
+}
+
+.analytics-page .page-subtitle {
+  margin-bottom: 0;
+}
+
+.analytics-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--brand-muted);
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.analytics-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--brand-footer-light);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+}
+
+.analytics-tab-btn:hover {
+  background: var(--brand-bg);
+  color: var(--brand-primary);
+  border-bottom-color: var(--brand-muted);
+}
+
+.analytics-tab-btn.active {
+  background: var(--brand-white);
+  color: var(--brand-accent);
+  border-bottom-color: var(--brand-accent);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tab-icon {
+  font-size: 1.2rem;
+}
+
+.tab-text {
+  font-weight: 600;
+}
+
+.analytics-tab-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--brand-white);
+  border-radius: 16px;
+  border: 1px solid var(--brand-card-border);
+}
+
+.tab-placeholder h2 {
+  margin: 0 0 12px 0;
+  color: var(--brand-primary);
+  font-size: 1.5rem;
+}
+
+.tab-placeholder p {
+  margin: 0;
+  color: var(--brand-text-secondary);
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 16px;
+  }
+
+  .analytics-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .analytics-header-actions {
+    width: 100%;
+  }
+
+  .analytics-header-actions .filter-bar-simplified {
+    width: 100%;
+  }
+
+  .analytics-header-actions .filter-group {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .analytics-tabs {
+    gap: 4px;
+  }
+
+  .analytics-tab-btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .tab-icon {
+    font-size: 1rem;
+  }
+}
+

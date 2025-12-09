@@ -1,0 +1,99 @@
+.table-header-with-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.table-header-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table-header-icon {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.table-header-with-tooltip:hover .table-header-icon {
+  opacity: 1;
+}
+
+.table-header-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--brand-white);
+  border: 1px solid var(--brand-card-border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  width: 320px;
+  z-index: 1000;
+  animation: tooltipFadeIn 0.2s ease-out;
+  pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.table-header-tooltip .tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--brand-muted);
+}
+
+.table-header-tooltip .tooltip-header strong {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+.table-header-tooltip .tooltip-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.table-header-tooltip .tooltip-body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--brand-dark);
+}
+
+.table-header-tooltip .tooltip-arrow {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--brand-white);
+}
+
+@media (max-width: 768px) {
+  .table-header-tooltip {
+    width: 280px;
+    left: 0;
+    transform: none;
+  }
+
+  .table-header-tooltip .tooltip-arrow {
+    left: 20px;
+    transform: none;
+  }
+}
+

@@ -1,0 +1,61 @@
+.analytics-chart-container {
+  background: var(--brand-white);
+  border: 1px solid var(--brand-card-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--brand-card-shadow);
+  margin-bottom: 24px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--brand-muted);
+}
+
+.chart-header-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+.chart-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--brand-text-secondary);
+}
+
+.chart-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.chart-content {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-placeholder {
+  color: var(--brand-text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 40px;
+}
+
+@media (max-width: 768px) {
+  .chart-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chart-content {
+    min-height: 250px;
+  }
+}
+

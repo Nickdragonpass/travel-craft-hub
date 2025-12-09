@@ -8,21 +8,21 @@ function BookingManagement() {
 
   return (
     <div className="booking-management-page">
-      <h1 className="page-title">Booking Management</h1>
-      <p className="page-subtitle">Manage all customer bookings and handle urgent booking actions</p>
+      <h1 className="page-title">Order Management</h1>
+      <p className="page-subtitle">View and manage all customer orders</p>
       
       <div className="booking-tabs">
         <button 
           className={`tab-btn ${activeTab === 'bookings' ? 'active' : ''}`}
           onClick={() => setActiveTab('bookings')}
         >
-          📋 Bookings
+          📋 Orders
         </button>
         <button 
           className={`tab-btn ${activeTab === 'action-center' ? 'active' : ''}`}
           onClick={() => setActiveTab('action-center')}
         >
-          ⚡ Action Center
+          ⚡ Action Center (Not in MVP)
         </button>
       </div>
 

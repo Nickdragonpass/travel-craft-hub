@@ -43,153 +43,107 @@ function RewardOrchestratorFormStep4({ formData, personaOptions, productOptions,
   const targetProducts = safeArray(formData?.targetProducts);
   const benefits = safeArray(formData?.benefits);
   const reportingTags = safeArray(formData?.reportingTags || formData?.tags);
+  const targetContinents = safeArray(formData?.targetContinents);
+  const targetCountries = safeArray(formData?.targetCountries);
+  const targetRegionsCities = safeArray(formData?.targetRegionsCities);
+
+  // Package summary calculations
+  const POINT_VALUE_GBP = 30;
+  const budget = parseFloat(formData?.allocationBudget || 0);
+  const audience = parseFloat(formData?.allocationEntitlements || 0);
+  const pointsPerType = formData?.pointsPerBenefitType || {};
+  const getUnitCost = (b) => {
+    const pts = Number(pointsPerType[b?.type]);
+    if (Number.isFinite(pts)) return Math.round(pts * POINT_VALUE_GBP);
+    // fallback minimal
+    return 0;
+  };
+  const costPerCustomer = benefits.reduce((sum, b) => {
+    const qty = Number.isFinite(b?.quantity) ? b.quantity : 1;
+    const unit = Number.isFinite(b?.costToBank) ? b.costToBank : getUnitCost(b);
+    return sum + unit * qty;
+  }, 0);
+  const totalCost = audience > 0 ? Math.round(costPerCustomer * audience) : 0;
 
   return (
     <div className="form-step">
-      <div className="step-header">
-        <h3>Review & Launch</h3>
-        <p>Review all details and launch your program</p>
-      </div>
       
       <div className="review-section">
-        <div className={`review-card ${openSections.info ? 'expanded' : 'collapsed'}`}>
-          <div className="review-card-header" onClick={() => toggle('info')} role="button">
-            <h4><span className="section-icon">ℹ️</span> Program Information</h4>
-            <span className="chevron">{openSections.info ? '−' : '+'}</span>
+        {/* Package Summary (single confirmation card) */}
+        <div className={`review-card expanded`} style={{ border: '1px solid var(--brand-card-border)', borderRadius: 12 }}>
+          <div className="review-card-header" style={{ background: '#f8fafc' }}>
+            <h4 style={{ color: 'var(--brand-primary)' }}><span className="section-icon">📦</span> Package Summary</h4>
           </div>
-          {openSections.info && (
-            <div className="review-card-body">
-              <div className="summary-row">
-                <div className="summary-title">{formData?.programName || 'Untitled Program'}</div>
-                <div className="summary-badges">
-                  <span className="chip chip-outline">{benefits.length} benefits</span>
-                  <span className="chip chip-outline">{targetPersonas.length} personas</span>
-                  <span className="chip chip-outline">{targetProducts.length} products</span>
-                  <span className="status-badge" style={{ backgroundColor: 'rgba(26,34,51,0.08)', color: 'var(--brand-primary)', border: '1px solid rgba(26,34,51,0.18)' }}>{formData?.status || 'Draft'}</span>
+          <div className="review-card-body" style={{ paddingTop: 12 }}>
+              {/* Headline + stats strip */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--brand-primary)' }}>{formData?.programName || 'Untitled Program'}</div>
+                  {formData?.description && (
+                    <div style={{ color: 'var(--brand-text-secondary)', marginTop: 6 }}>{formData.description}</div>
+                  )}
                 </div>
-              </div>
-              <div className="review-item">
-                <span className="review-label">Description:</span>
-                <span className="review-value">{formData?.description || 'Not set'}</span>
-              </div>
-              <div className="review-item">
-                <span className="review-label">Dates:</span>
-                <span className="review-value">{formatDate(formData?.startDate)} — {formatDate(formData?.endDate)}</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className={`review-card ${openSections.targeting ? 'expanded' : 'collapsed'}`}>
-          <div className="review-card-header" onClick={() => toggle('targeting')} role="button">
-            <h4><span className="section-icon">🎯</span> Targeting & Eligibility</h4>
-            <span className="chevron">{openSections.targeting ? '−' : '+'}</span>
-          </div>
-          {openSections.targeting && (
-            <div className="review-card-body">
-              <div className="summary-row" style={{ marginBottom: 12 }}>
-                <div className="summary-title">Audience Overview</div>
-                <div className="summary-badges">
-                  <span className="chip chip-outline">{targetPersonas.length} personas</span>
-                  <span className="chip chip-outline">{targetProducts.length} products</span>
-                  <span className="chip chip-outline">{eligibility.reduce((n,c)=>n + c.rules.length, 0)} rules</span>
-                </div>
-              </div>
-              <div className="chips-group">
-                <div className="chips-block">
-                  <div className="chips-label">Target Personas</div>
-                  <div className="chips">
-                    {targetPersonas.length > 0 ? (
-                      targetPersonas.map(p => (<span key={p} className="chip chip-outline">{p}</span>))
-                    ) : (
-                      <span className="chip chip-muted">None selected</span>
-                    )}
-                  </div>
-                </div>
-                <div className="chips-block">
-                  <div className="chips-label">Target Products</div>
-                  <div className="chips">
-                    {targetProducts.length > 0 ? (
-                      targetProducts.map(p => (<span key={p} className="chip chip-outline">{p}</span>))
-                    ) : (
-                      <span className="chip chip-muted">None selected</span>
-                    )}
-                  </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, auto)', gap: 10 }}>
+                  <div className="chip chip-outline">Audience: {audience || '—'}</div>
+                  <div className="chip chip-outline">Budget: {budget ? `£${budget.toLocaleString()}` : '—'}</div>
+                  <div className="chip chip-outline">Cost/Customer: £{Math.round(costPerCustomer)}</div>
+                  <div className="chip chip-outline">Total: {totalCost ? `£${totalCost.toLocaleString()}` : '—'}</div>
                 </div>
               </div>
 
-              {eligibility.length > 0 && (
-                <div className="eligibility-review-section">
-                  <h5>Eligibility Rules</h5>
-                  {eligibility.map((category, index) => (
-                    <div key={index} className="eligibility-review-category">
-                      <h5>{category.category}</h5>
-                      {category.rules.map((rule, ruleIndex) => (
-                        <div key={ruleIndex} className="eligibility-rule-review">
-                          <span className="rule-field">• {rule}</span>
-                        </div>
+              {/* Content grid: targeting (left) and benefits (right) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 20 }}>
+                {/* Targeting */}
+                <div style={{ background: '#ffffff', border: '1px solid var(--brand-card-border)', borderRadius: 12, padding: 14 }}>
+                  <div style={{ fontWeight: 700, marginBottom: 8, color: 'var(--brand-primary)' }}>Who you’re targeting</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+                    <div>
+                      <div className="chips-label">Personas</div>
+                      <div className="chips">
+                        {targetPersonas.length ? targetPersonas.map(p => (<span key={p} className="chip chip-outline">{p}</span>)) : <span className="chip chip-muted">None</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="chips-label">Products</div>
+                      <div className="chips">
+                        {targetProducts.length ? targetProducts.map(p => (<span key={p} className="chip chip-outline">{p}</span>)) : <span className="chip chip-muted">None</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="chips-label">Geography</div>
+                      <div className="chips">
+                        {[...targetContinents, ...targetCountries, ...targetRegionsCities].length ? (
+                          [...targetContinents, ...targetCountries, ...targetRegionsCities].map(g => (<span key={g} className="chip chip-outline">{g}</span>))
+                        ) : (
+                          <span className="chip chip-muted">None</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Benefits */}
+                <div style={{ background: '#ffffff', border: '1px solid var(--brand-card-border)', borderRadius: 12, padding: 14 }}>
+                  <div style={{ fontWeight: 700, marginBottom: 8, color: 'var(--brand-primary)' }}>Included benefits (per customer)</div>
+                  {benefits.length ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 10, alignItems: 'center' }}>
+                      <div style={{ fontSize: 12, color: 'var(--brand-text-secondary)' }}>Benefit</div>
+                      <div style={{ fontSize: 12, color: 'var(--brand-text-secondary)', textAlign: 'right' }}>Qty</div>
+                      <div style={{ fontSize: 12, color: 'var(--brand-text-secondary)', textAlign: 'right' }}>Unit £</div>
+                      {benefits.map(b => (
+                        <React.Fragment key={b.id}>
+                          <div style={{ fontWeight: 600 }}>{b.title || b.name}</div>
+                          <div style={{ textAlign: 'right' }}>{Number.isFinite(b?.quantity) ? b.quantity : 1}</div>
+                          <div style={{ textAlign: 'right' }}>£{Number.isFinite(b?.costToBank) ? Math.round(b.costToBank) : Math.round(getUnitCost(b))}</div>
+                        </React.Fragment>
                       ))}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className={`review-card ${openSections.benefits ? 'expanded' : 'collapsed'}`}>
-          <div className="review-card-header" onClick={() => toggle('benefits')} role="button">
-            <h4><span className="section-icon">🎁</span> Benefits & Rewards</h4>
-            <span className="chevron">{openSections.benefits ? '−' : '+'}</span>
-          </div>
-          {openSections.benefits && (
-            <div className="review-card-body">
-              {benefits.length > 0 ? (
-                <div className="benefit-tiles">
-                  {benefits.map((benefit) => (
-                    <div key={benefit.id} className="benefit-tile">
-                      <div className="benefit-header">
-                        <div className="benefit-title">{benefit.title || benefit.name}</div>
-                        {benefit.type && <span className="chip chip-accent">{benefit.type}</span>}
-                      </div>
-                      <div className="benefit-meta">
-                        {benefit.supplier && <span className="meta-item">Supplier: <strong>{benefit.supplier}</strong></span>}
-                        {(benefit.deliveryLogic || (benefit.deliveryMethods && benefit.deliveryMethods[0])) && (
-                          <span className="meta-item">Delivery: <strong>{benefit.deliveryLogic || benefit.deliveryMethods[0]}</strong></span>
-                        )}
-                        {benefit.redemptionMethod && <span className="meta-item">Redemption: <strong>{benefit.redemptionMethod}</strong></span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="no-benefits">
-                  <p>No benefits added yet</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className={`review-card ${openSections.additional ? 'expanded' : 'collapsed'}`}>
-          <div className="review-card-header" onClick={() => toggle('additional')} role="button">
-            <h4><span className="section-icon">📝</span> Additional Information</h4>
-            <span className="chevron">{openSections.additional ? '−' : '+'}</span>
-          </div>
-          {openSections.additional && (
-            <div className="review-card-body">
-              <div className="chips-block">
-                <div className="chips-label">Reporting Tags</div>
-                <div className="chips">
-                  {reportingTags.length > 0 ? (
-                    reportingTags.map(t => (<span key={t} className="chip chip-outline">{t}</span>))
                   ) : (
-                    <span className="chip chip-muted">None added</span>
+                    <div className="no-benefits"><p>No benefits added</p></div>
                   )}
                 </div>
               </div>
             </div>
-          )}
         </div>
       </div>
     </div>

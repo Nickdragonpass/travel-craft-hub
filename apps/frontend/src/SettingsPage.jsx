@@ -40,6 +40,25 @@ function SettingsPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingChange, setPendingChange] = useState(null);
 
+  // Permissions & client info state
+  const [teamMembers, setTeamMembers] = useState([
+    { id: 1, name: 'Sophie Liang', email: 'sophie@partner.com', role: 'Admin', canInvite: true },
+    { id: 2, name: 'Marcus Grey', email: 'marcus@partner.com', role: 'Manager', canInvite: true },
+    { id: 3, name: 'Emily Hart', email: 'emily@partner.com', role: 'Viewer', canInvite: false }
+  ]);
+  const [newMember, setNewMember] = useState({ name: '', email: '', role: 'Viewer' });
+  const [clientInfo, setClientInfo] = useState({
+    organizationName: 'DragonPass Partner',
+    clientId: 'DP-4581-GB',
+    contactEmail: 'ops@partner.com',
+    phoneNumber: '+44 20 7946 0100',
+    primaryRegion: 'EMEA',
+    accountManager: 'Hannah Patel',
+    accountTier: 'Enterprise',
+    renewalDate: '2026-03-31',
+    notes: 'Enterprise travel programme with premium lounge focus.'
+  });
+
   // Usage Stats (mock data)
   const usageStats = {
     conciergeBookings: 1247,
@@ -120,6 +139,39 @@ function SettingsPage() {
     setPendingChange(null);
   };
 
+  const updateMemberRole = (memberId, role) => {
+    const canInvite = role !== 'Viewer';
+    setTeamMembers(prev =>
+      prev.map(member => (member.id === memberId ? { ...member, role, canInvite } : member))
+    );
+  };
+
+  const handleInviteInputChange = (field, value) => {
+    setNewMember(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleInviteSubmit = (event) => {
+    event.preventDefault();
+    if (!newMember.name.trim() || !newMember.email.trim()) {
+      return;
+    }
+    const canInvite = newMember.role !== 'Viewer';
+    setTeamMembers(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: newMember.name.trim(),
+        email: newMember.email.trim(),
+        role: newMember.role,
+        canInvite
+      }
+    ]);
+    setNewMember({ name: '', email: '', role: 'Viewer' });
+  };
+
+  const handleClientInfoChange = (field, value) => {
+    setClientInfo(prev => ({ ...prev, [field]: value }));
+  };
   const cancelChange = () => {
     setShowReviewModal(false);
     setShowConfirmModal(false);
@@ -129,10 +181,12 @@ function SettingsPage() {
 
 
   const tabs = [
-    { id: 'products', label: 'Products', icon: '🚀', description: 'Manage your live products' },
-    { id: 'middleware', label: 'Components', icon: '🔧', description: 'System middleware packages' },
-    { id: 'categories', label: 'Categories', icon: '📂', description: 'Travel & lifestyle offerings' },
-    { id: 'general', label: 'General', icon: '⚙️', description: 'Branding & customization' }
+    { id: 'products', label: 'Products (Not MVP)', icon: '🚀' },
+    { id: 'middleware', label: 'Components (Not MVP)', icon: '🔧' },
+    { id: 'categories', label: 'Categories (Not MVP)', icon: '📂' },
+    // { id: 'localization', label: 'Localization', icon: '🌍' }, // Temporarily hidden
+    { id: 'permissions', label: 'Team', icon: '🛡️' },
+    { id: 'general', label: 'General', icon: '⚙️' }
   ];
 
   const productDetails = {
@@ -312,157 +366,229 @@ function SettingsPage() {
               <h2>📂 Category Management</h2>
               <p>Configure which travel and lifestyle categories to offer across your products.</p>
             </div>
-            
-            <div className="categories-section">
-              <h3>Available Categories</h3>
-              <div className="enhanced-categories-grid">
-                {Object.entries(globalCategories).map(([key, enabled]) => {
-                  const details = categoryDetails[key];
-                  return (
-                    <label key={key} className="enhanced-category-item">
-                      <input
-                        type="checkbox"
-                        checked={enabled}
-                        onChange={() => handleCategoryToggle(key)}
-                      />
-                      <div className="category-content">
-                        <div className="category-icon">{details.icon}</div>
-                        <div className="category-info">
-                          <span className="category-name">{details.name}</span>
-                          <span className="category-desc">{details.description}</span>
-                        </div>
+            <div className="enhanced-middleware-grid">
+              {Object.entries(globalCategories).map(([key, enabled]) => {
+                const details = categoryDetails[key];
+                return (
+                  <label key={key} className="enhanced-category-item">
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={() => handleCategoryToggle(key)}
+                    />
+                    <div className="category-content">
+                      <div className="category-icon">{details.icon}</div>
+                      <div className="category-info">
+                        <span className="category-name">{details.name}</span>
+                        <span className="category-desc">{details.description}</span>
                       </div>
-                    </label>
-                  );
-                })}
-              </div>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </div>
         );
 
+      // case 'localization':
+      //   return (
+      //     <div className="tab-content">
+      //       <div className="tab-header">
+      //         <h2>🌍 Localization</h2>
+      //         <p>Set the default language and currency used throughout your client experience.</p>
+      //       </div>
+      //       <div className="enhanced-settings-grid">
+      //         <div className="settings-card">
+      //           <div className="settings-card-header">
+      //             <div className="settings-icon">🌐</div>
+      //             <h3>Localization Defaults</h3>
+      //           </div>
+      //           <div className="settings-card-content">
+      //             <div className="setting-item">
+      //               <label className="setting-label">Default Language</label>
+      //               <select className="form-select">
+      //                 <option value="en">English</option>
+      //                 <option value="es">Spanish</option>
+      //                 <option value="fr">French</option>
+      //                 <option value="de">German</option>
+      //               </select>
+      //             </div>
+      //             <div className="setting-item">
+      //               <label className="setting-label">Default Currency</label>
+      //               <select className="form-select">
+      //                 <option value="GBP">British Pound (£)</option>
+      //                 <option value="USD">US Dollar ($)</option>
+      //                 <option value="EUR">Euro (€)</option>
+      //               </select>
+      //             </div>
+      //             <p className="setting-description">Changing these defaults will update your booking journeys and all client-facing collateral.</p>
+      //           </div>
+      //         </div>
+      //       </div>
+      //     </div>
+      //   );
+
+      case 'permissions': {
+        const totalMembers = teamMembers.length;
+        const adminCount = teamMembers.filter(member => member.role === 'Admin').length;
+        const inviteEnabled = teamMembers.filter(member => member.role !== 'Viewer').length;
+        return (
+          <div className="tab-content">
+            <div className="tab-header">
+              <h2>🛡️ Team & Permissions</h2>
+              <p>Control who can access the platform, manage roles, and invite new team members.</p>
+            </div>
+            <div className="enhanced-middleware-grid">
+              <div className="settings-card" style={{ gridColumn: '1 / -1' }}>
+                <div className="settings-card-header">
+                  <div className="settings-icon">👥</div>
+                  <h3>Manage Permissions</h3>
+                </div>
+                <div className="settings-card-content">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
+                    <div style={{ flex: '1 1 140px', padding: '12px 16px', borderRadius: '12px', background: 'var(--brand-white)', border: '1px solid var(--brand-card-border)' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--brand-text-secondary)' }}>Team members</span>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{totalMembers}</div>
+                    </div>
+                    <div style={{ flex: '1 1 140px', padding: '12px 16px', borderRadius: '12px', background: 'var(--brand-white)', border: '1px solid var(--brand-card-border)' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--brand-text-secondary)' }}>Admins</span>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{adminCount}</div>
+                    </div>
+                    <div style={{ flex: '1 1 140px', padding: '12px 16px', borderRadius: '12px', background: 'var(--brand-white)', border: '1px solid var(--brand-card-border)' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--brand-text-secondary)' }}>Invite rights</span>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{inviteEnabled}</div>
+                    </div>
+                  </div>
+                  <div className="permissions-list">
+                    {teamMembers.map(member => {
+                      const initials = member.name
+                        .split(' ')
+                        .map(part => part[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase();
+                      return (
+                        <div key={member.id} className="permission-member">
+                          <div className="member-info-block">
+                            <div className="member-avatar">{initials}</div>
+                            <div className="member-info">
+                              <strong>{member.name}</strong>
+                              <span className="member-email">{member.email}</span>
+                              <div className="member-badges">
+                                <span className="member-badge role">{member.role}</span>
+                                <span className={`member-badge invite ${member.canInvite ? 'active' : ''}`}>
+                                  {member.canInvite ? 'Can invite' : 'View only'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="member-controls">
+                            <div className="control-group">
+                              <span className="control-label">Role</span>
+                              <select
+                                value={member.role}
+                                onChange={(event) => updateMemberRole(member.id, event.target.value)}
+                                className="form-select member-role-select"
+                              >
+                                <option value="Admin">Admin</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Viewer">Viewer</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <form className="invite-form" onSubmit={handleInviteSubmit} style={{ marginTop: '24px', borderTop: '1px dashed var(--brand-card-border)', paddingTop: '20px' }}>
+                    <h4>Invite a team member</h4>
+                    <div className="form-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+                      <input
+                        type="text"
+                        placeholder="Full name"
+                        value={newMember.name}
+                        onChange={(event) => handleInviteInputChange('name', event.target.value)}
+                      />
+                      <input
+                        type="email"
+                        placeholder="Email address"
+                        value={newMember.email}
+                        onChange={(event) => handleInviteInputChange('email', event.target.value)}
+                      />
+                      <select
+                        value={newMember.role}
+                        onChange={(event) => handleInviteInputChange('role', event.target.value)}
+                        className="form-select compact"
+                      >
+                        <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Viewer">Viewer</option>
+                      </select>
+                      <button className="btn-primary" type="submit" style={{ width: '100%' }}>Send Invite</button>
+                    </div>
+                    <p className="setting-description">Invited users receive a branded onboarding email with temporary credentials.</p>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
 
       case 'general':
         return (
           <div className="tab-content">
             <div className="tab-header">
               <h2>⚙️ General Settings</h2>
-              <p>Customize your branding, appearance, and system preferences.</p>
+              <p>Customize your branding and client account profile.</p>
             </div>
-            <div className="enhanced-settings-grid">
+            <div className="enhanced-middleware-grid">
               <div className="settings-card">
                 <div className="settings-card-header">
-                  <div className="settings-icon">🎨</div>
-                  <h3>Brand Identity</h3>
+                  <div className="settings-icon">🧾</div>
+                  <h3>Client Information</h3>
                 </div>
                 <div className="settings-card-content">
-                  <div className="setting-item">
-                    <label htmlFor="logo-upload" className="setting-label">Company Logo</label>
-                    <p className="setting-description">Upload your company logo (recommended: PNG, 200x60px)</p>
-                    <div className="enhanced-file-upload-area">
-                      <input type="file" id="logo-upload" accept="image/*" />
-                      <div className="upload-placeholder">
-                        <div className="upload-icon">🖼️</div>
-                        <p><strong>Click to upload</strong> or drag and drop</p>
-                        <span>PNG, JPG up to 5MB</span>
-                      </div>
-                    </div>
+                  <div className="setting-item modern-field">
+                    <label className="setting-label">Organization Name</label>
+                    <input
+                      type="text"
+                      value={clientInfo.organizationName}
+                      onChange={(event) => handleClientInfoChange('organizationName', event.target.value)}
+                    />
                   </div>
-                  
-                  <div className="setting-item">
-                    <label className="setting-label">Color Palette</label>
-                    <p className="setting-description">Customize your brand colors to match your identity</p>
-                    <div className="enhanced-color-palette">
-                      <div className="color-section">
-                        <h4>Primary Colors</h4>
-                        <div className="color-options">
-                          <div className="color-option active">
-                            <div className="color-preview" style={{background: 'var(--brand-primary)'}}></div>
-                            <span>Navy Blue</span>
-                            <button className="color-edit-btn">✏️</button>
-                          </div>
-                          <div className="color-option active">
-                            <div className="color-preview" style={{background: 'var(--brand-accent)'}}></div>
-                            <span>Accent Red</span>
-                            <button className="color-edit-btn">✏️</button>
-                          </div>
-                        </div>
-                      </div>
-                      <button className="customize-colors-btn enhanced">
-                        <span>🎨</span>
-                        Advanced Color Customization
-                      </button>
-                    </div>
+                  <div className="setting-item modern-field">
+                    <label className="setting-label">Primary Contact Email</label>
+                    <input
+                      type="email"
+                      value={clientInfo.contactEmail}
+                      onChange={(event) => handleClientInfoChange('contactEmail', event.target.value)}
+                    />
                   </div>
-                </div>
-              </div>
-
-              <div className="settings-card">
-                <div className="settings-card-header">
-                  <div className="settings-icon">🌐</div>
-                  <h3>Localization</h3>
-                </div>
-                <div className="settings-card-content">
-                  <div className="setting-item">
-                    <label className="setting-label">Default Language</label>
-                    <select className="form-select">
-                      <option value="en">English</option>
-                      <option value="es">Spanish</option>
-                      <option value="fr">French</option>
-                      <option value="de">German</option>
-                    </select>
+                  <div className="setting-item modern-field">
+                    <label className="setting-label">Telephone</label>
+                    <input
+                      type="text"
+                      value={clientInfo.phoneNumber}
+                      onChange={(event) => handleClientInfoChange('phoneNumber', event.target.value)}
+                    />
                   </div>
-                  
-                  <div className="setting-item">
-                    <label className="setting-label">Default Currency</label>
-                    <select className="form-select">
-                      <option value="GBP">British Pound (£)</option>
-                      <option value="USD">US Dollar ($)</option>
-                      <option value="EUR">Euro (€)</option>
-                    </select>
+                  <div className="setting-item modern-field">
+                    <label className="setting-label">Account Manager</label>
+                    <input
+                      type="text"
+                      value={clientInfo.accountManager}
+                      disabled
+                    />
                   </div>
-                  
-                  <div className="setting-item">
-                    <label className="setting-label">Time Zone</label>
-                    <select className="form-select">
-                      <option value="GMT">GMT (London)</option>
-                      <option value="EST">EST (New York)</option>
-                      <option value="PST">PST (Los Angeles)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="settings-card">
-                <div className="settings-card-header">
-                  <div className="settings-icon">🔒</div>
-                  <h3>Security & Privacy</h3>
-                </div>
-                <div className="settings-card-content">
-                  <div className="setting-item">
-                    <label className="checkbox-container">
-                      <input type="checkbox" defaultChecked />
-                      <span className="checkmark"></span>
-                      <span className="checkbox-label">Two-factor authentication</span>
-                    </label>
-                    <p className="setting-description">Require 2FA for admin access</p>
-                  </div>
-                  
-                  <div className="setting-item">
-                    <label className="checkbox-container">
-                      <input type="checkbox" defaultChecked />
-                      <span className="checkmark"></span>
-                      <span className="checkbox-label">Data encryption</span>
-                    </label>
-                    <p className="setting-description">Encrypt sensitive customer data</p>
-                  </div>
-                  
-                  <div className="setting-item">
-                    <label className="checkbox-container">
-                      <input type="checkbox" />
-                      <span className="checkmark"></span>
-                      <span className="checkbox-label">Marketing emails</span>
-                    </label>
-                    <p className="setting-description">Send product updates and news</p>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => console.log('Client profile saved', clientInfo)}
+                    >
+                      Save Client Profile
+                    </button>
                   </div>
                 </div>
               </div>
@@ -491,10 +617,7 @@ function SettingsPage() {
             onClick={() => setActiveTab(tab.id)}
           >
             <span className="tab-icon">{tab.icon}</span>
-            <div className="tab-text">
-              <span className="tab-label">{tab.label}</span>
-              <span className="tab-description">{tab.description}</span>
-            </div>
+            <span className="tab-label">{tab.label}</span>
           </button>
         ))}
       </div>

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
 function RewardOrchestratorFormStep2({ formData, handleInputChange, addEligibilityRule, updateEligibilityRule, removeEligibilityRule, getRuleTypeById, eligibilityRuleOptions, comparisonOperators, timePeriods, targetPersonas, targetProducts }) {
-  const personaOptions = ['Business Travelers','Leisure Travelers','Frequent Flyers','Luxury Travelers','Budget Travelers','Family Travelers','Solo Travelers','Group Travelers'];
+  const personaOptions = ['Mass','Mass Affluent','High Net Worth','Ultra High Net Worth','Corporate Clients'];
   const productOptions = ['Platinum Credit Card','Gold Credit Card','Travel Credit Card','Golf Credit Card','Student Credit Card','Premium Debit Card','Savings Account','Wealth Account'];
+  const continentOptions = ['Africa','Asia','Europe','North America','South America','Oceania','Antarctica'];
+  const countryOptions = ['United States','United Kingdom','Canada','Australia','United Arab Emirates','Singapore','India','China','Germany','France','Spain','Italy','Japan','Brazil','South Africa'];
+  const regionCityOptions = ['New York','San Francisco','London','Paris','Dubai','Singapore','Tokyo','Sydney','Toronto','Hong Kong'];
 
   const toggleMultiSelect = (field, value) => {
     const current = formData[field] || [];
@@ -11,12 +14,45 @@ function RewardOrchestratorFormStep2({ formData, handleInputChange, addEligibili
     handleInputChange(field, updated);
   };
 
+  // Geography searchable multi-select local state (single input)
+  const [geoQuery, setGeoQuery] = useState('');
+
+  const normalise = (s) => (s || '').trim();
+
+  const addGeoValue = (field, value) => {
+    const v = normalise(value);
+    if (!v) return;
+    const current = Array.isArray(formData[field]) ? formData[field] : [];
+    if (!current.includes(v)) {
+      handleInputChange(field, [...current, v]);
+    }
+  };
+
+  const removeGeoValue = (field, value) => {
+    const current = Array.isArray(formData[field]) ? formData[field] : [];
+    handleInputChange(field, current.filter(v => v !== value));
+  };
+
+  const filteredGeoOptions = useMemo(() => {
+    const q = geoQuery.trim().toLowerCase();
+    if (!q) return [];
+    const selectedContinents = new Set(formData.targetContinents || []);
+    const selectedCountries = new Set(formData.targetCountries || []);
+    const selectedRegionsCities = new Set(formData.targetRegionsCities || []);
+    const continentItems = continentOptions
+      .filter(c => !selectedContinents.has(c) && c.toLowerCase().includes(q))
+      .map(c => ({ label: c, field: 'targetContinents', group: 'Continent' }));
+    const countryItems = countryOptions
+      .filter(c => !selectedCountries.has(c) && c.toLowerCase().includes(q))
+      .map(c => ({ label: c, field: 'targetCountries', group: 'Country' }));
+    const regionCityItems = regionCityOptions
+      .filter(c => !selectedRegionsCities.has(c) && c.toLowerCase().includes(q))
+      .map(c => ({ label: c, field: 'targetRegionsCities', group: 'Region/City' }));
+    return [...continentItems, ...countryItems, ...regionCityItems].slice(0, 15);
+  }, [geoQuery, continentOptions, countryOptions, regionCityOptions, formData.targetContinents, formData.targetCountries, formData.targetRegionsCities]);
+
   return (
     <div className="form-step">
-      <div className="step-header">
-        <h3>Targeting & Eligibility</h3>
-        <p>Define who can access this program and when</p>
-      </div>
       
       <div className="form-grid">
         {/* Targeting Multi-selects */}
@@ -49,6 +85,50 @@ function RewardOrchestratorFormStep2({ formData, handleInputChange, addEligibili
                 <span>{p}</span>
               </label>
             ))}
+          </div>
+        </div>
+
+        <div className="form-group full-width">
+          <label>Target Geography</label>
+          <div className="tag-input-container">
+            <div className="tag-input-wrapper">
+              {(formData.targetContinents || []).map(c => (
+                <span key={`cont-${c}`} className="chip chip-outline">
+                  {c}
+                  <button type="button" className="tag-remove" onClick={() => removeGeoValue('targetContinents', c)}>×</button>
+                </span>
+              ))}
+              {(formData.targetCountries || []).map(c => (
+                <span key={`country-${c}`} className="chip chip-outline">
+                  {c}
+                  <button type="button" className="tag-remove" onClick={() => removeGeoValue('targetCountries', c)}>×</button>
+                </span>
+              ))}
+              {(formData.targetRegionsCities || []).map(rc => (
+                <span key={`rc-${rc}`} className="chip chip-outline">
+                  {rc}
+                  <button type="button" className="tag-remove" onClick={() => removeGeoValue('targetRegionsCities', rc)}>×</button>
+                </span>
+              ))}
+              <input
+                className="tag-input"
+                value={geoQuery}
+                onChange={(e) => setGeoQuery(e.target.value)}
+                placeholder="Search continents, countries, regions & cities..."
+              />
+            </div>
+            {geoQuery && filteredGeoOptions.length > 0 && (
+              <div className="tag-suggestions">
+                <div className="suggestions-list">
+                  {filteredGeoOptions.map(opt => (
+                    <button key={`${opt.field}-${opt.label}`} className="suggestion-item" type="button" onClick={() => { addGeoValue(opt.field, opt.label); setGeoQuery(''); }}>
+                      {opt.label}
+                      <span style={{ marginLeft: 8, opacity: 0.7 }}>({opt.group})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -15,6 +15,9 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
     endDate: initialData?.endDate || "",
     targetPersonas: Array.isArray(initialData?.targetPersonas) ? initialData.targetPersonas : [],
     targetProducts: Array.isArray(initialData?.targetProducts) ? initialData.targetProducts : [],
+    targetContinents: Array.isArray(initialData?.targetContinents) ? initialData.targetContinents : [],
+    targetCountries: Array.isArray(initialData?.targetCountries) ? initialData.targetCountries : [],
+    targetRegionsCities: Array.isArray(initialData?.targetRegionsCities) ? initialData.targetRegionsCities : [],
     tags: Array.isArray(initialData?.tags) ? initialData.tags : [],
     // Restructured for Step 2: rules grouped by category
     eligibilityRules: initialData?.eligibilityRules || {
@@ -30,6 +33,24 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
     conciergeGuidance: initialData?.conciergeGuidance || "",
     reportingTags: Array.isArray(initialData?.reportingTags) ? initialData.reportingTags : [],
     benefits: Array.isArray(initialData?.benefits) ? initialData.benefits : []
+    , allocationEntitlements: Number.isFinite(initialData?.allocationEntitlements) ? initialData.allocationEntitlements : ''
+    , allocationBudget: Number.isFinite(initialData?.allocationBudget) ? initialData.allocationBudget : ''
+    , pointsPerBenefitType: initialData?.pointsPerBenefitType || {
+      'Lounge Access': 1,
+      'Fast Track': 1,
+      'Priority Service': 0.6,
+      'Upgrade': 3.5,
+      'Baggage': 0.8,
+      'Discount': 0.3,
+      'Wellness': 1.7,
+      'Transport': 0.7,
+      'Food & Beverage': 0.25,
+      'Connectivity': 0.5,
+      'Leisure': 0.5,
+      'Service': 1,
+      'Cash Back': 0.7,
+      'Points': 0.5
+    }
   });
 
   // Keep form pre-populated when opening for an existing program or import
@@ -44,6 +65,9 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
       endDate: initialData?.endDate || "",
       targetPersonas: Array.isArray(initialData?.targetPersonas) ? initialData.targetPersonas : [],
       targetProducts: Array.isArray(initialData?.targetProducts) ? initialData.targetProducts : [],
+      targetContinents: Array.isArray(initialData?.targetContinents) ? initialData.targetContinents : [],
+      targetCountries: Array.isArray(initialData?.targetCountries) ? initialData.targetCountries : [],
+      targetRegionsCities: Array.isArray(initialData?.targetRegionsCities) ? initialData.targetRegionsCities : [],
       tags: Array.isArray(initialData?.tags) ? initialData.tags : [],
       eligibilityRules: initialData?.eligibilityRules || {
         customerProfileRules: [],
@@ -57,6 +81,24 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
       conciergeGuidance: initialData?.conciergeGuidance || "",
       reportingTags: Array.isArray(initialData?.reportingTags) ? initialData.reportingTags : [],
       benefits: Array.isArray(initialData?.benefits) ? initialData.benefits : []
+      , allocationEntitlements: Number.isFinite(initialData?.allocationEntitlements) ? initialData.allocationEntitlements : ''
+      , allocationBudget: Number.isFinite(initialData?.allocationBudget) ? initialData.allocationBudget : ''
+      , pointsPerBenefitType: initialData?.pointsPerBenefitType || {
+        'Lounge Access': 1,
+        'Fast Track': 1,
+        'Priority Service': 0.6,
+        'Upgrade': 3.5,
+        'Baggage': 0.8,
+        'Discount': 0.3,
+        'Wellness': 1.7,
+        'Transport': 0.7,
+        'Food & Beverage': 0.25,
+        'Connectivity': 0.5,
+        'Leisure': 0.5,
+        'Service': 1,
+        'Cash Back': 0.7,
+        'Points': 0.5
+      }
     });
   }, [isOpen, initialData]);
 
@@ -232,7 +274,7 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
 
   // Load preset benefits catalog with pricing
   const benefitsCatalog = [
-    { id: 'market-1', title: '2x Lounge Passes', type: 'Lounge Access', supplier: 'DragonPass', description: 'Two complimentary lounge passes for the traveler', value: '2 passes', redemptionMethod: 'Automatic', costToBank: 45 },
+    { id: 'market-1', title: 'Lounge Pass', type: 'Lounge Access', supplier: 'DragonPass', description: 'Complimentary lounge pass for the traveler', value: '1 pass', redemptionMethod: 'Automatic', costToBank: 30 },
     { id: 'market-2', title: 'Airport Fast Track', type: 'Fast Track', supplier: 'Partner A', description: 'Priority security lane access at select airports', value: '1 pass', redemptionMethod: 'Automatic', costToBank: 25 },
     { id: 'market-3', title: 'Priority Boarding', type: 'Priority Service', supplier: 'Airline A', description: 'Access to priority boarding lane', value: '1 boarding', redemptionMethod: 'Automatic', costToBank: 15 },
     { id: 'market-4', title: 'Seat Upgrade', type: 'Upgrade', supplier: 'Airline B', description: 'Complimentary seat upgrade where available', value: '1 upgrade', redemptionMethod: 'Manual Approval', costToBank: 120 },
@@ -262,30 +304,77 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
   const calculateTotalCost = () => {
     return formData.benefits.reduce((total, benefit) => {
       // Use costToBank if available, otherwise estimate based on type
-      let cost = benefit.costToBank;
-      if (!cost) {
-        cost = estimateBenefitCost(benefit);
+      let unitCost = benefit.costToBank;
+      if (!unitCost) {
+        unitCost = estimateBenefitCost(benefit);
       }
-      return total + cost;
+      const quantity = Number.isFinite(benefit.quantity) ? benefit.quantity : 1;
+      return total + unitCost * quantity;
     }, 0);
   };
 
+  // Points model helpers
+  const POINT_VALUE_GBP = 30; // 1 point ~= £30
+  const getPointsPerCustomer = () => {
+    const budget = parseFloat(formData.allocationBudget || 0);
+    const entitlements = parseFloat(formData.allocationEntitlements || 0);
+    if (budget > 0 && entitlements > 0) {
+      const budgetPerCustomer = budget / entitlements;
+      return budgetPerCustomer / POINT_VALUE_GBP;
+    }
+    return 0;
+  };
+
+  const getBasketPointsPerCustomer = () => {
+    if (!Array.isArray(formData.benefits) || formData.benefits.length === 0) return 0;
+    return formData.benefits.reduce((sum, b) => {
+      const pts = formData.pointsPerBenefitType?.[b.type] ?? 1;
+      const qty = Number.isFinite(b.quantity) ? b.quantity : 1;
+      return sum + ((Number.isFinite(pts) ? pts : 1) * qty);
+    }, 0);
+  };
+
+  const getEstimatedCoverage = () => {
+    const entitlements = parseFloat(formData.allocationEntitlements || 0);
+    const budget = parseFloat(formData.allocationBudget || 0);
+    const basketPts = getBasketPointsPerCustomer();
+    if (basketPts <= 0) return { people: 0, reason: 'no_basket' };
+    if (budget > 0) {
+      const totalPoints = budget / POINT_VALUE_GBP;
+      const maxPeopleByBudget = Math.floor(totalPoints / basketPts);
+      if (entitlements > 0) {
+        return { people: Math.min(maxPeopleByBudget, entitlements), reason: 'budget_and_entitlements' };
+      }
+      return { people: maxPeopleByBudget, reason: 'budget_only' };
+    }
+    if (entitlements > 0) {
+      // Points per customer determined only by basket; coverage limited by entitlements
+      return { people: entitlements, reason: 'entitlements_only' };
+    }
+    return { people: 0, reason: 'insufficient_inputs' };
+  };
+
   const estimateBenefitCost = (benefit) => {
-    // Fallback cost estimation based on benefit type
+    // Derive cost from points policy first (1 pt = £30)
+    const pts = formData?.pointsPerBenefitType?.[benefit.type];
+    if (Number.isFinite(pts)) {
+      return Math.round(pts * POINT_VALUE_GBP);
+    }
+    // Fallback estimates aligned to £30/pt
     const typeCosts = {
-      'Lounge Access': 25,
-      'Fast Track': 25,
-      'Priority Service': 15,
-      'Upgrade': 100,
-      'Baggage': 30,
-      'Discount': 10,
-      'Wellness': 50,
-      'Transport': 20,
+      'Lounge Access': 30,
+      'Fast Track': 30,
+      'Priority Service': 18,
+      'Upgrade': 105,
+      'Baggage': 24,
+      'Discount': 9,
+      'Wellness': 51,
+      'Transport': 21,
       'Food & Beverage': 8,
       'Connectivity': 15,
       'Leisure': 15,
-      'Service': 25,
-      'Cash Back': 20,
+      'Service': 30,
+      'Cash Back': 21,
       'Points': 15
     };
     return typeCosts[benefit.type] || 20;
@@ -515,9 +604,17 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
       value: preset.value || "",
       maxRedemptions: preset.maxRedemptions || "",
       visibleInUI: true,
-      costToBank: preset.costToBank || estimateBenefitCost({ type: preset.type })
+      costToBank: estimateBenefitCost({ type: preset.type }),
+      quantity: 1
     };
     setFormData(prev => ({ ...prev, benefits: [...prev.benefits, benefitToAdd] }));
+  };
+
+  const updateBenefit = (benefitId, updates) => {
+    setFormData(prev => ({
+      ...prev,
+      benefits: prev.benefits.map(b => b.id === benefitId ? { ...b, ...updates } : b)
+    }));
   };
 
   const removeBenefit = (benefitId) => {
@@ -583,6 +680,7 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
             handleBenefitInputChange={handleBenefitInputChange}
             addBenefit={addBenefit}
             removeBenefit={removeBenefit}
+            updateBenefit={updateBenefit}
             currentBenefit={currentBenefit}
             setCurrentBenefit={setCurrentBenefit}
             showBenefitForm={showBenefitForm}
@@ -615,19 +713,38 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
     const totalCost = calculateTotalCost();
     const benefitCount = formData.benefits.length;
     const suggestions = getBundlingSuggestions();
+    const pointsPerCustomer = getPointsPerCustomer();
+    const basketPoints = getBasketPointsPerCustomer();
+    const coverage = getEstimatedCoverage();
+    const budget = parseFloat(formData.allocationBudget || 0);
+    const entitlements = parseFloat(formData.allocationEntitlements || 0);
+    const budgetPerCustomer = budget > 0 && entitlements > 0 ? budget / entitlements : 0;
+    const totalActual = entitlements > 0 ? Math.round(totalCost * entitlements) : 0;
     
     return (
       <div className="cost-analysis compact">
         <div className="cost-summary">
           <div className="cost-metrics-inline">
             <div className="cost-metric-inline">
-              <span className="metric-label-inline">Cost per Customer:</span>
-              <span className="metric-value-inline">${totalCost}</span>
+              <span className="metric-label-inline">Cost/Customer (Planned/Actual):</span>
+              <span className="metric-value-inline">
+                {budgetPerCustomer ? `£${Math.round(budgetPerCustomer)}` : '—'}/£{Math.round(totalCost)}
+              </span>
             </div>
+            
             <div className="cost-metric-inline">
               <span className="metric-label-inline">Benefits:</span>
               <span className="metric-value-inline">{benefitCount}</span>
             </div>
+            <div className="cost-metric-inline">
+              <span className="metric-label-inline">Points/Customer:</span>
+              <span className="metric-value-inline">{pointsPerCustomer ? pointsPerCustomer.toFixed(2) : '—'}</span>
+            </div>
+            <div className="cost-metric-inline">
+              <span className="metric-label-inline">Basket Points:</span>
+              <span className="metric-value-inline">{basketPoints ? basketPoints.toFixed(2) : '—'}</span>
+            </div>
+            
             <div className="cost-metric-inline">
               <div className="info-tooltip">
                 <span className="tooltip-icon">ℹ️</span>

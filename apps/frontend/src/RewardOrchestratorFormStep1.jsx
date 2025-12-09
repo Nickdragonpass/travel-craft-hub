@@ -53,10 +53,6 @@ function RewardOrchestratorFormStep1({ formData, handleInputChange, showTagSugge
 
   return (
     <div className="form-step">
-      <div className="step-header">
-        <h3>Basic Program Information</h3>
-        <p>Set up the basic information for your reward program.</p>
-      </div>
       
       <div className="form-grid">
         <div className="form-group">
@@ -110,40 +106,63 @@ function RewardOrchestratorFormStep1({ formData, handleInputChange, showTagSugge
           </div>
         </div>
         
-        <div className="form-group">
-          <label htmlFor="tags">Tags</label>
-          <div className="tag-input-container">
-            <div className="tag-input-wrapper" onClick={() => setShowTagSuggestions(true)}>
-              {formData.tags.map(tag => (
-                <span key={tag} className={`tag ${isPredefined(tag) ? 'tag-predefined' : 'tag-custom'}`}>
-                  {tag}
-                  <button type="button" onClick={() => removeTag(tag)} className="tag-remove">×</button>
-                </span>
-              ))}
-              <input
-                className="tag-input"
-                value={tagInputValue}
-                onChange={(e) => setTagInputValue(e.target.value)}
-                onFocus={() => setShowTagSuggestions(true)}
-                onKeyDown={onTagInputKeyDown}
-                placeholder="Add tags..."
-              />
-            </div>
-
-            {showTagSuggestions && filteredSuggestions.length > 0 && (
-              <div className="tag-suggestions">
-                <div className="suggestions-header">Suggestions</div>
-                <div className="suggestions-list">
-                  {filteredSuggestions.map(s => (
-                    <button key={s} className="suggestion-item" type="button" onClick={() => addTag(s)}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="allocationEntitlements">Target audience size</label>
+            <input
+              type="number"
+              id="allocationEntitlements"
+              name="allocationEntitlements"
+              value={formData.allocationEntitlements}
+              onChange={handleInputChange}
+              placeholder="e.g. 10000000"
+              className="form-input"
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="allocationBudget">Budget (GBP)</label>
+            <input
+              type="number"
+              id="allocationBudget"
+              name="allocationBudget"
+              value={formData.allocationBudget}
+              onChange={handleInputChange}
+              placeholder="e.g. 10000000"
+              className="form-input"
+              min="0"
+              step="0.01"
+            />
           </div>
         </div>
+
+        {(() => {
+          const POINT_VALUE_GBP = 30; // 1 point ~= £30 (avg lounge entitlement)
+          const budget = parseFloat(formData.allocationBudget || 0);
+          const entitlements = parseFloat(formData.allocationEntitlements || 0);
+          const budgetPerCustomer = entitlements > 0 && budget > 0 ? (budget / entitlements) : 0;
+          const pointsPerCustomer = budgetPerCustomer > 0 ? (budgetPerCustomer / POINT_VALUE_GBP) : 0;
+          const formattedPoints = pointsPerCustomer ? Number(pointsPerCustomer.toFixed(2)) : '';
+          const approxSpend = pointsPerCustomer ? Math.round(pointsPerCustomer * POINT_VALUE_GBP) : 0;
+          const hasCalculated = Boolean(pointsPerCustomer);
+          return (
+            <div className="form-row">
+              <div className="form-group">
+                <label>Calculated points per customer</label>
+                <input
+                  type="text"
+                  value={formattedPoints || ''}
+                  disabled
+                  className="form-input"
+                  aria-readonly="true"
+                  placeholder="Calculated after audience & budget"
+                  style={{ background: 'var(--brand-bg, #f5f7fb)', borderStyle: 'dashed', borderColor: 'var(--brand-card-border, #d9e1ee)', color: 'var(--brand-text, #1a2233)' }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+
       </div>
     </div>
   );
