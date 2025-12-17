@@ -165,7 +165,7 @@ function RewardOrchestratorForm({ isOpen, onClose, initialData, onSave, saveButt
   const eligibilityRuleOptions = {
     // 1. Customer Profile Rules
     customerProfileRules: [
-      { id: 'membershipTier', label: 'Membership tier', type: 'select', options: ['Silver', 'Gold', 'Platinum', 'Diamond'] },
+      { id: 'membershipTier', label: 'Tier', type: 'select', options: ['Silver', 'Gold', 'Platinum', 'Diamond'] },
       { id: 'loyaltyEnrollment', label: 'Loyalty program enrollment status', type: 'select', options: ['Enrolled', 'Not enrolled'] },
       { id: 'personaGroup', label: 'Persona group', type: 'select', options: ['Business Travelers', 'Leisure Travelers', 'Frequent Flyers', 'Luxury Travelers', 'Budget Travelers', 'Family Travelers', 'Solo Travelers', 'Group Travelers'] },
       { id: 'ageGroup', label: 'Age group', type: 'select', options: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'] },

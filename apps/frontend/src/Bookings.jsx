@@ -62,6 +62,10 @@ function Bookings() {
       customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Hotel',
+      addOnBenefits: [
+        { title: 'Complimentary breakfast', description: 'Daily breakfast included for the stay' },
+        { title: 'Room upgrade', description: 'Subject to availability at check-in' }
+      ],
       hotelName: 'The Plaza Hotel',
       checkIn: '2024-03-15',
       checkOut: '2024-03-22',
@@ -87,6 +91,9 @@ function Bookings() {
       customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Airport Transfer',
+      addOnBenefits: [
+        { title: 'Complimentary bottled water', description: 'Provided in vehicle' }
+      ],
       transferType: 'Private Car',
       pickupLocation: 'London City Centre',
       dropoffLocation: 'Heathrow Terminal 5',
@@ -112,6 +119,9 @@ function Bookings() {
       customerName: 'Sarah Johnson',
       rewardProgram: 'Gold Member',
       bookingType: 'Airport Lounge',
+      addOnBenefits: [
+        { title: 'Extra guest access', description: '1 additional guest included' }
+      ],
       loungeName: 'No.1 Traveller Lounge',
       airport: 'Heathrow Terminal 5',
       accessDate: '2024-03-15',
@@ -287,6 +297,10 @@ function Bookings() {
       customerName: 'Michael Brown',
       rewardProgram: 'Platinum Member',
       bookingType: 'Event Ticket',
+      addOnBenefits: [
+        { title: 'Priority entry', description: 'Fast-track entry lane at venue' },
+        { title: 'Complimentary drink', description: '1 drink voucher per ticket' }
+      ],
       eventName: 'Premier League Match: Arsenal vs Chelsea',
       eventDate: '2024-04-13',
       venue: 'Emirates Stadium',
@@ -703,6 +717,25 @@ function Bookings() {
       case 'airport transfer': return '🚗';
       default: return '📋';
     }
+  };
+
+  const renderAddOnBenefitsInItinerary = () => {
+    const benefits = selectedBooking?.addOnBenefits || [];
+    if (!benefits || benefits.length === 0) return null;
+
+    return (
+      <div className="passenger-info">
+        <h4>Add-on Benefits</h4>
+        <div className="passenger-list">
+          {benefits.map((benefit, index) => (
+            <div key={index} className="passenger-item">
+              <span className="passenger-name">{benefit.title || benefit}</span>
+              <span className="passenger-type">{benefit.description || 'Included'}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const activeFiltersCount = [
@@ -1150,15 +1183,7 @@ function Bookings() {
                         )}
                       </div>
                       
-                      <div className="passenger-info">
-                        <h4>Passengers</h4>
-                        <div className="passenger-list">
-                          <div className="passenger-item">
-                            <span className="passenger-name">Ms. Sarah Johnson</span>
-                            <span className="passenger-type">Adult</span>
-                          </div>
-                        </div>
-                      </div>
+                      {renderAddOnBenefitsInItinerary()}
                     </div>
                   </div>
 
@@ -1380,19 +1405,7 @@ function Bookings() {
                           </div>
                         </div>
                         
-                        <div className="guest-info">
-                          <h4>Guests</h4>
-                          <div className="guest-list">
-                            <div className="guest-item">
-                              <span className="guest-name">Mr. Emma Johnson</span>
-                              <span className="guest-type">Primary Guest</span>
-                            </div>
-                            <div className="guest-item">
-                              <span className="guest-name">Mrs. Emma Johnson</span>
-                              <span className="guest-type">Additional Guest</span>
-                            </div>
-                          </div>
-                        </div>
+                        {renderAddOnBenefitsInItinerary()}
                       </div>
                     </div>
                   </div>
@@ -1608,27 +1621,7 @@ function Bookings() {
                           </div>
                         </div>
                         
-                        <div className="attendee-info">
-                          <h4>Attendees</h4>
-                          <div className="attendee-list">
-                            <div className="attendee-item">
-                              <span className="attendee-name">Mr. David Wilson</span>
-                              <span className="attendee-type">Primary Attendee</span>
-                            </div>
-                            <div className="attendee-item">
-                              <span className="attendee-name">Mrs. Sarah Wilson</span>
-                              <span className="attendee-type">Additional Attendee</span>
-                            </div>
-                            <div className="attendee-item">
-                              <span className="attendee-name">Mr. James Wilson</span>
-                              <span className="attendee-type">Additional Attendee</span>
-                            </div>
-                            <div className="attendee-item">
-                              <span className="attendee-name">Mrs. Lisa Wilson</span>
-                              <span className="attendee-type">Additional Attendee</span>
-                            </div>
-                          </div>
-                        </div>
+                        {renderAddOnBenefitsInItinerary()}
                       </div>
                     </div>
                   </div>
@@ -2527,6 +2520,8 @@ function Bookings() {
                             </div>
                           </div>
                         </div>
+
+                        {renderAddOnBenefitsInItinerary()}
                       </div>
                     </div>
                   </div>
@@ -2913,6 +2908,8 @@ function Bookings() {
                             </div>
                           </div>
                         </div>
+
+                        {renderAddOnBenefitsInItinerary()}
                       </div>
                     </div>
                   </div>

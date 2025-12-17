@@ -47,7 +47,7 @@ function RewardOrchestrator() {
       {
         id: 'rp-2',
         name: 'Platinum Elite Benefits',
-        description: 'Exclusive benefits for Platinum Elite members',
+        description: 'Exclusive benefits for Platinum Elite users',
         targetPersonas: ['Platinum Elite'],
         linkedProducts: ['Platinum Card'],
         status: 'active',

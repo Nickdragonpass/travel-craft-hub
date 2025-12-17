@@ -335,7 +335,8 @@ body, html {
   z-index: 20;
   position: relative;
   box-sizing: border-box;
-  overflow: hidden;
+  /* Allow profile dropdown to overlay outside the header */
+  overflow: visible;
 }
 .brand-logo-wrap {
   display: flex;
@@ -376,6 +377,22 @@ body, html {
 }
 
 /* Profile Circle */
+.profile-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-button {
+  border: none;
+  padding: 0;
+}
+
+.profile-button:focus-visible {
+  outline: 3px solid rgba(233, 79, 61, 0.45);
+  outline-offset: 3px;
+}
+
 .profile-circle {
   width: 40px;
   height: 40px;
@@ -403,6 +420,51 @@ body, html {
 
 .profile-circle:hover .profile-initial {
   color: var(--brand-white);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 180px;
+  padding: 8px;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-card-border);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(26,34,51,0.18);
+  z-index: 9999;
+}
+
+.profile-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--brand-primary);
+  font-family: var(--brand-font);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-dropdown-item:hover {
+  background: var(--brand-bg);
+}
+
+.profile-dropdown-item.logout {
+  color: var(--brand-accent);
+}
+
+.profile-dropdown-item.logout:hover {
+  background: rgba(233, 79, 61, 0.08);
+}
+
+.dropdown-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 .admin-main-area {
   position: relative;
@@ -10963,7 +11025,8 @@ body, html {
   z-index: 20;
   position: relative;
   box-sizing: border-box;
-  overflow: hidden;
+  /* Allow profile dropdown to overlay outside the header */
+  overflow: visible;
 }
 .brand-logo-wrap {
   display: flex;
@@ -28419,6 +28482,7 @@ input[type="time"].form-input {
   background: var(--brand-white);
 }
 
+
 .member-info-block {
   display: flex;
   align-items: center;
@@ -28474,6 +28538,7 @@ input[type="time"].form-input {
   color: #0f766e;
 }
 
+
 .member-controls {
   display: flex;
   align-items: center;
@@ -28481,6 +28546,20 @@ input[type="time"].form-input {
   gap: 16px;
   flex: 1 1 260px;
   min-width: 220px;
+}
+
+.account-actions {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.btn-compact {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1;
+  min-width: 110px;
 }
 
 .control-group {

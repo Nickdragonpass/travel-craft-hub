@@ -49,7 +49,7 @@ function WidgetRenderer({ widget, filters }) {
       
       if (widget.category === 'Program Overview') {
         metrics = await analyticsService.getProgramMetrics(effectiveFilters);
-      } else if (widget.category === 'Member Engagement') {
+      } else if (widget.category === 'User Engagement') {
         metrics = await analyticsService.getEngagementMetrics(effectiveFilters);
       } else if (widget.category === 'Program Performance') {
         metrics = await analyticsService.getPerformanceMetrics(effectiveFilters);
@@ -192,7 +192,7 @@ function getKPIData(widgetId, data) {
   const kpiMap = {
     'kpi-eligible-members': {
       value: formatNumber(data.eligibleMembers),
-      subtitle: 'Total program members',
+      subtitle: 'Total program users',
       trend: data.eligibleMembersTrend,
       trendType: 'positive'
     },
@@ -240,13 +240,13 @@ function getKPIData(widgetId, data) {
     },
     'kpi-mau': {
       value: formatNumber(data.mau),
-      subtitle: 'Monthly Active Members',
+      subtitle: 'Monthly Active Users',
       trend: data.mauTrend,
       trendType: 'positive'
     },
     'kpi-dau': {
       value: formatNumber(data.dau),
-      subtitle: 'Daily Active Members',
+      subtitle: 'Daily Active Users',
       trend: data.dauTrend,
       trendType: 'positive'
     },
@@ -258,13 +258,13 @@ function getKPIData(widgetId, data) {
     },
     'kpi-repeat-users': {
       value: formatNumber(data.repeatUsers),
-      subtitle: 'Members with multiple orders',
+      subtitle: 'Users with multiple orders',
       trend: data.repeatUsersTrend,
       trendType: 'positive'
     },
     'kpi-booking-confirmation': {
       value: `${data.bookingConfirmationRate}%`,
-      subtitle: 'Successfully confirmed bookings',
+      subtitle: 'Successfully confirmed orders',
       trend: data.bookingConfirmationTrend,
       trendType: 'positive'
     },
@@ -300,7 +300,7 @@ function getKPIData(widgetId, data) {
     },
     'kpi-transaction-revenue': {
       value: formatCurrency(data.transactionRevenue),
-      subtitle: 'Member-paid bookings',
+      subtitle: 'User-paid bookings',
       trend: data.transactionRevenueTrend,
       trendType: 'positive'
     },
@@ -423,11 +423,20 @@ function getChartData(widgetId, data) {
         <div className="funnel-container">
           {(() => {
             const funnel = data.funnel || {};
+            const eligible = funnel.eligible || 0;
+            const usersWithRequests = data.usersWithRequests || 0;
+
+            const pct = (count) => {
+              if (!eligible) return 0;
+              const raw = (count / eligible) * 100;
+              return Math.max(0, Math.min(100, raw));
+            };
+
             const funnelData = [
-              { stage: 'Eligible Members', count: funnel.eligible || 0, percentage: 100 },
-              { stage: 'Active Members', count: funnel.active || 0, percentage: funnel.eligible ? (funnel.active / funnel.eligible) * 100 : 0 },
-              { stage: 'With Orders', count: funnel.withOrders || 0, percentage: funnel.eligible ? (funnel.withOrders / funnel.eligible) * 100 : 0 },
-              { stage: 'Repeat Users', count: funnel.repeat || 0, percentage: funnel.eligible ? (funnel.repeat / funnel.eligible) * 100 : 0 }
+              { stage: 'Eligible Users', count: eligible, percentage: 100 },
+              { stage: 'Users with Requests', count: usersWithRequests, percentage: pct(usersWithRequests) },
+              { stage: 'Users with Orders', count: funnel.withOrders || 0, percentage: pct(funnel.withOrders || 0) },
+              { stage: 'Users with Repeat Orders', count: funnel.repeat || 0, percentage: pct(funnel.repeat || 0) }
             ];
             
             return funnelData.map((item, index) => (
@@ -598,7 +607,7 @@ function getChartData(widgetId, data) {
 function getTableData(widgetId, data) {
   const tableMap = {
     'table-monthly-activity': {
-      columns: ['Month', 'New Members', 'Active Members', 'Total Members', 'Total Orders', 'Value', 'Utilization %'],
+      columns: ['Month', 'New Users', 'Active Users', 'Total Users', 'Total Orders', 'Value', 'Utilization %'],
       rows: (data.monthlyActivity || []).slice(-6).reverse().map(row => [
         row.month,
         row.newMembers,
@@ -610,7 +619,7 @@ function getTableData(widgetId, data) {
       ])
     },
     'table-member-segmentation': {
-      columns: ['Segment', 'Members', 'Avg. Orders', 'Value', 'Trend'],
+      columns: ['Segment', 'Users', 'Avg. Orders', 'Value', 'Trend'],
       rows: (data.memberSegments || []).map(segment => [
         segment.segment,
         formatNumber(segment.members),
@@ -631,13 +640,12 @@ function getTableData(widgetId, data) {
       ])
     },
     'table-monthly-financial': {
-      columns: ['Month', 'Transaction Revenue', 'GMV', 'Cost', 'ROI', 'vs Budget'],
+      columns: ['Month', 'Transaction Revenue', 'GMV', 'Cost', 'vs Budget'],
       rows: (data.monthlyFinancial || []).slice(-6).reverse().map(row => [
         row.month,
         formatCurrency(row.transactionRevenue),
         formatCurrency(row.gmv),
         formatCurrency(row.cost),
-        `${row.roi?.toFixed(1) || 'N/A'}x`,
         `${row.vsBudget > 0 ? '+' : ''}${row.vsBudget?.toFixed(1) || 0}%`
       ])
     }

@@ -46,7 +46,7 @@ function Landing() {
             </div>
             <div className="dp-benefit-card">
               <h3>For Travellers & Businesses</h3>
-              <p>Enhance your offering or enjoy perks as a member, business, or supplier.</p>
+              <p>Enhance your offering or enjoy perks as a user, business, or supplier.</p>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ function Landing() {
           </div>
           <div className="dp-business-card">
             <h3>Your pass to reaching millions of new customers</h3>
-            <p>Boost your business by tapping into millions of members across our global community as a Dragonpass supplier.</p>
+            <p>Boost your business by tapping into millions of users across our global community as a Dragonpass supplier.</p>
             <a href="#" className="dp-cta-secondary">Partner with Us</a>
           </div>
         </div>

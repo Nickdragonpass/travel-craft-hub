@@ -47,6 +47,8 @@ function SettingsPage() {
     { id: 3, name: 'Emily Hart', email: 'emily@partner.com', role: 'Viewer', canInvite: false }
   ]);
   const [newMember, setNewMember] = useState({ name: '', email: '', role: 'Viewer' });
+  const [pendingAccountAction, setPendingAccountAction] = useState(null);
+  const [showAccountModal, setShowAccountModal] = useState(false);
   const [clientInfo, setClientInfo] = useState({
     organizationName: 'DragonPass Partner',
     clientId: 'DP-4581-GB',
@@ -144,6 +146,24 @@ function SettingsPage() {
     setTeamMembers(prev =>
       prev.map(member => (member.id === memberId ? { ...member, role, canInvite } : member))
     );
+  };
+
+  const openAccountAction = (member) => {
+    setPendingAccountAction({ member, action: 'delete' });
+    setShowAccountModal(true);
+  };
+
+  const cancelAccountAction = () => {
+    setShowAccountModal(false);
+    setPendingAccountAction(null);
+  };
+
+  const confirmAccountAction = () => {
+    if (!pendingAccountAction) return;
+    const { member } = pendingAccountAction;
+    setTeamMembers(prev => prev.filter(m => m.id !== member.id));
+
+    cancelAccountAction();
   };
 
   const handleInviteInputChange = (field, value) => {
@@ -436,7 +456,7 @@ function SettingsPage() {
           <div className="tab-content">
             <div className="tab-header">
               <h2>🛡️ Team & Permissions</h2>
-              <p>Control who can access the platform, manage roles, and invite new team members.</p>
+              <p>Control who can access the platform, manage roles, and invite new team users.</p>
             </div>
             <div className="enhanced-middleware-grid">
               <div className="settings-card" style={{ gridColumn: '1 / -1' }}>
@@ -447,7 +467,7 @@ function SettingsPage() {
                 <div className="settings-card-content">
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '18px' }}>
                     <div style={{ flex: '1 1 140px', padding: '12px 16px', borderRadius: '12px', background: 'var(--brand-white)', border: '1px solid var(--brand-card-border)' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--brand-text-secondary)' }}>Team members</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--brand-text-secondary)' }}>Team users</span>
                       <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{totalMembers}</div>
                     </div>
                     <div style={{ flex: '1 1 140px', padding: '12px 16px', borderRadius: '12px', background: 'var(--brand-white)', border: '1px solid var(--brand-card-border)' }}>
@@ -495,13 +515,22 @@ function SettingsPage() {
                                 <option value="Viewer">Viewer</option>
                               </select>
                             </div>
+                            <div className="account-actions">
+                              <button
+                                type="button"
+                                className="btn-danger btn-compact"
+                                onClick={() => openAccountAction(member)}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );
                     })}
                   </div>
                   <form className="invite-form" onSubmit={handleInviteSubmit} style={{ marginTop: '24px', borderTop: '1px dashed var(--brand-card-border)', paddingTop: '20px' }}>
-                    <h4>Invite a team member</h4>
+                    <h4>Invite a team user</h4>
                     <div className="form-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
                       <input
                         type="text"
@@ -660,6 +689,23 @@ function SettingsPage() {
             <div className="modal-actions">
               <button className="btn-secondary" onClick={cancelChange}>Cancel</button>
               <button className="btn-danger" onClick={confirmChange}>Disable Component</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Account Action Modal (Team) */}
+      {showAccountModal && pendingAccountAction && (
+        <div className="modal-overlay">
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete account?</h3>
+            <p>
+              <strong>{pendingAccountAction.member.name}</strong> ({pendingAccountAction.member.email})
+            </p>
+            <p className="confirm-notice">This will permanently remove this account from your team list.</p>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={cancelAccountAction}>Cancel</button>
+              <button className="btn-danger" onClick={confirmAccountAction}>Delete account</button>
             </div>
           </div>
         </div>

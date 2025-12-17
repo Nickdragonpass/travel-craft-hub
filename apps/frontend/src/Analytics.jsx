@@ -24,7 +24,7 @@ function Analytics() {
         <div className="analytics-header-content">
           <h1 className="page-title">Analytics & Insights</h1>
           <p className="page-subtitle">
-            Comprehensive view of program performance, member engagement, and financial metrics
+            Comprehensive view of program performance, user engagement, and financial metrics
           </p>
         </div>
         <div className="analytics-header-actions">
@@ -38,14 +38,14 @@ function Analytics() {
           onClick={() => setActiveTab('overview')}
         >
           <span className="tab-icon">📊</span>
-          <span className="tab-text">Program Overview</span>
+          <span className="tab-text">Overview</span>
         </button>
         <button
           className={`analytics-tab-btn ${activeTab === 'engagement' ? 'active' : ''}`}
           onClick={() => setActiveTab('engagement')}
         >
           <span className="tab-icon">👥</span>
-          <span className="tab-text">Member Engagement</span>
+          <span className="tab-text">User Engagement</span>
         </button>
         <button
           className={`analytics-tab-btn ${activeTab === 'performance' ? 'active' : ''}`}
@@ -59,7 +59,7 @@ function Analytics() {
           onClick={() => setActiveTab('financial')}
         >
           <span className="tab-icon">💰</span>
-          <span className="tab-text">Financial Impact</span>
+          <span className="tab-text">Financial</span>
         </button>
         <button
           className={`analytics-tab-btn ${activeTab === 'custom' ? 'active' : ''}`}

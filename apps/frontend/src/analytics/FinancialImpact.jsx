@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import KPICard from './components/KPICard';
 import MetricChart from './components/MetricChart';
+import KPITrendModal from './components/KPITrendModal';
 import analyticsService from './services/analyticsService';
+import { getMetricDefinition } from './services/metricDefinitions';
 import './FinancialImpact.css';
 
 const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981', '#f59e0b'];
@@ -10,6 +12,9 @@ const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981', '#f59e0b'];
 function FinancialImpact({ filters }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [trendData, setTrendData] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -45,6 +50,73 @@ function FinancialImpact({ filters }) {
 
   const formatCurrency = (num) => analyticsService.formatCurrency(num);
 
+  const handleKPIClick = async (metricId) => {
+    if (!data) return;
+    
+    setModalLoading(true);
+    setSelectedMetric(metricId);
+    
+    try {
+      const historicalData = await analyticsService.getMetricTrendData(metricId, 'financial', filters);
+      
+      // Find the metric details
+      const metricConfig = getMetricConfig(metricId);
+      setTrendData({
+        ...metricConfig,
+        trendData: historicalData
+      });
+    } catch (error) {
+      console.error('Error loading trend data:', error);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const getMetricConfig = (metricId) => {
+    if (!data) return {};
+    
+    const configs = {
+      transactionRevenue: {
+        label: 'Transaction Revenue',
+        value: formatCurrency(data.transactionRevenue),
+        subtitle: getMetricDefinition('Transaction Revenue'),
+        icon: '💰',
+        trendType: 'positive',
+        formatType: 'currency'
+      },
+      gmv: {
+        label: 'GMV',
+        value: formatCurrency(data.gmv),
+        subtitle: getMetricDefinition('GMV'),
+        icon: '📦',
+        trendType: 'positive',
+        formatType: 'currency'
+      },
+      revenueMix: {
+        label: 'Revenue Mix',
+        value: `${data.revenueMix.subscription}% / ${data.revenueMix.transaction}%`,
+        subtitle: getMetricDefinition('Revenue Mix'),
+        icon: '💹',
+        trendType: 'neutral',
+        formatType: 'percentage'
+      },
+      conversionRate: {
+        label: 'Conversion Rate',
+        value: `${data.conversionRate}%`,
+        subtitle: getMetricDefinition('Conversion Rate'),
+        icon: '⚡',
+        trendType: 'positive',
+        formatType: 'percentage'
+      }
+    };
+    return configs[metricId] || {};
+  };
+
+  const closeModal = () => {
+    setSelectedMetric(null);
+    setTrendData(null);
+  };
+
   return (
     <div className="financial-impact">
       {/* Financial KPIs */}
@@ -52,52 +124,51 @@ function FinancialImpact({ filters }) {
         <KPICard
           label="Transaction Revenue"
           value={formatCurrency(data.transactionRevenue)}
-          subtitle="Member-paid bookings"
-          trend={data.transactionRevenueTrend}
+          subtitle="User-paid bookings"
           trendType="positive"
           icon="💰"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="transactionRevenue"
+          formatType="currency"
         />
         <KPICard
           label="GMV"
           value={formatCurrency(data.gmv)}
           subtitle="Gross Merchandise Value"
-          trend={data.gmvTrend}
           trendType="positive"
           icon="📦"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="gmv"
+          formatType="currency"
         />
         <KPICard
-          label="Cost per Member"
-          value={formatCurrency(data.costPerMember)}
-          subtitle="Average cost efficiency"
-          trend={data.costPerMemberTrend}
-          trendType="negative"
-          icon="💵"
-          loading={loading}
-        />
-        <KPICard
-          label="Program ROI"
-          value={`${data.programROI.toFixed(1)}x`}
-          subtitle="Return on investment"
-          trend={data.programROITrend}
+          label="Revenue Mix"
+          value={`${data.revenueMix.subscription}% / ${data.revenueMix.transaction}%`}
+          subtitle="Subscription vs User-Paid"
           trendType="positive"
-          icon="📈"
+          icon="💹"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="revenueMix"
+          formatType="percentage"
         />
         <KPICard
-          label="ROI %"
-          value={`${data.roiPercentage}%`}
-          subtitle="Return percentage"
-          trend={data.roiPercentageTrend}
+          label="Conversion Rate"
+          value={`${data.conversionRate}%`}
+          subtitle="Users that resulted in an order"
           trendType="positive"
-          icon="🎯"
+          icon="⚡"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="conversionRate"
+          formatType="percentage"
         />
       </div>
 
       {/* Revenue Breakdown */}
-      <MetricChart title="Transaction Revenue Trends" subtitle="Member-paid bookings over time">
+      <MetricChart title="Transaction Revenue Trends" subtitle="User-paid bookings over time">
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data.revenueBreakdown}>
             <defs>
@@ -167,28 +238,6 @@ function FinancialImpact({ filters }) {
             </BarChart>
           </ResponsiveContainer>
         </MetricChart>
-
-        <MetricChart title="Cost Breakdown" subtitle="Operational cost distribution">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data.costBreakdown}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ category, value }) => `${category}: ${value}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {data.costBreakdown.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </MetricChart>
       </div>
 
       {/* Monthly Financial Summary Table */}
@@ -204,7 +253,6 @@ function FinancialImpact({ filters }) {
                 <th>Transaction Revenue</th>
                 <th>GMV</th>
                 <th>Cost</th>
-                <th>ROI</th>
                 <th>vs Budget</th>
               </tr>
             </thead>
@@ -215,7 +263,6 @@ function FinancialImpact({ filters }) {
                   <td>{formatCurrency(row.transactionRevenue)}</td>
                   <td>{formatCurrency(row.gmv)}</td>
                   <td>{formatCurrency(row.cost)}</td>
-                  <td>{row.roi.toFixed(1)}x</td>
                   <td>
                     <span className={`trend-${row.vsBudget > 0 ? 'positive' : 'neutral'}`}>
                       {row.vsBudget > 0 ? '+' : ''}{row.vsBudget.toFixed(1)}% {row.vsBudget > 0 ? '↗' : '→'}
@@ -277,6 +324,13 @@ function FinancialImpact({ filters }) {
           </ResponsiveContainer>
         </MetricChart>
       </div>
+
+      {/* KPI Trend Modal */}
+      <KPITrendModal
+        isOpen={selectedMetric !== null}
+        onClose={closeModal}
+        metric={trendData}
+      />
     </div>
   );
 }

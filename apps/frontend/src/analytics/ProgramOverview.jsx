@@ -4,7 +4,9 @@ import KPICard from './components/KPICard';
 import MetricChart from './components/MetricChart';
 import ExportButton from './components/ExportButton';
 import TableHeaderTooltip from './components/TableHeaderTooltip';
+import KPITrendModal from './components/KPITrendModal';
 import analyticsService from './services/analyticsService';
+import { getMetricDefinition } from './services/metricDefinitions';
 import './ProgramOverview.css';
 
 const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981', '#f59e0b', '#ef4444'];
@@ -12,6 +14,9 @@ const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981', '#f59e0b', '#ef4444'
 function ProgramOverview({ filters }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [trendData, setTrendData] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -57,45 +62,144 @@ function ProgramOverview({ filters }) {
     return `£${num.toLocaleString()}`;
   };
 
+  const handleKPIClick = async (metricId) => {
+    if (!data) return;
+    
+    setModalLoading(true);
+    setSelectedMetric(metricId);
+    
+    try {
+      const historicalData = await analyticsService.getMetricTrendData(metricId, 'program', filters);
+      
+      // Find the metric details
+      const metricConfig = getMetricConfig(metricId);
+      setTrendData({
+        ...metricConfig,
+        trendData: historicalData
+      });
+    } catch (error) {
+      console.error('Error loading trend data:', error);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const getMetricConfig = (metricId) => {
+    if (!data) return {};
+    
+    const configs = {
+      'eligibleMembers': {
+        label: 'Eligible Users',
+        value: formatNumber(data.eligibleMembers),
+        subtitle: getMetricDefinition('Eligible Members'),
+        icon: '👥',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'activeMembers': {
+        label: 'Active Users',
+        value: formatNumber(data.activeMembers),
+        subtitle: getMetricDefinition('Active Members'),
+        icon: '📊',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'engagementRate': {
+        label: 'Engagement Rate',
+        value: `${data.engagementRate}%`,
+        subtitle: getMetricDefinition('Engagement Rate'),
+        icon: '📈',
+        trendType: 'positive',
+        formatType: 'percentage'
+      },
+      'gmv': {
+        label: 'GMV',
+        value: formatCurrency(data.gmv),
+        subtitle: getMetricDefinition('GMV'),
+        icon: '💰',
+        trendType: 'positive',
+        formatType: 'currency'
+      },
+      'totalOrders': {
+        label: 'Total Orders',
+        value: formatNumber(data.totalOrders),
+        subtitle: getMetricDefinition('Total Orders'),
+        icon: '📦',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'entitlementUtilization': {
+        label: 'Entitlement Utilization',
+        value: `${data.entitlementUtilization}%`,
+        subtitle: getMetricDefinition('Entitlement Utilization'),
+        icon: '🎫',
+        trendType: 'positive',
+        formatType: 'percentage'
+      },
+      'customerSatisfaction': {
+        label: 'Customer Satisfaction',
+        value: `${data.customerSatisfaction}/5`,
+        subtitle: getMetricDefinition('Customer Satisfaction'),
+        icon: '⭐',
+        trendType: 'positive',
+        formatType: 'number'
+      }
+    };
+    return configs[metricId] || {};
+  };
+
+  const closeModal = () => {
+    setSelectedMetric(null);
+    setTrendData(null);
+  };
+
   return (
     <div className="program-overview">
       {/* Executive Summary KPI Cards */}
       <div className="metrics-grid">
         <KPICard
-          label="Eligible Members"
+          label="Eligible Users"
           value={formatNumber(data.eligibleMembers)}
-          subtitle="Total program members"
-          trend={data.eligibleMembersTrend}
+          subtitle="Total program users"
           trendType="positive"
           icon="👥"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="eligibleMembers"
+          formatType="number"
         />
         <KPICard
-          label="Active Members"
+          label="Active Users"
           value={formatNumber(data.activeMembers)}
           subtitle="With orders in last 12 months"
-          trend={data.activeMembersTrend}
           trendType="positive"
           icon="📊"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="activeMembers"
+          formatType="number"
         />
         <KPICard
           label="Engagement Rate"
           value={`${data.engagementRate}%`}
           subtitle="Active vs Eligible"
-          trend={data.engagementRateTrend}
           trendType="positive"
           icon="📈"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="engagementRate"
+          formatType="percentage"
         />
         <KPICard
           label="GMV"
           value={formatCurrency(data.gmv)}
           subtitle="Gross Merchandise Value"
-          trend={data.gmvTrend}
           trendType="positive"
           icon="💰"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="gmv"
+          formatType="currency"
         />
       </div>
 
@@ -104,37 +208,34 @@ function ProgramOverview({ filters }) {
           label="Total Orders"
           value={formatNumber(data.totalOrders)}
           subtitle="All bookings & redemptions"
-          trend={data.totalOrdersTrend}
           trendType="positive"
           icon="📦"
           loading={loading}
-        />
-        <KPICard
-          label="Cost per Member"
-          value={formatCurrency(data.costPerMember)}
-          subtitle="Average cost efficiency"
-          trend={data.costPerMemberTrend}
-          trendType="negative"
-          icon="💵"
-          loading={loading}
+          onClick={handleKPIClick}
+          metricId="totalOrders"
+          formatType="number"
         />
         <KPICard
           label="Entitlement Utilization"
           value={`${data.entitlementUtilization}%`}
           subtitle="Benefits used vs allocated"
-          trend={data.entitlementUtilizationTrend}
           trendType="positive"
           icon="🎫"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="entitlementUtilization"
+          formatType="percentage"
         />
         <KPICard
           label="Customer Satisfaction"
           value={`${data.customerSatisfaction}/5`}
           subtitle="CSAT score"
-          trend={data.customerSatisfactionTrend}
           trendType="positive"
           icon="⭐"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="customerSatisfaction"
+          formatType="number"
         />
       </div>
 
@@ -146,9 +247,9 @@ function ProgramOverview({ filters }) {
             data={data.monthlyActivity}
             columns={[
               { key: 'month', header: 'Month' },
-              { key: 'newMembers', header: 'New Members' },
-              { key: 'activeMembers', header: 'Active Members' },
-              { key: 'totalMembers', header: 'Total Members' },
+              { key: 'newMembers', header: 'New Users' },
+              { key: 'activeMembers', header: 'Active Users' },
+              { key: 'totalMembers', header: 'Total Users' },
               { key: 'transactions', header: 'Total Orders' },
               { key: 'entitlementOrders', header: 'Entitlement' },
               { key: 'purchasedOrders', header: 'Purchased' },
@@ -165,9 +266,9 @@ function ProgramOverview({ filters }) {
             <thead>
               <tr>
                 <TableHeaderTooltip label="Month" />
-                <TableHeaderTooltip label="New Members" />
-                <TableHeaderTooltip label="Active Members" />
-                <TableHeaderTooltip label="Total Members" />
+                <TableHeaderTooltip label="New Users" />
+                <TableHeaderTooltip label="Active Users" />
+                <TableHeaderTooltip label="Total Users" />
                 <TableHeaderTooltip label="Total Orders" />
                 <TableHeaderTooltip label="Entitlement" />
                 <TableHeaderTooltip label="Purchased" />
@@ -231,7 +332,7 @@ function ProgramOverview({ filters }) {
       )}
 
       {/* Program Reach Section */}
-      <MetricChart title="Program Reach & Adoption" subtitle="Member growth trends over time">
+      <MetricChart title="Program Reach & Adoption" subtitle="User growth trends over time">
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data.memberGrowth}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -278,7 +379,7 @@ function ProgramOverview({ filters }) {
       </MetricChart>
 
       {/* New vs Active */}
-      <MetricChart title="Member Activity Breakdown" subtitle="Monthly comparison">
+      <MetricChart title="User Activity Breakdown" subtitle="Monthly comparison">
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data.memberGrowth.slice(-6)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -299,15 +400,15 @@ function ProgramOverview({ filters }) {
               }}
             />
             <Legend />
-            <Bar dataKey="new" fill="#10b981" name="New Members" />
-            <Bar dataKey="active" fill="#e94f3d" name="Active Members" />
+            <Bar dataKey="new" fill="#10b981" name="New Users" />
+            <Bar dataKey="active" fill="#e94f3d" name="Active Users" />
           </BarChart>
         </ResponsiveContainer>
       </MetricChart>
 
       {/* Two Column Layout */}
       <div className="charts-two-column">
-        <MetricChart title="Channel Distribution" subtitle="How members access the program">
+        <MetricChart title="Channel Distribution" subtitle="How users access the program">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -380,6 +481,13 @@ function ProgramOverview({ filters }) {
           </ResponsiveContainer>
         </MetricChart>
       </div>
+
+      {/* KPI Trend Modal */}
+      <KPITrendModal
+        isOpen={selectedMetric !== null}
+        onClose={closeModal}
+        metric={trendData}
+      />
     </div>
   );
 }

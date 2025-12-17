@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import KPICard from './components/KPICard';
 import MetricChart from './components/MetricChart';
+import KPITrendModal from './components/KPITrendModal';
 import analyticsService from './services/analyticsService';
+import { getMetricDefinition } from './services/metricDefinitions';
 import './CustomerEngagement.css';
 
 const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981', '#f59e0b'];
@@ -10,6 +12,9 @@ const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981', '#f59e0b'];
 function CustomerEngagement({ filters }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [trendData, setTrendData] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -49,12 +54,113 @@ function CustomerEngagement({ filters }) {
     return num.toLocaleString();
   };
 
+  const handleKPIClick = async (metricId) => {
+    if (!data) return;
+    
+    setModalLoading(true);
+    setSelectedMetric(metricId);
+    
+    try {
+      const historicalData = await analyticsService.getMetricTrendData(metricId, 'engagement', filters);
+      
+      // Find the metric details
+      const metricConfig = getMetricConfig(metricId);
+      setTrendData({
+        ...metricConfig,
+        trendData: historicalData
+      });
+    } catch (error) {
+      console.error('Error loading trend data:', error);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const getMetricConfig = (metricId) => {
+    if (!data) return {};
+    
+    const configs = {
+      'mau': {
+        label: 'MAU',
+        value: formatNumber(data.mau),
+        subtitle: getMetricDefinition('MAU'),
+        icon: '📊',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'dau': {
+        label: 'DAU',
+        value: formatNumber(data.dau),
+        subtitle: getMetricDefinition('DAU'),
+        icon: '📅',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'mac': {
+        label: 'MAC',
+        value: formatNumber(data.mac),
+        subtitle: getMetricDefinition('MAC'),
+        icon: '🛒',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'totalRequests': {
+        label: 'Total Requests',
+        value: formatNumber(data.totalRequests),
+        subtitle: getMetricDefinition('Total Requests'),
+        icon: '🤖',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'requestRate': {
+        label: 'Request Rate',
+        value: `${(((data.usersWithRequests || 0) / (data.funnel?.eligible || 1)) * 100).toFixed(1)}%`,
+        subtitle: getMetricDefinition('Request Rate'),
+        icon: '📩',
+        trendType: 'positive',
+        formatType: 'percentage'
+      },
+      'repeatUsers': {
+        label: 'Repeat Users',
+        value: formatNumber(data.repeatUsers),
+        subtitle: getMetricDefinition('Repeat Users'),
+        icon: '🔄',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'entitlementUtilization': {
+        label: 'Entitlement Utilization',
+        value: `${data.entitlementUtilization && data.entitlementUtilization.length > 0 ? data.entitlementUtilization[0].utilization : 67}%`,
+        subtitle: getMetricDefinition('Entitlement Utilization'),
+        icon: '🎫',
+        trendType: 'positive',
+        formatType: 'percentage'
+      }
+    };
+    return configs[metricId] || {};
+  };
+
+  const closeModal = () => {
+    setSelectedMetric(null);
+    setTrendData(null);
+  };
+
   // Calculate funnel percentages
+  const totalUsers = data?.funnel?.eligible || 0;
+  const usersWithRequests = data?.usersWithRequests || 0;
+  const requestRate = totalUsers > 0 ? (usersWithRequests / totalUsers) * 100 : 0;
+
+  const pct = (count) => {
+    if (!totalUsers) return 0;
+    const raw = (count / totalUsers) * 100;
+    return Math.max(0, Math.min(100, raw));
+  };
+
   const funnelData = [
-    { stage: 'Eligible Members', count: data.funnel.eligible, percentage: 100 },
-    { stage: 'Active Members', count: data.funnel.active, percentage: (data.funnel.active / data.funnel.eligible) * 100 },
-    { stage: 'With Orders', count: data.funnel.withOrders, percentage: (data.funnel.withOrders / data.funnel.eligible) * 100 },
-    { stage: 'Repeat Users', count: data.funnel.repeat, percentage: (data.funnel.repeat / data.funnel.eligible) * 100 }
+    { stage: 'Eligible Users', count: totalUsers, percentage: 100 },
+    { stage: 'Users with Requests', count: usersWithRequests, percentage: pct(usersWithRequests) },
+    { stage: 'Users with Orders', count: data?.funnel?.withOrders || 0, percentage: pct(data?.funnel?.withOrders || 0) },
+    { stage: 'Users with Repeat Orders', count: data?.funnel?.repeat || 0, percentage: pct(data?.funnel?.repeat || 0) }
   ];
 
   return (
@@ -64,52 +170,84 @@ function CustomerEngagement({ filters }) {
         <KPICard
           label="MAU"
           value={formatNumber(data.mau)}
-          subtitle="Monthly Active Members"
-          trend={data.mauTrend}
+          subtitle="Monthly Active Users"
           trendType="positive"
           icon="📊"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="mau"
+          formatType="number"
         />
         <KPICard
           label="DAU"
           value={formatNumber(data.dau)}
-          subtitle="Daily Active Members"
-          trend={data.dauTrend}
+          subtitle="Daily Active Users"
           trendType="positive"
           icon="📅"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="dau"
+          formatType="number"
         />
         <KPICard
           label="MAC"
           value={formatNumber(data.mac)}
           subtitle="Monthly Active with Orders"
-          trend={data.macTrend}
           trendType="positive"
           icon="🛒"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="mac"
+          formatType="number"
+        />
+        <KPICard
+          label="Total Requests"
+          value={formatNumber(data.totalRequests)}
+          subtitle="Assisted user requests"
+          trendType="positive"
+          icon="🤖"
+          loading={loading}
+          onClick={handleKPIClick}
+          metricId="totalRequests"
+          formatType="number"
+        />
+        <KPICard
+          label="Request Rate"
+          value={`${requestRate.toFixed(1)}%`}
+          subtitle="Users who made a request"
+          trendType="positive"
+          icon="📩"
+          loading={loading}
+          onClick={handleKPIClick}
+          metricId="requestRate"
+          formatType="percentage"
         />
         <KPICard
           label="Repeat Users"
           value={formatNumber(data.repeatUsers)}
-          subtitle="Members with multiple orders"
-          trend={data.repeatUsersTrend}
+          subtitle="Users with multiple orders"
           trendType="positive"
           icon="🔄"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="repeatUsers"
+          formatType="number"
         />
         <KPICard
           label="Entitlement Utilization"
           value={`${data.entitlementUtilization && data.entitlementUtilization.length > 0 ? data.entitlementUtilization[0].utilization : 67}%`}
           subtitle="Benefits used vs allocated"
-          trend={4.2}
           trendType="positive"
           icon="🎫"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="entitlementUtilization"
+          formatType="percentage"
         />
       </div>
 
       {/* Engagement Funnel */}
-      <MetricChart title="Member Engagement Funnel" subtitle="Conversion from eligible to repeat users">
+      <MetricChart title="User Engagement Funnel" subtitle="Conversion from eligible to repeat users">
         <div className="funnel-container">
           {funnelData.map((item, index) => (
             <div key={index} className="funnel-stage">
@@ -179,14 +317,14 @@ function CustomerEngagement({ filters }) {
       {/* Member Segments Table */}
       <div className="analytics-table-container">
         <div className="table-header">
-          <h3>Member Segmentation</h3>
+          <h3>User Segmentation</h3>
         </div>
         <div className="table-wrapper">
           <table className="analytics-table">
             <thead>
               <tr>
                 <th>Segment</th>
-                <th>Members</th>
+                <th>Users</th>
                 <th>Avg. Orders</th>
                 <th>Value</th>
                 <th>Trend</th>
@@ -236,6 +374,13 @@ function CustomerEngagement({ filters }) {
           </ResponsiveContainer>
         </MetricChart>
       )}
+
+      {/* KPI Trend Modal */}
+      <KPITrendModal
+        isOpen={selectedMetric !== null}
+        onClose={closeModal}
+        metric={trendData}
+      />
     </div>
   );
 }

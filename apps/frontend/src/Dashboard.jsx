@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import KPICard from './analytics/components/KPICard';
+import KPITrendModal from './analytics/components/KPITrendModal';
+import analyticsService from './analytics/services/analyticsService';
 import './App.css';
 
 function Dashboard() {
   const navigate = useNavigate();
   const [selectedTimeframe, setSelectedTimeframe] = useState('YTD');
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [trendData, setTrendData] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   const timeframes = [
     'Max',
@@ -15,12 +21,88 @@ function Dashboard() {
     'Yesterday'
   ];
 
-  // Mock metrics data
+  // Mock metrics data - Key Metrics Snapshot (8 metrics)
   const dashboardMetrics = [
-    { id: 'users', label: 'Users', value: '12,450', subtitle: 'Total Users', trend: '+8%', trendType: 'positive', icon: '👥' },
-    { id: 'mau', label: 'MAU', value: '8,920', subtitle: 'Monthly Active Users', trend: '+15%', trendType: 'positive', icon: '📊' },
-    { id: 'total_orders', label: 'Total Orders', value: '14,600', subtitle: 'Purchased + Redeemed', trend: '+11%', trendType: 'positive', icon: '📦' },
-    { id: 'revenue', label: 'Revenue', value: '£93,440', subtitle: 'Commission Earned', trend: '+18%', trendType: 'positive', icon: '💰' }
+    {
+      id: 'revenue_mix',
+      metricId: 'revenueMix',
+      label: 'Revenue Mix',
+      value: '68% / 32%',
+      subtitle: 'Subscription vs User-Paid',
+      trendType: 'neutral',
+      icon: '💹',
+      formatType: 'percentage'
+    },
+    {
+      id: 'total_users',
+      metricId: 'totalUsers',
+      label: 'Total Users',
+      value: '120,450',
+      subtitle: 'All registered users',
+      trendType: 'positive',
+      icon: '👥',
+      formatType: 'number'
+    },
+    {
+      id: 'mau',
+      metricId: 'mau',
+      label: 'Monthly Active Users (MAU)',
+      value: '48,920',
+      subtitle: 'Active in last 30 days',
+      trendType: 'positive',
+      icon: '📊',
+      formatType: 'number'
+    },
+    {
+      id: 'member_penetration',
+      metricId: 'userPenetration',
+      label: 'User Penetration',
+      value: '42%',
+      subtitle: 'Users who engaged (requests or orders)',
+      trendType: 'positive',
+      icon: '🎯',
+      formatType: 'percentage'
+    },
+    {
+      id: 'total_requests',
+      metricId: 'totalRequests',
+      label: 'Total Requests',
+      value: '1.86M',
+      subtitle: 'Assisted user requests',
+      trendType: 'positive',
+      icon: '🤖',
+      formatType: 'number'
+    },
+    {
+      id: 'conversion_rate',
+      metricId: 'conversionRate',
+      label: 'Conversion Rate',
+      value: '4.8%',
+      subtitle: 'Users that resulted in an order',
+      trendType: 'positive',
+      icon: '⚡',
+      formatType: 'percentage'
+    },
+    {
+      id: 'response_time',
+      metricId: 'responseTime',
+      label: 'Response Time',
+      value: '1.2 min',
+      subtitle: 'Avg user support response',
+      trendType: 'positive',
+      icon: '📞',
+      formatType: 'number'
+    },
+    {
+      id: 'csat',
+      metricId: 'csat',
+      label: 'CSAT',
+      value: '4.7 / 5',
+      subtitle: 'User satisfaction (last 30 days)',
+      trendType: 'positive',
+      icon: '⭐',
+      formatType: 'number'
+    }
   ];
 
   const goToAnalytics = () => {
@@ -29,6 +111,33 @@ function Dashboard() {
 
   const goToBookingManagement = () => {
     navigate('/admin/booking-management');
+  };
+
+  const getMetricConfig = (metricId) => {
+    return dashboardMetrics.find((m) => m.metricId === metricId) || {};
+  };
+
+  const handleKPIClick = async (metricId) => {
+    setModalLoading(true);
+    setSelectedMetric(metricId);
+    try {
+      const historicalData = await analyticsService.getMetricTrendData(metricId, 'dashboard', { timePeriod: selectedTimeframe });
+      const metricConfig = getMetricConfig(metricId);
+      setTrendData({
+        ...metricConfig,
+        trendData: historicalData
+      });
+    } catch (error) {
+      console.error('Error loading trend data:', error);
+      setTrendData(getMetricConfig(metricId));
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedMetric(null);
+    setTrendData(null);
   };
 
   // Mock orders data
@@ -140,18 +249,28 @@ function Dashboard() {
         </div>
         <div className="metrics-grid">
           {dashboardMetrics.map((metric) => (
-            <div key={metric.id} className="metric-card">
-              <div className="metric-header">
-                <span className="metric-label">{metric.label}</span>
-                <span className={`trend-${metric.trendType}`}>{metric.trend}</span>
-              </div>
-              <div className="metric-value">{metric.value}</div>
-              <div className="metric-subtitle">{metric.subtitle}</div>
-              <div className="mini-chart">{metric.icon}</div>
-            </div>
+            <KPICard
+              key={metric.id}
+              label={metric.label}
+              value={metric.value}
+              subtitle={metric.subtitle}
+              trendType={metric.trendType}
+              icon={metric.icon}
+              loading={false}
+              onClick={handleKPIClick}
+              metricId={metric.metricId}
+              formatType={metric.formatType}
+            />
           ))}
         </div>
       </section>
+
+      {/* KPI Trend Modal */}
+      <KPITrendModal
+        isOpen={selectedMetric !== null}
+        onClose={closeModal}
+        metric={trendData}
+      />
 
       {/* Operational Feed */}
       <section className="dashboard-section feed-section">
@@ -190,10 +309,6 @@ function Dashboard() {
                   <div className="order-detail-row">
                     <span className="order-label">Price:</span>
                     <span className="order-value">{order.price}</span>
-                  </div>
-                  <div className="order-detail-row">
-                    <span className="order-label">Revenue:</span>
-                    <span className="order-value order-revenue">{order.revenue}</span>
                   </div>
                   <div className="order-detail-row">
                     <span className="order-label">Confirmation:</span>

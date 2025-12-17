@@ -72,10 +72,10 @@ export const getProgramMetrics = () => {
     
     // Channel Distribution
     channelDistribution: [
-      { name: 'DPGO', value: 35, count: 3120 },
-      { name: 'Global App', value: 28, count: 2498 },
-      { name: 'Chat', value: 22, count: 1962 },
-      { name: 'WL UI', value: 15, count: 1338 }
+      { name: 'WhatsApp', value: 35, count: 3120 },
+      { name: 'Live Chat', value: 28, count: 2498 },
+      { name: 'Email', value: 22, count: 1962 },
+      { name: 'Phone', value: 15, count: 1338 }
     ],
     
     // Orders by Category
@@ -128,6 +128,14 @@ export const getEngagementMetrics = () => {
     
     mac: 5230, // Monthly Active with Orders
     macTrend: 18.2,
+
+    // AI interactions (e.g., Digital Concierge). Not all requests result in an order.
+    totalRequests: 186450,
+    totalRequestsTrend: 14.0,
+
+    // Unique users who made at least one request in the selected period
+    usersWithRequests: 6240,
+    usersWithRequestsTrend: 9.1,
     
     engagementDepth: 3.2,
     engagementDepthTrend: 0.5,
@@ -222,10 +230,10 @@ export const getPerformanceMetrics = () => {
     
     // SLA Performance by Channel
     slaPerformance: [
-      { channel: 'DPGO', volume: 1200, sla: 92, responseTime: 2.1, fcr: 88, csat: 4.6, status: 'good' },
-      { channel: 'Global App', volume: 890, sla: 98, responseTime: 1.8, fcr: 92, csat: 4.7, status: 'excellent' },
-      { channel: 'Chat', volume: 650, sla: 88, responseTime: 15, fcr: 82, csat: 4.4, status: 'fair' },
-      { channel: 'WL UI', volume: 340, sla: 85, responseTime: 8.2, fcr: 78, csat: 4.3, status: 'fair' }
+      { channel: 'WhatsApp', volume: 1200, sla: 92, responseTime: 2.1, fcr: 88, csat: 4.6, status: 'good' },
+      { channel: 'Live Chat', volume: 890, sla: 98, responseTime: 1.8, fcr: 92, csat: 4.7, status: 'excellent' },
+      { channel: 'Email', volume: 650, sla: 88, responseTime: 15, fcr: 82, csat: 4.4, status: 'fair' },
+      { channel: 'Phone', volume: 340, sla: 85, responseTime: 8.2, fcr: 78, csat: 4.3, status: 'fair' }
     ],
     
     // Supplier Performance
@@ -251,21 +259,16 @@ export const getFinancialMetrics = () => {
     transactionRevenueTrend: 22.5,
     
     revenueMix: {
-      membership: 45,
-      transaction: 55
+      subscription: 68,
+      transaction: 32
     },
     
     gmv: 2400000, // £2.4M
     gmvTrend: 22.1,
     
-    costPerMember: 45.20,
-    costPerMemberTrend: -5.2,
-    
-    programROI: 3.2, // 3.2x
-    programROITrend: 0.4,
-    
-    roiPercentage: 285,
-    roiPercentageTrend: 15,
+    // Conversion rate aligned with dashboard view
+    conversionRate: 4.8,
+    conversionRateTrend: 0.6,
     
     // Revenue Breakdown Over Time
     revenueBreakdown: monthlyDates.map((month, index) => ({

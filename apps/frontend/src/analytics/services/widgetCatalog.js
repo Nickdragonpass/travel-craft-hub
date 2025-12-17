@@ -9,7 +9,7 @@ export const widgetTypes = {
 
 export const widgetCategories = {
   OVERVIEW: 'Program Overview',
-  ENGAGEMENT: 'Member Engagement',
+  ENGAGEMENT: 'User Engagement',
   PERFORMANCE: 'Program Performance',
   FINANCIAL: 'Financial Impact'
 };
@@ -18,7 +18,7 @@ export const widgetCatalog = [
   // Program Overview Widgets
   {
     id: 'kpi-eligible-members',
-    name: 'Eligible Members',
+    name: 'Eligible Users',
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.KPI,
     icon: '👥',
@@ -26,11 +26,11 @@ export const widgetCatalog = [
   },
   {
     id: 'kpi-active-members',
-    name: 'Active Members',
+    name: 'Active Users',
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.KPI,
     icon: '📊',
-    description: 'Number of members who engaged with the program at least once.'
+    description: 'Number of users who engaged with the program at least once.'
   },
   {
     id: 'kpi-engagement-rate',
@@ -38,7 +38,7 @@ export const widgetCatalog = [
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.KPI,
     icon: '📈',
-    description: 'Percentage of eligible members actively engaging with the program.'
+    description: 'Percentage of eligible users actively engaging with the program.'
   },
   {
     id: 'kpi-gmv',
@@ -58,11 +58,11 @@ export const widgetCatalog = [
   },
   {
     id: 'kpi-cost-per-member',
-    name: 'Cost per Member',
+    name: 'Cost per User',
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.KPI,
     icon: '💵',
-    description: 'Average operational cost per active member.'
+    description: 'Average operational cost per active user.'
   },
   {
     id: 'kpi-entitlement-utilization',
@@ -70,7 +70,7 @@ export const widgetCatalog = [
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.KPI,
     icon: '🎫',
-    description: 'Percentage of allocated benefits used by members.'
+    description: 'Percentage of allocated benefits used by users.'
   },
   {
     id: 'kpi-customer-satisfaction',
@@ -78,15 +78,15 @@ export const widgetCatalog = [
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.KPI,
     icon: '⭐',
-    description: 'Customer Satisfaction Score (CSAT) based on member feedback.'
+    description: 'Customer Satisfaction Score (CSAT) based on user feedback.'
   },
   {
     id: 'chart-member-growth',
-    name: 'Member Growth Trends',
+    name: 'User Growth Trends',
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.CHART,
     icon: '📈',
-    description: 'Member growth trends over time showing eligible, active, and new members.'
+    description: 'User growth trends over time showing eligible, active, and new users.'
   },
   {
     id: 'chart-order-breakdown',
@@ -102,7 +102,7 @@ export const widgetCatalog = [
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.CHART,
     icon: '📱',
-    description: 'How members access the program by channel.'
+    description: 'How users access the program by channel.'
   },
   {
     id: 'chart-orders-by-category',
@@ -118,17 +118,17 @@ export const widgetCatalog = [
     category: widgetCategories.OVERVIEW,
     type: widgetTypes.TABLE,
     icon: '📊',
-    description: 'Monthly summary of members, orders, and value metrics.'
+    description: 'Monthly summary of users, orders, and value metrics.'
   },
   
-  // Member Engagement Widgets
+  // User Engagement Widgets
   {
     id: 'kpi-mau',
     name: 'MAU',
     category: widgetCategories.ENGAGEMENT,
     type: widgetTypes.KPI,
     icon: '📊',
-    description: 'Monthly Active Users - Unique members who engaged in the past 30 days.'
+    description: 'Monthly Active Users - Unique users who engaged in the past 30 days.'
   },
   {
     id: 'kpi-dau',
@@ -136,7 +136,7 @@ export const widgetCatalog = [
     category: widgetCategories.ENGAGEMENT,
     type: widgetTypes.KPI,
     icon: '📅',
-    description: 'Daily Active Users - Unique members who engaged in the past 24 hours.'
+    description: 'Daily Active Users - Unique users who engaged in the past 24 hours.'
   },
   {
     id: 'kpi-mac',
@@ -144,7 +144,7 @@ export const widgetCatalog = [
     category: widgetCategories.ENGAGEMENT,
     type: widgetTypes.KPI,
     icon: '🛒',
-    description: 'Monthly Active with Orders - Members who completed at least one booking.'
+    description: 'Monthly Active with Orders - Users who completed at least one booking.'
   },
   {
     id: 'kpi-repeat-users',
@@ -152,11 +152,11 @@ export const widgetCatalog = [
     category: widgetCategories.ENGAGEMENT,
     type: widgetTypes.KPI,
     icon: '🔄',
-    description: 'Members who have completed multiple transactions or bookings.'
+    description: 'Users who have completed multiple transactions or bookings.'
   },
   {
     id: 'chart-engagement-funnel',
-    name: 'Member Engagement Funnel',
+    name: 'User Engagement Funnel',
     category: widgetCategories.ENGAGEMENT,
     type: widgetTypes.CHART,
     icon: '🔽',
@@ -180,21 +180,21 @@ export const widgetCatalog = [
   },
   {
     id: 'table-member-segmentation',
-    name: 'Member Segmentation',
+    name: 'User Segmentation',
     category: widgetCategories.ENGAGEMENT,
     type: widgetTypes.TABLE,
     icon: '👥',
-    description: 'Member segments with orders and value metrics.'
+    description: 'User segments with orders and value metrics.'
   },
   
   // Program Performance Widgets
   {
     id: 'kpi-booking-confirmation',
-    name: 'Booking Confirmation',
+    name: 'Order Confirmation',
     category: widgetCategories.PERFORMANCE,
     type: widgetTypes.KPI,
     icon: '✓',
-    description: 'Percentage of booking attempts that are successfully confirmed.'
+    description: 'Percentage of order attempts that are successfully confirmed.'
   },
   {
     id: 'kpi-automation-rate',
@@ -210,7 +210,7 @@ export const widgetCatalog = [
     category: widgetCategories.PERFORMANCE,
     type: widgetTypes.KPI,
     icon: '⭐',
-    description: 'Customer Satisfaction Score - Measures member satisfaction on a 1-5 scale.'
+    description: 'Customer Satisfaction Score - Measures user satisfaction on a 1-5 scale.'
   },
   {
     id: 'kpi-nps',
@@ -218,7 +218,7 @@ export const widgetCatalog = [
     category: widgetCategories.PERFORMANCE,
     type: widgetTypes.KPI,
     icon: '👍',
-    description: 'Net Promoter Score - Measures member loyalty and likelihood to recommend.'
+    description: 'Net Promoter Score - Measures user loyalty and likelihood to recommend.'
   },
   {
     id: 'kpi-fcr',
@@ -234,7 +234,7 @@ export const widgetCatalog = [
     category: widgetCategories.PERFORMANCE,
     type: widgetTypes.KPI,
     icon: '⏱️',
-    description: 'Average time to respond to member inquiries or support requests.'
+    description: 'Average time to respond to user inquiries or support requests.'
   },
   {
     id: 'chart-quality-trends',
@@ -268,7 +268,7 @@ export const widgetCatalog = [
     category: widgetCategories.FINANCIAL,
     type: widgetTypes.KPI,
     icon: '💰',
-    description: 'Revenue from member-paid bookings and transactions.'
+    description: 'Revenue from user-paid bookings and transactions.'
   },
   {
     id: 'kpi-program-roi',
@@ -292,7 +292,7 @@ export const widgetCatalog = [
     category: widgetCategories.FINANCIAL,
     type: widgetTypes.CHART,
     icon: '📈',
-    description: 'Member-paid bookings over time.'
+    description: 'User-paid bookings over time.'
   },
   {
     id: 'chart-budget-vs-actual',

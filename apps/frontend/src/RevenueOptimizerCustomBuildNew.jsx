@@ -851,7 +851,7 @@ function RevenueOptimizerCustomBuildNew({
       <div className="form-group">
         <label>Select Persona Groups</label>
         <div className="checkbox-grid">
-          {['Business Travelers', 'Leisure Travelers', 'VIP Members', 'New Customers', 'Returning Customers', 'High Spenders'].map(persona => (
+          {['Business Travelers', 'Leisure Travelers', 'VIP Users', 'New Customers', 'Returning Customers', 'High Spenders'].map(persona => (
             <label key={persona} className="checkbox-label">
               <input
                 type="checkbox"
@@ -870,7 +870,7 @@ function RevenueOptimizerCustomBuildNew({
           <div className="exclusion-section">
             <h5>Personas</h5>
             <div className="checkbox-grid">
-              {['Premium Members', 'Corporate Accounts', 'Group Bookings'].map(persona => (
+              {['Premium Users', 'Corporate Accounts', 'Group Bookings'].map(persona => (
                 <label key={persona} className="checkbox-label">
                   <input
                     type="checkbox"

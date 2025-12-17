@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import KPICard from './components/KPICard';
 import MetricChart from './components/MetricChart';
+import KPITrendModal from './components/KPITrendModal';
 import analyticsService from './services/analyticsService';
+import { getMetricDefinition } from './services/metricDefinitions';
 import './ProgramPerformance.css';
 
 const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981'];
@@ -10,6 +12,9 @@ const COLORS = ['#1a2233', '#e94f3d', '#4f46e5', '#10b981'];
 function ProgramPerformance({ filters }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [trendData, setTrendData] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -43,6 +48,89 @@ function ProgramPerformance({ filters }) {
     );
   }
 
+  const handleKPIClick = async (metricId) => {
+    if (!data) return;
+    
+    setModalLoading(true);
+    setSelectedMetric(metricId);
+    
+    try {
+      const historicalData = await analyticsService.getMetricTrendData(metricId, 'performance', filters);
+      
+      // Find the metric details
+      const metricConfig = getMetricConfig(metricId);
+      setTrendData({
+        ...metricConfig,
+        trendData: historicalData
+      });
+    } catch (error) {
+      console.error('Error loading trend data:', error);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const getMetricConfig = (metricId) => {
+    if (!data) return {};
+    
+    const configs = {
+      'bookingConfirmationRate': {
+        label: 'Order Confirmation',
+        value: `${data.bookingConfirmationRate}%`,
+        subtitle: 'Percentage of orders attempts that are successfully confirmed.',
+        icon: '✓',
+        trendType: 'positive',
+        formatType: 'percentage'
+      },
+      'automationRate': {
+        label: 'Automation Rate',
+        value: `${data.automationRate}%`,
+        subtitle: getMetricDefinition('Automation Rate'),
+        icon: '🤖',
+        trendType: 'positive',
+        formatType: 'percentage'
+      },
+      'csat': {
+        label: 'CSAT',
+        value: `${data.csat}/5`,
+        subtitle: getMetricDefinition('CSAT'),
+        icon: '⭐',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'nps': {
+        label: 'NPS',
+        value: data.nps.toString(),
+        subtitle: getMetricDefinition('NPS'),
+        icon: '👍',
+        trendType: 'positive',
+        formatType: 'number'
+      },
+      'fcr': {
+        label: 'FCR',
+        value: `${data.fcr}%`,
+        subtitle: getMetricDefinition('FCR'),
+        icon: '🎯',
+        trendType: 'positive',
+        formatType: 'percentage'
+      },
+      'responseTime': {
+        label: 'Response Time',
+        value: `${data.responseTime}min`,
+        subtitle: getMetricDefinition('Response Time'),
+        icon: '⏱️',
+        trendType: data.responseTimeTrend > 0 ? 'negative' : 'positive',
+        formatType: 'number'
+      }
+    };
+    return configs[metricId] || {};
+  };
+
+  const closeModal = () => {
+    setSelectedMetric(null);
+    setTrendData(null);
+  };
+
   const getStatusIndicator = (status) => {
     if (status === 'excellent') return '✅';
     if (status === 'good') return '✅';
@@ -55,58 +143,70 @@ function ProgramPerformance({ filters }) {
       {/* Quality Scorecards */}
       <div className="metrics-grid">
         <KPICard
-          label="Booking Confirmation"
+          label="Order Confirmation"
           value={`${data.bookingConfirmationRate}%`}
-          subtitle="Successfully confirmed bookings"
-          trend={data.bookingConfirmationTrend}
+          subtitle="Successfully confirmed orders"
           trendType="positive"
           icon="✓"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="bookingConfirmationRate"
+          formatType="percentage"
         />
         <KPICard
           label="Automation Rate"
           value={`${data.automationRate}%`}
           subtitle="Digital vs human-assisted"
-          trend={data.automationRateTrend}
           trendType="positive"
           icon="🤖"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="automationRate"
+          formatType="percentage"
         />
         <KPICard
           label="CSAT"
           value={`${data.csat}/5`}
           subtitle="Customer Satisfaction Score"
-          trend={data.csatTrend}
           trendType="positive"
           icon="⭐"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="csat"
+          formatType="number"
         />
         <KPICard
           label="NPS"
           value={data.nps}
           subtitle="Net Promoter Score"
-          trend={data.npsTrend}
           trendType="positive"
           icon="👍"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="nps"
+          formatType="number"
         />
         <KPICard
           label="FCR"
           value={`${data.fcr}%`}
           subtitle="First Contact Resolution"
-          trend={data.fcrTrend}
           trendType="positive"
           icon="🎯"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="fcr"
+          formatType="percentage"
         />
         <KPICard
           label="Response Time"
           value={`${data.responseTime}min`}
           subtitle="Average response time"
-          trend={data.responseTimeTrend}
           trendType={data.responseTimeTrend > 0 ? 'negative' : 'positive'}
           icon="⏱️"
           loading={loading}
+          onClick={handleKPIClick}
+          metricId="responseTime"
+          formatType="number"
         />
       </div>
 
@@ -248,6 +348,13 @@ function ProgramPerformance({ filters }) {
           </table>
         </div>
       </div>
+
+      {/* KPI Trend Modal */}
+      <KPITrendModal
+        isOpen={selectedMetric !== null}
+        onClose={closeModal}
+        metric={trendData}
+      />
     </div>
   );
 }

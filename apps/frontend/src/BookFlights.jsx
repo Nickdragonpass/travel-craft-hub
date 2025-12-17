@@ -116,7 +116,7 @@ function BookFlights() {
       <div className="page-header">
         <div className="header-content">
           <h1 className="page-title">Book Flights</h1>
-          <p className="page-subtitle">Search and book flights with exclusive DragonPass member benefits</p>
+          <p className="page-subtitle">Search and book flights with exclusive DragonPass benefits</p>
           
           {/* User Reward Program Status */}
           <div className="reward-program-status">
@@ -125,7 +125,7 @@ function BookFlights() {
                 <span className="program-icon">👑</span>
                 <div className="program-info">
                   <span className="program-name">{userRewardProgram.name}</span>
-                  <span className="program-tier">{userRewardProgram.tier} Member</span>
+                  <span className="program-tier">{userRewardProgram.tier} Tier</span>
                 </div>
               </div>
               <div className="points-balance">
