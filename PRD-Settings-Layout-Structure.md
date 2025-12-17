@@ -28,7 +28,7 @@ The Settings page provides a centralized location for managing system configurat
 #### Team Tab
 - **Tab Label**: "Team"
 - **Tab Icon**: 🛡️
-- **Purpose**: Access team member management and permission controls
+- **Purpose**: Access team user management and permission controls
 - **Default State**: One of the available tabs (default tab selection may vary)
 
 #### General Tab
@@ -73,7 +73,7 @@ Each tab content includes a header section with:
 1. **Team Tab**
    - Tab Label: "Team"
    - Tab Icon: 🛡️
-   - Purpose: Team member management and permissions
+   - Purpose: Team user management and permissions
 
 2. **General Tab**
    - Tab Label: "General"

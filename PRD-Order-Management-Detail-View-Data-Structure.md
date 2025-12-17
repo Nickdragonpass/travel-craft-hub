@@ -13,7 +13,7 @@ Fields displayed for all order types:
 | Customer Information | Name | Full name of the customer who made the order | |
 | Customer Information | Email | Email address of the customer | |
 | Customer Information | Phone | Phone number of the customer | |
-| Customer Information | Reward Program | Customer's loyalty tier/reward program membership level (e.g., Platinum Member, Gold Member, Silver Member) | |
+| Customer Information | Reward Program | Customer's loyalty tier/reward program level (e.g., Platinum User, Gold User, Silver User) | |
 | Customer Information | Reward Program Number | Customer's loyalty program membership number | |
 
 ### Payment Information Section
@@ -81,9 +81,9 @@ Fields displayed for all order types (with order-type-specific base price field 
 | Flight | Inbound Destination Airport Code | IATA code of destination airport for return flight. | |
 | Flight | Inbound Destination Airport Name | Full name of destination airport for return flight. | |
 | Flight | Flight Type | Type of flight order. Values: "Round Trip" or "One Way". | |
-| Flight | Passengers | List of passengers on the order. Each passenger shows name and type (e.g., "Adult", "Child"). | |
-| Flight | Passenger Name | Full name of passenger (with title, e.g., "Ms. Sarah Johnson"). | |
-| Flight | Passenger Type | Type of passenger. Values: "Adult", "Child", "Infant". | |
+| Flight | Add-on Benefits | Optional list of additional benefits added to the order (e.g., complimentary breakfast, room upgrade). Displayed as a list of benefit items. | |
+| Flight | Add-on Benefit Name | Benefit name (e.g., "Room upgrade"). | |
+| Flight | Add-on Benefit Description | Optional benefit description (e.g., "Upgrade to Executive Suite"). | |
 
 ---
 
@@ -118,9 +118,9 @@ Fields displayed for all order types (with order-type-specific base price field 
 | Hotel | Hotel Name | Name of the hotel property. | |
 | Hotel | Hotel Address | Full address of the hotel property. | |
 | Hotel | Breakfast Included | Whether breakfast is included. Values: "Breakfast Included" or "No Breakfast". | |
-| Hotel | Guests | List of guests staying at the hotel. Each guest shows name and type. | |
-| Hotel | Guest Name | Full name of guest (with title). | |
-| Hotel | Guest Type | Type of guest. Values: "Primary Guest", "Additional Guest". | |
+| Hotel | Add-on Benefits | Optional list of additional benefits added to the order (e.g., complimentary breakfast, room upgrade). Displayed as a list of benefit items. | |
+| Hotel | Add-on Benefit Name | Benefit name (e.g., "Complimentary breakfast"). | |
+| Hotel | Add-on Benefit Description | Optional benefit description (e.g., "Daily breakfast for two"). | |
 
 ---
 
@@ -158,9 +158,9 @@ Fields displayed for all order types (with order-type-specific base price field 
 | Event Ticket | Event End Time | Time when the event ends. Format: HH:MM (24-hour, e.g., "23:00"). | |
 | Event Ticket | Event Date | Date of the event (used for display). Format: YYYY-MM-DD. | |
 | Event Ticket | Tickets | Number of tickets purchased. | |
-| Event Ticket | Attendees | List of attendees for the event. Each attendee shows name and type. | |
-| Event Ticket | Attendee Name | Full name of attendee (with title). | |
-| Event Ticket | Attendee Type | Type of attendee. Values: "Primary Attendee", "Additional Attendee". | |
+| Event Ticket | Add-on Benefits | Optional list of additional benefits added to the order. Displayed as a list of benefit items. | |
+| Event Ticket | Add-on Benefit Name | Benefit name. | |
+| Event Ticket | Add-on Benefit Description | Optional benefit description. | |
 
 ---
 

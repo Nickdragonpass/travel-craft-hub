@@ -3,6 +3,9 @@
 ## Overview
 The Client Information section is part of the General Settings tab and allows users to view and edit their organization's account details. The section provides a form interface for managing client profile information, including organization name, contact details, and account manager information.
 
+## MVP Scope
+This PRD applies to **Settings → General → Client Information** (MVP).
+
 ## Objectives
 - Display current client account information
 - Enable editing of editable client information fields

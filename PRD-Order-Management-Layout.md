@@ -251,13 +251,13 @@ Each section has:
 #### Flight
 - **Itinerary**: Outbound and inbound flight segments
 - **Flight Details**: Flight numbers, times, airports
-- **Passenger Information**: Passenger names and types
+- **Add-on Benefits**: Optional list of additional benefits added to the order (e.g., complimentary breakfast, room upgrade)
 - **Order Information**: Airline, cabin class, fare class, bags, seats
 
 #### Hotel
 - **Itinerary**: Check-in/check-out dates and times
 - **Hotel Details**: Hotel name, address, room type
-- **Guest Information**: Guest names
+- **Add-on Benefits**: Optional list of additional benefits added to the order (e.g., complimentary breakfast, room upgrade)
 - **Order Information**: Chain name, property type, star rating, cancellation policy
 
 #### Event Ticket

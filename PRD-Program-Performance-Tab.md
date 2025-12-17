@@ -4,7 +4,7 @@
 The Program Performance tab focuses on operational quality metrics, service level agreements (SLA), and customer satisfaction indicators. This tab helps program managers monitor service delivery quality across all channels.
 
 ## Objectives
-- Track booking confirmation and automation rates
+- Track order confirmation and automation rates
 - Monitor customer satisfaction scores (CSAT, NPS)
 - Measure service quality metrics (FCR, response time)
 - Analyze channel performance and SLA compliance
@@ -12,8 +12,9 @@ The Program Performance tab focuses on operational quality metrics, service leve
 ## Key Performance Indicators (KPIs)
 
 ### Quality Scorecard KPI Cards
-1. **Booking Confirmation**
-   - Definition: Percentage of booking attempts that are successfully confirmed
+1. **Order Confirmation**
+   - Tile subtitle: Successfully confirmed orders
+   - Modal subtitle / definition: Percentage of orders attempts that are successfully confirmed.
    - Display: Percentage with trend indicator
    - Trend Type: Positive (higher is better)
 
@@ -23,12 +24,12 @@ The Program Performance tab focuses on operational quality metrics, service leve
    - Trend Type: Positive (higher is better)
 
 3. **CSAT (Customer Satisfaction)**
-   - Definition: Customer Satisfaction Score - Measures member satisfaction on a 1-5 scale
+   - Definition: Customer Satisfaction Score - Measures user satisfaction on a 1-5 scale
    - Display: Score out of 5 (e.g., "4.5/5") with trend indicator
    - Trend Type: Positive (higher is better)
 
 4. **NPS (Net Promoter Score)**
-   - Definition: Measures member loyalty and likelihood to recommend. Scores range from -100 to +100
+   - Definition: Measures user loyalty and likelihood to recommend. Scores range from -100 to +100
    - Display: Numeric score with trend indicator
    - Trend Type: Positive (higher is better)
 
@@ -38,7 +39,7 @@ The Program Performance tab focuses on operational quality metrics, service leve
    - Trend Type: Positive (higher is better)
 
 6. **Response Time**
-   - Definition: Average time to respond to member inquiries or support requests
+   - Definition: Average time to respond to user inquiries or support requests
    - Display: Time in minutes (e.g., "2.4min") with trend indicator
    - Trend Type: Negative (lower is better, opposite trend indicator)
 
@@ -59,7 +60,7 @@ The Program Performance tab focuses on operational quality metrics, service leve
 #### SLA Performance by Channel
 - **Type**: Horizontal Bar Chart
 - **Data**: SLA compliance percentage by channel
-- **Channels**: DPGO, Global App, Chat, WL UI
+- **Channels (UI Channels)**: WhatsApp, Live Chat, Email, Phone
 - **Display**:
   - Channels on Y-axis
   - SLA percentage on X-axis (0-100%)
@@ -110,12 +111,12 @@ The Program Performance tab focuses on operational quality metrics, service leve
 ## Metric Definitions
 
 ### Tooltips Available
-- **Booking Confirmation**: Percentage of booking attempts that are successfully confirmed
+- **Order Confirmation**: Percentage of orders attempts that are successfully confirmed.
 - **Automation Rate**: Percentage of bookings processed automatically without human intervention
-- **CSAT**: Customer Satisfaction Score - Measures member satisfaction on a 1-5 scale
-- **NPS**: Net Promoter Score - Measures member loyalty and likelihood to recommend. Scores range from -100 to +100
+- **CSAT**: Customer Satisfaction Score - Measures user satisfaction on a 1-5 scale
+- **NPS**: Net Promoter Score - Measures user loyalty and likelihood to recommend. Scores range from -100 to +100
 - **FCR**: First Contact Resolution - Percentage of inquiries resolved on the first interaction
-- **Response Time**: Average time to respond to member inquiries or support requests
+- **Response Time**: Average time to respond to user inquiries or support requests
 
 ## Response Time Trend Logic
 - Negative trend (decrease in time) = Positive indicator
@@ -138,17 +139,17 @@ The Program Performance tab focuses on operational quality metrics, service leve
 
 | Data Field | Definition | Calculation | Data Source |
 |------------|------------|-------------|-------------|
-| bookingConfirmationRate | Percentage of booking attempts that are successfully confirmed | (Confirmed Bookings / Total Booking Attempts) × 100% | |
+| bookingConfirmationRate | Percentage of order attempts that are successfully confirmed | (Confirmed Orders / Total Order Attempts) × 100% | |
 | bookingConfirmationTrend | Change in booking confirmation rate compared to previous period | Current Period Rate - Previous Period Rate (percentage points) | |
 | automationRate | Percentage of bookings processed automatically without human intervention | (Automated Bookings / Total Bookings) × 100% | |
 | automationRateTrend | Change in automation rate compared to previous period | Current Period Rate - Previous Period Rate (percentage points) | |
-| csat | Customer Satisfaction Score - Measures member satisfaction on a 1-5 scale | Average of all CSAT survey responses on a 1-5 scale | |
+| csat | Customer Satisfaction Score - Measures user satisfaction on a 1-5 scale | Average of all CSAT survey responses on a 1-5 scale | |
 | csatTrend | Change in CSAT score compared to previous period | Current Period Score - Previous Period Score | |
-| nps | Net Promoter Score - Measures member loyalty and likelihood to recommend | Calculated from NPS survey: % Promoters - % Detractors, scores range from -100 to +100 | |
+| nps | Net Promoter Score - Measures user loyalty and likelihood to recommend | Calculated from NPS survey: % Promoters - % Detractors, scores range from -100 to +100 | |
 | npsTrend | Change in NPS compared to previous period | Current Period Score - Previous Period Score | |
 | fcr | First Contact Resolution - Percentage of inquiries resolved on the first interaction | (Resolved on First Contact / Total Inquiries) × 100% | |
 | fcrTrend | Change in FCR compared to previous period | Current Period Rate - Previous Period Rate (percentage points) | |
-| responseTime | Average time to respond to member inquiries or support requests | Average of all response times in minutes | |
+| responseTime | Average time to respond to user inquiries or support requests | Average of all response times in minutes | |
 | responseTimeTrend | Change in response time compared to previous period | Current Period Time - Previous Period Time (in minutes). Negative values indicate improvement | |
 | qualityTrends | Array of quality metrics trend data objects | Collection of monthly quality metrics for trend visualization | |
 | qualityTrends[].month | Calendar month identifier (YYYY-MM format or month name) | Month extraction from quality metric timestamps | |
@@ -156,7 +157,7 @@ The Program Performance tab focuses on operational quality metrics, service leve
 | qualityTrends[].nps | NPS score for the month | Calculated NPS score for surveys in the month | |
 | qualityTrends[].fcr | FCR percentage for the month | (Resolved on First Contact in Month / Total Inquiries in Month) × 100% | |
 | slaPerformance | Array of SLA performance data objects by channel | Collection of channel performance metrics | |
-| slaPerformance[].channel | Communication channel name (e.g., DPGO, Global App, Chat, WL UI) | Channel identifier from interaction source | |
+| slaPerformance[].channel | Communication channel name (WhatsApp, Live Chat, Email, Phone) | Channel identifier from interaction source | |
 | slaPerformance[].volume | Number of interactions or requests for the channel | Count of all interactions/requests through this channel | |
 | slaPerformance[].sla | Service level agreement compliance percentage | (Interactions Meeting SLA / Total Interactions) × 100% | |
 | slaPerformance[].responseTime | Average response time in minutes for the channel | Average of all response times for interactions through this channel | |
@@ -168,5 +169,5 @@ The Program Performance tab focuses on operational quality metrics, service leve
 | supplierPerformance[].bookings | Number of bookings with this supplier | Count of bookings processed through this supplier | |
 | supplierPerformance[].successRate | Percentage of successful bookings with this supplier | (Successful Bookings / Total Booking Attempts) × 100% | |
 | supplierPerformance[].avgTime | Average processing time in minutes | Average time from booking request to confirmation | |
-| supplierPerformance[].satisfaction | Customer satisfaction score for this supplier | Average satisfaction rating from member feedback | |
+| supplierPerformance[].satisfaction | Customer satisfaction score for this supplier | Average satisfaction rating from user feedback | |
 

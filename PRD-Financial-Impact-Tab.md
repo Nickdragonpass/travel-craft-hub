@@ -1,12 +1,16 @@
-# PRD: Financial Impact Tab
+# PRD: Financial Tab (Previously: Financial Impact)
 
 ## Overview
-The Financial Impact tab provides comprehensive financial metrics, revenue analysis, cost breakdown, and ROI calculations. This tab helps stakeholders understand the financial health and value generation of the program.
+## MVP Scope
+This PRD applies to **Analytics → Financial** (MVP).
+
+## Overview
+The Financial tab provides financial metrics and revenue analysis. It focuses on user-paid transaction revenue, GMV, revenue mix, conversion, budget performance, and entitlement value utilization.
 
 ## Objectives
-- Track revenue streams (transaction revenue, GMV)
-- Monitor program costs and efficiency
-- Calculate and display ROI metrics
+- Track revenue streams (transaction revenue, GMV, revenue mix)
+- Monitor program costs and budget performance
+- Track conversion
 - Analyze budget performance vs actuals
 - Understand entitlement value utilization
 
@@ -14,27 +18,21 @@ The Financial Impact tab provides comprehensive financial metrics, revenue analy
 
 ### Financial KPI Cards
 1. **Transaction Revenue**
-   - Definition: Revenue from member-paid bookings and transactions, excluding entitlements
+   - Definition: Revenue from user-paid bookings and transactions, excluding entitlements
    - Display: Currency formatted value with trend indicator
    - Trend Type: Positive (higher is better)
 
 2. **GMV (Gross Merchandise Value)**
-   - Definition: Total value of all transactions including member-paid bookings and entitlement redemptions
+   - Definition: Total value of all transactions including user-paid bookings and entitlement redemptions
    - Display: Currency formatted value with trend indicator
    - Trend Type: Positive (higher is better)
 
-3. **Cost per Member**
-   - Definition: Average operational cost per active member
-   - Display: Currency formatted value with trend indicator
-   - Trend Type: Negative (lower is better)
+3. **Revenue Mix**
+   - Definition: Distribution of revenue sources between subscription fees and transaction revenue
+   - Display: Percentage split (e.g., “68% / 32%”) with neutral trend
 
-4. **Program ROI**
-   - Definition: Return on Investment multiplier. Shows value generated per unit of cost invested (e.g., 3.2x = £3.20 returned per £1.00 invested)
-   - Display: Multiplier format (e.g., "3.2x") with trend indicator
-   - Trend Type: Positive (higher is better)
-
-5. **ROI %**
-   - Definition: Return on Investment percentage. Calculated as ((Revenue - Costs) / Costs) × 100%
+4. **Conversion Rate**
+   - Definition: Percentage of total users that resulted in an order. Calculated as (Total Orders / Total Users) × 100%.
    - Display: Percentage with trend indicator
    - Trend Type: Positive (higher is better)
 
@@ -61,15 +59,7 @@ The Financial Impact tab provides comprehensive financial metrics, revenue analy
 - **Features**: Visual variance indication
 
 #### Cost Breakdown
-- **Type**: Pie Chart
-- **Data**: Operational cost distribution by category
-- **Categories**:
-  - Platform
-  - Service Delivery
-  - Support
-  - Marketing
-- **Display**: Percentage distribution with labels
-- **Purpose**: Understand cost allocation
+- Not included in MVP (removed from the Financial UI).
 
 ### Two-Column Entitlement Analysis
 
@@ -97,15 +87,13 @@ The Financial Impact tab provides comprehensive financial metrics, revenue analy
 - **Purpose**: Month-over-month financial overview
 - **Columns**:
   1. **Month** - Calendar month
-  2. **Transaction Revenue** - Member-paid revenue
+  2. **Transaction Revenue** - User-paid revenue
   3. **GMV** - Gross Merchandise Value
   4. **Cost** - Operational costs
-  5. **ROI** - Return on Investment multiplier
-  6. **vs Budget** - Variance from budget with trend indicator
+  5. **vs Budget** - Variance from budget with trend indicator
 - **Display**: Last 6 months in reverse chronological order
 - **Features**:
   - All currency values formatted
-  - ROI shown as multiplier (e.g., "3.2x")
   - Budget variance with +/- indicators
   - Color-coded trends
 
@@ -121,27 +109,15 @@ The Financial Impact tab provides comprehensive financial metrics, revenue analy
 ## Metric Definitions
 
 ### Tooltips Available
-- **Transaction Revenue**: Revenue from member-paid bookings and transactions, excluding entitlements
-- **GMV**: Gross Merchandise Value - Total value of all transactions including member-paid bookings and entitlement redemptions
-- **Cost per Member**: Average operational cost per active member. Lower values indicate better cost efficiency
-- **Program ROI**: Return on Investment multiplier. Shows value generated per unit of cost invested (e.g., 3.2x = £3.20 returned per £1.00 invested)
-- **ROI %**: Return on Investment percentage. Calculated as ((Revenue - Costs) / Costs) × 100%
-- **Revenue Mix**: Distribution of revenue sources between subscription fees and transaction commissions
+- **Transaction Revenue**: Revenue from user-paid bookings and transactions, excluding entitlements
+- **GMV**: Gross Merchandise Value - Total value of all transactions including user-paid bookings and entitlement redemptions
+- **Revenue Mix**: Distribution of revenue sources between subscription fees and transaction revenue
+- **Conversion Rate**: Percentage of total users that resulted in an order. Calculated as (Total Orders / Total Users) × 100%.
 - **Budget vs Actual**: Comparison between forecasted and actual revenue. Positive variance indicates exceeding expectations
-- **Cost Breakdown**: Breakdown of program costs across operational categories
 - **Entitlement Value**: Monetary value of benefits allocated versus value actually utilized
 
-## ROI Calculation
-
-### Program ROI (Multiplier)
-- Formula: Revenue / Costs
-- Example: £3,200,000 revenue / £1,000,000 costs = 3.2x
-- Display: Always shown as multiplier with "x" suffix
-
-### ROI % (Percentage)
-- Formula: ((Revenue - Costs) / Costs) × 100%
-- Example: ((£3,200,000 - £1,000,000) / £1,000,000) × 100% = 220%
-- Display: Percentage with % symbol
+## ROI Metrics
+- Not included in MVP Financial UI.
 
 ## Budget Variance Display
 - Positive variance: Green indicator with ↑ arrow
@@ -164,20 +140,15 @@ The Financial Impact tab provides comprehensive financial metrics, revenue analy
 
 | Data Field | Definition | Calculation | Data Source |
 |------------|------------|-------------|-------------|
-| transactionRevenue | Revenue from member-paid bookings and transactions, excluding entitlements | Sum of all revenue from member-paid bookings and transaction fees | |
+| transactionRevenue | Revenue from user-paid bookings and transactions, excluding entitlements | Sum of all revenue from user-paid bookings and transaction fees | |
 | transactionRevenueTrend | Percentage change in transaction revenue compared to previous period | ((Current Period - Previous Period) / Previous Period) × 100% | |
-| gmv | Gross Merchandise Value - Total value of all transactions | Sum of all transaction values including member-paid bookings and entitlement redemptions | |
+| gmv | Gross Merchandise Value - Total value of all transactions | Sum of all transaction values including user-paid bookings and entitlement redemptions | |
 | gmvTrend | Percentage change in GMV compared to previous period | ((Current Period - Previous Period) / Previous Period) × 100% | |
-| costPerMember | Average operational cost per active member | Total Operational Costs / Active Members | |
-| costPerMemberTrend | Percentage change in cost per member compared to previous period | ((Current Period - Previous Period) / Previous Period) × 100% | |
-| programROI | Return on Investment multiplier | Revenue / Costs | |
-| programROITrend | Change in ROI multiplier compared to previous period | Current Period ROI - Previous Period ROI | |
-| roiPercentage | Return on Investment percentage | ((Revenue - Costs) / Costs) × 100% | |
-| roiPercentageTrend | Percentage point change in ROI percentage compared to previous period | Current Period ROI % - Previous Period ROI % | |
-| subscriptionRevenue | Revenue generated from membership fees and subscription payments | Sum of all subscription and membership fee revenue | |
+| conversionRate | Percentage of total users that resulted in an order | (Total Orders / Total Users) × 100% | |
+| subscriptionRevenue | Revenue generated from subscription fees and subscription payments | Sum of all subscription revenue | |
 | subscriptionRevenueTrend | Percentage change in subscription revenue compared to previous period | ((Current Period - Previous Period) / Previous Period) × 100% | |
-| revenueMix | Distribution of revenue sources | Object containing membership and transaction percentages | |
-| revenueMix.membership | Percentage of revenue from membership fees | (Subscription Revenue / Total Revenue) × 100% | |
+| revenueMix | Distribution of revenue sources | Object containing subscription and transaction percentages | |
+| revenueMix.subscription | Percentage of revenue from subscription fees | (Subscription Revenue / Total Revenue) × 100% | |
 | revenueMix.transaction | Percentage of revenue from transactions | (Transaction Revenue / Total Revenue) × 100% | |
 | revenueBreakdown | Array of monthly revenue breakdown data objects | Collection of monthly revenue by source | |
 | revenueBreakdown[].month | Calendar month identifier | Month extraction from transaction dates | |
@@ -188,17 +159,13 @@ The Financial Impact tab provides comprehensive financial metrics, revenue analy
 | budgetVsActual[].forecast | Forecasted revenue for the month | Budgeted/forecasted revenue amount | |
 | budgetVsActual[].actual | Actual revenue for the month | Actual revenue amount realized | |
 | budgetVsActual[].variance | Variance percentage from budget | ((Actual - Forecast) / Forecast) × 100% | |
-| costBreakdown | Array of cost breakdown data objects by category | Collection of operational costs by category | |
-| costBreakdown[].category | Cost category name (e.g., Platform, Service Delivery, Support, Marketing) | Cost category classification | |
-| costBreakdown[].value | Percentage of total costs for this category | (Category Cost / Total Costs) × 100% | |
-| costBreakdown[].amount | Absolute cost amount for this category | Sum of all costs in this category | |
+| costBreakdown | Not displayed in MVP Financial UI | - | |
 | monthlyFinancial | Array of monthly financial summary data objects | Collection of monthly financial metrics | |
 | monthlyFinancial[].month | Calendar month identifier | Month for financial summary | |
 | monthlyFinancial[].subscriptionRevenue | Subscription revenue for the month | Sum of subscription revenue in the month | |
 | monthlyFinancial[].transactionRevenue | Transaction revenue for the month | Sum of transaction revenue in the month | |
 | monthlyFinancial[].gmv | Gross Merchandise Value for the month | Sum of all transaction values in the month | |
 | monthlyFinancial[].cost | Operational costs for the month | Sum of all operational costs in the month | |
-| monthlyFinancial[].roi | Return on Investment multiplier for the month | Monthly Revenue / Monthly Costs | |
 | monthlyFinancial[].vsBudget | Variance from budget for the month | ((Actual Revenue - Budgeted Revenue) / Budgeted Revenue) × 100% | |
 | entitlementValue | Entitlement value analysis object | Object containing entitlement value metrics | |
 | entitlementValue.allocated | Total monetary value of benefits allocated | Sum of monetary value of all allocated benefits | |
