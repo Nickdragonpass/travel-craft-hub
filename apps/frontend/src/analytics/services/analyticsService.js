@@ -7,6 +7,7 @@ import {
   getEngagementMetrics,
   getPerformanceMetrics,
   getFinancialMetrics,
+  getSupplyMetrics,
   formatCurrency,
   formatPercentage
 } from './mockAnalyticsData';
@@ -65,6 +66,19 @@ class AnalyticsService {
     
     const data = getFinancialMetrics();
     
+    return data;
+  }
+
+  /**
+   * Get supply (operations) metrics
+   * @param {Object} filters - Filter options
+   * @returns {Promise<Object>} Supply metrics data
+   */
+  async getSupplyMetrics(filters = {}) {
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const data = getSupplyMetrics();
+
     return data;
   }
 
@@ -140,6 +154,11 @@ class AnalyticsService {
       // Dashboard
       'totalUsers': { base: 120000, growth: 1200, format: 'number' },
       'userPenetration': { base: 42, growth: 0.2, format: 'percentage' },
+
+      // Supply
+      'supplyTotalOrders': { base: 6800, growth: 80, format: 'number' },
+      'supplyTotalSpend': { base: 2400000, growth: 65000, format: 'currency' },
+      'supplyAvgOrderValue': { base: 340, growth: 2, format: 'currency' }
     };
     
     const config = baseValues[metricId] || { base: 1000, growth: 10, format: 'number' };

@@ -4,6 +4,7 @@ import ProgramOverview from './analytics/ProgramOverview';
 import CustomerEngagement from './analytics/CustomerEngagement';
 import ProgramPerformance from './analytics/ProgramPerformance';
 import FinancialImpact from './analytics/FinancialImpact';
+import Supply from './analytics/Supply';
 import CustomDashboard from './analytics/CustomDashboard';
 import './App.css';
 import './analytics/Analytics.css';
@@ -62,6 +63,13 @@ function Analytics() {
           <span className="tab-text">Financial</span>
         </button>
         <button
+          className={`analytics-tab-btn ${activeTab === 'supply' ? 'active' : ''}`}
+          onClick={() => setActiveTab('supply')}
+        >
+          <span className="tab-icon">🚚</span>
+          <span className="tab-text">Supply</span>
+        </button>
+        <button
           className={`analytics-tab-btn ${activeTab === 'custom' ? 'active' : ''}`}
           onClick={() => setActiveTab('custom')}
         >
@@ -75,6 +83,7 @@ function Analytics() {
         {activeTab === 'engagement' && <CustomerEngagement filters={filters} />}
         {activeTab === 'performance' && <ProgramPerformance filters={filters} />}
         {activeTab === 'financial' && <FinancialImpact filters={filters} />}
+        {activeTab === 'supply' && <Supply filters={filters} />}
         {activeTab === 'custom' && <CustomDashboard filters={filters} />}
       </div>
     </div>

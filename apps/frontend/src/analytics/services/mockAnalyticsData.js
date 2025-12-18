@@ -321,6 +321,194 @@ export const getFinancialMetrics = () => {
   };
 };
 
+// Supply Metrics (Supplier & Destination Analytics)
+export const getSupplyMetrics = () => {
+  const months = generateDateRange(12); // YYYY-MM
+
+  const categoryOptions = [
+    { key: 'all', label: 'All' },
+    { key: 'flights', label: 'Flights' },
+    { key: 'hotels', label: 'Hotels' },
+    { key: 'transfers', label: 'Airport Transfers' },
+    { key: 'localOffers', label: 'Local Offers' }
+  ];
+
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const randInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
+
+  const DESTINATIONS = ['London', 'New York', 'Paris', 'Dubai', 'Singapore', 'Tokyo', 'Amsterdam', 'Rome', 'Barcelona', 'Bangkok'];
+  const ORIGINS = ['LHR', 'JFK', 'CDG', 'DXB', 'SIN', 'AMS', 'FRA'];
+
+  const SUPPLIERS = {
+    flights: ['British Airways', 'Emirates', 'Lufthansa', 'Delta', 'United'],
+    hotels: ['Hilton', 'Marriott', 'IHG', 'Accor', 'Hyatt'],
+    transfers: ['Blacklane', 'Addison Lee', 'Sixt Ride', 'Welcome Pickups'],
+    localOffers: ['GetYourGuide', 'Viator', 'Headout', 'Local Partner Network']
+  };
+
+  const PRICE_RANGES = {
+    flights: [380, 3600],
+    hotels: [140, 2200],
+    transfers: [35, 320],
+    localOffers: [18, 220]
+  };
+
+  const buildOrders = (categoryKey, count) => {
+    const orders = [];
+    for (let i = 0; i < count; i++) {
+      const travelMonth = pick(months);
+      const destination = pick(DESTINATIONS);
+      const origin = categoryKey === 'flights' ? pick(ORIGINS) : '—';
+      const supplier = pick(SUPPLIERS[categoryKey]);
+      const [minP, maxP] = PRICE_RANGES[categoryKey];
+      const gmv = randInt(minP, maxP);
+      const bookingDate = `${travelMonth}-${String(randInt(1, 28)).padStart(2, '0')}`;
+
+      orders.push({
+        orderId: `ORD-2025-${categoryKey.slice(0, 3).toUpperCase()}-${String(1000 + i).padStart(4, '0')}`,
+        category: categoryKey,
+        supplier,
+        origin,
+        destination,
+        travelMonth,
+        bookingDate,
+        gmv,
+        status: Math.random() < 0.92 ? 'Completed' : (Math.random() < 0.6 ? 'Cancelled' : 'Confirmed')
+      });
+    }
+    return orders;
+  };
+
+  const groupSum = (rows, keyField) => {
+    const map = {};
+    rows.forEach((r) => {
+      const k = r[keyField];
+      if (!map[k]) map[k] = { key: k, orders: 0, spend: 0 };
+      map[k].orders += 1;
+      map[k].spend += r.gmv;
+    });
+    return Object.values(map);
+  };
+
+  const buildDataset = (orders) => {
+    const totalOrders = orders.length;
+    const totalSpend = orders.reduce((sum, r) => sum + r.gmv, 0);
+    const avgOrderValue = totalOrders > 0 ? Math.round(totalSpend / totalOrders) : 0;
+
+    const suppliersAgg = groupSum(orders, 'supplier')
+      .sort((a, b) => b.spend - a.spend);
+    const destinationsAgg = groupSum(orders, 'destination')
+      .sort((a, b) => b.spend - a.spend);
+
+    const monthlyAgg = groupSum(orders, 'travelMonth')
+      .map((r) => ({ month: r.key, orders: r.orders, spend: r.spend }))
+      .sort((a, b) => (a.month > b.month ? 1 : -1));
+
+    const topSupplier = suppliersAgg[0]?.key || '—';
+
+    const supplierRankings = suppliersAgg.slice(0, 12).map((row) => ({
+      supplier: row.key,
+      orders: row.orders,
+      spend: row.spend,
+      avgOrderValue: row.orders > 0 ? Math.round(row.spend / row.orders) : 0,
+      spendShare: totalSpend > 0 ? Math.round((row.spend / totalSpend) * 1000) / 10 : 0 // 1dp
+    }));
+
+    const topSuppliers = suppliersAgg.slice(0, 10).map((row) => ({
+      supplier: row.key,
+      spend: row.spend,
+      orders: row.orders
+    }));
+
+    const topDestinations = destinationsAgg.slice(0, 10).map((row) => ({
+      destination: row.key,
+      spend: row.spend,
+      orders: row.orders
+    }));
+
+    const ordersDrilldown = [...orders]
+      .sort((a, b) => (a.bookingDate > b.bookingDate ? -1 : 1))
+      .slice(0, 30);
+
+    // Origin cities aggregation (only for "all" dataset)
+    const originsAgg = groupSum(orders.filter((o) => o.origin && o.origin !== '—'), 'origin')
+      .sort((a, b) => b.orders - a.orders);
+
+    const originCities = originsAgg.slice(0, 10).map((row) => ({
+      origin: row.key,
+      orders: row.orders,
+      spend: row.spend
+    }));
+
+    return {
+      kpis: {
+        totalOrders,
+        totalSpend,
+        avgOrderValue,
+        topSupplier
+      },
+      monthlySpend: monthlyAgg,
+      topSuppliers,
+      topDestinations,
+      supplierRankings,
+      ordersDrilldown,
+      originCities
+    };
+  };
+
+  const flightsOrders = buildOrders('flights', 90);
+  const hotelsOrders = buildOrders('hotels', 70);
+  const transfersOrders = buildOrders('transfers', 60);
+  const localOffersOrders = buildOrders('localOffers', 55);
+
+  const allOrders = [...flightsOrders, ...hotelsOrders, ...transfersOrders, ...localOffersOrders];
+  const allDataset = buildDataset(allOrders);
+
+  // Category Mix (for "all" dataset only)
+  const categoryMix = [
+    {
+      category: 'Flights',
+      orders: flightsOrders.length,
+      spend: flightsOrders.reduce((sum, o) => sum + o.gmv, 0),
+      orderShare: allOrders.length > 0 ? Math.round((flightsOrders.length / allOrders.length) * 1000) / 10 : 0,
+      spendShare: allDataset.kpis.totalSpend > 0 ? Math.round((flightsOrders.reduce((sum, o) => sum + o.gmv, 0) / allDataset.kpis.totalSpend) * 1000) / 10 : 0
+    },
+    {
+      category: 'Hotels',
+      orders: hotelsOrders.length,
+      spend: hotelsOrders.reduce((sum, o) => sum + o.gmv, 0),
+      orderShare: allOrders.length > 0 ? Math.round((hotelsOrders.length / allOrders.length) * 1000) / 10 : 0,
+      spendShare: allDataset.kpis.totalSpend > 0 ? Math.round((hotelsOrders.reduce((sum, o) => sum + o.gmv, 0) / allDataset.kpis.totalSpend) * 1000) / 10 : 0
+    },
+    {
+      category: 'Airport Transfers',
+      orders: transfersOrders.length,
+      spend: transfersOrders.reduce((sum, o) => sum + o.gmv, 0),
+      orderShare: allOrders.length > 0 ? Math.round((transfersOrders.length / allOrders.length) * 1000) / 10 : 0,
+      spendShare: allDataset.kpis.totalSpend > 0 ? Math.round((transfersOrders.reduce((sum, o) => sum + o.gmv, 0) / allDataset.kpis.totalSpend) * 1000) / 10 : 0
+    },
+    {
+      category: 'Local Offers',
+      orders: localOffersOrders.length,
+      spend: localOffersOrders.reduce((sum, o) => sum + o.gmv, 0),
+      orderShare: allOrders.length > 0 ? Math.round((localOffersOrders.length / allOrders.length) * 1000) / 10 : 0,
+      spendShare: allDataset.kpis.totalSpend > 0 ? Math.round((localOffersOrders.reduce((sum, o) => sum + o.gmv, 0) / allDataset.kpis.totalSpend) * 1000) / 10 : 0
+    }
+  ];
+
+  allDataset.categoryMix = categoryMix;
+
+  const datasets = {
+    flights: buildDataset(flightsOrders),
+    hotels: buildDataset(hotelsOrders),
+    transfers: buildDataset(transfersOrders),
+    localOffers: buildDataset(localOffersOrders),
+    all: allDataset
+  };
+
+  return { categoryOptions, datasets };
+};
+
 // Format currency helper
 export const formatCurrency = (value, currency = '£') => {
   if (value >= 1000000) {

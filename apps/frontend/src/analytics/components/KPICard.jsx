@@ -12,22 +12,11 @@ function KPICard({
   icon,
   loading = false,
   description,
-  timePeriod // Current selected time period from filter
+  timePeriod, // Current selected time period from filter
+  onClick, // Click handler for opening trend modal
+  metricId, // Identifier for fetching trend data
+  formatType // Format type for value display (number, currency, percentage)
 }) {
-  const getTrendClass = () => {
-    if (trendType === 'positive') return 'trend-positive';
-    if (trendType === 'negative') return 'trend-negative';
-    return 'trend-neutral';
-  };
-
-  const formatTrend = (trend) => {
-    if (!trend) return null;
-    const isPositive = parseFloat(trend) >= 0;
-    const symbol = isPositive ? '↗' : '↘';
-    const sign = isPositive ? '+' : '';
-    return `${sign}${trend}${typeof trend === 'number' ? '%' : ''} ${symbol}`;
-  };
-
   if (loading) {
     return (
       <div className="kpi-card loading">
@@ -36,19 +25,23 @@ function KPICard({
     );
   }
 
+  const handleClick = () => {
+    if (onClick && metricId) {
+      onClick(metricId);
+    }
+  };
+
   return (
     <MetricTooltip metricName={label} position="top">
-      <div className="metric-card kpi-card">
+      <div 
+        className={`metric-card kpi-card ${onClick ? 'kpi-card-clickable' : ''}`}
+        onClick={handleClick}
+      >
         <div className="metric-header">
           <div className="metric-label-wrapper">
             <span className="metric-label">{label}</span>
             <span className="metric-info-icon">ℹ️</span>
           </div>
-          {trend && (
-            <span className={`${getTrendClass()}`}>
-              {formatTrend(trend)}
-            </span>
-          )}
         </div>
         <div className="metric-value">{value}</div>
         {subtitle && (
@@ -63,6 +56,9 @@ function KPICard({
           </div>
         )}
         {icon && <div className="mini-chart">{icon}</div>}
+        {onClick && (
+          <div className="kpi-card-trend-hint">Click to view trend</div>
+        )}
       </div>
     </MetricTooltip>
   );

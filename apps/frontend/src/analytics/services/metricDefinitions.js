@@ -99,7 +99,11 @@ export const metricDefinitions = {
   
   'Conversion Rate': 'Percentage of total users that resulted in an order. Calculated as (Total Orders / Total Users) × 100%.',
 
-  'Request Rate': 'Percentage of total users that made at least one request. Calculated as (Users with Requests / Total Users) × 100%.'
+  'Request Rate': 'Percentage of total users that made at least one request. Calculated as (Users with Requests / Total Users) × 100%.',
+  // Supply (Supplier & Destination) Metrics
+  'Total Spend': 'Total spend (GMV) across bookings and redemptions in the selected period and category.',
+  'Avg Order Value': 'Average value per order. Calculated as (Total Spend / Total Orders).',
+  'Top Supplier': 'Supplier with the highest total spend (GMV) for the selected period and category.'
 };
 
 // Get definition for a metric

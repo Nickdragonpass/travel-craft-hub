@@ -11,9 +11,33 @@
   flex-direction: column;
 }
 
+.kpi-card-clickable {
+  cursor: pointer;
+}
+
+.kpi-card-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(26,34,51,0.12);
+}
+
 .kpi-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(26,34,51,0.12);
+}
+
+.kpi-card-trend-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 0.75rem;
+  color: var(--brand-text-secondary);
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-weight: 500;
+}
+
+.kpi-card-clickable:hover .kpi-card-trend-hint {
+  opacity: 0.7;
 }
 
 .kpi-card.loading {
